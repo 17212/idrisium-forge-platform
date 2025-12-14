@@ -731,6 +731,10 @@
                                 <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
                                 <span id="adminStatLowSignal">0 low-signal ideas</span>
                             </span>
+                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-gold"></i>
+                                <span id="adminStatWinner">No winner yet</span>
+                            </span>
                         </div>
                         <div class="flex items-center gap-2">
                             <label for="adminFilterSelect"
@@ -788,6 +792,7 @@
             </div>
         </section>
 
+        <!-- How It Works -->
         <section id="howItWorks" class="glass-card rounded-3xl p-8 mb-10 text-left">
             <h2 class="font-heading text-2xl font-bold text-starlight mb-3">How the Forge Works</h2>
             <p class="text-platinum text-sm mb-6 max-w-2xl">
@@ -833,6 +838,7 @@
             </div>
         </section>
 
+        <!-- Event Timeline -->
         <section id="eventTimeline" class="glass-card rounded-3xl p-8 mb-10">
             <h2 class="font-heading text-2xl font-bold text-starlight mb-4 text-left">Event Timeline</h2>
             <div class="flex flex-col gap-5">
@@ -863,7 +869,7 @@
         <!-- Login Prompt -->
         <section id="loginPrompt" class="glass-card rounded-3xl p-10 mb-10 text-center hidden">
             <div
-                class="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-neon/20 to-aurora/20 flex items-center justify-center">
+                class="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-neon/10 to-aurora/10 flex items-center justify-center">
                 <i class="fa-solid fa-user-lock text-neon text-4xl"></i>
             </div>
             <h2 class="font-heading text-3xl font-bold text-starlight mb-3">Join the Forge</h2>
@@ -994,7 +1000,7 @@
                 </p>
             </div>
             <div id="activityFeed" class="space-y-1 max-h-64 overflow-y-auto pr-1">
-                <p class="text-xs text-platinum/60">Waiting for activity...</p>
+                <p class="text-center text-platinum py-8">Waiting for activity...</p>
             </div>
         </section>
 
@@ -1613,13 +1619,16 @@
                                 </span>
                                 <span class="w-1 h-1 rounded-full bg-platinum/50"></span>
                                 <button onclick="signOutUser()" class="hover:text-white transition-colors">Sign Out</button>
+                                <button id="chatHeaderBtn" onclick="openChat()" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-neon/10 text-neon hover:bg-neon/30 transition-colors" title="Founder Chat">
+                                    <i class="fa-solid fa-comments text-sm"></i>
+                                </button>
+                                <button id="inboxHeaderBtn" onclick="openInbox()" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-aurora/10 text-aurora hover:bg-aurora/30 transition-colors" title="Admin Inbox">
+                                    <i class="fa-solid fa-inbox text-sm"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
                 `;
-
-                const authorInput = document.getElementById('authorName');
-                if (authorInput) authorInput.value = user.displayName || '';
             } else {
                 // Signed-out state
                 loginPrompt.classList.remove('hidden');
@@ -1753,6 +1762,13 @@
             if (submitLimitMsg) submitLimitMsg.textContent = `Daily limit: ${dynamicMax} Ideas`;
 
             document.getElementById('headerKarmaValue').textContent = karmaSum;
+
+            // Header quick-access buttons (Chat / Inbox) gated by karma & admin
+            const chatHeaderBtn = document.getElementById('chatHeaderBtn');
+            const inboxHeaderBtn = document.getElementById('inboxHeaderBtn');
+            const canUseChat = karmaSum >= 50 || isAdmin;
+            if (chatHeaderBtn) chatHeaderBtn.classList.toggle('hidden', !canUseChat);
+            if (inboxHeaderBtn) inboxHeaderBtn.classList.toggle('hidden', !isAdmin);
 
             // Founder Chat / Admin Inbox (Floating Action Button) - MOVED HERE FOR AUTO-LOAD
             document.querySelectorAll('#founderChatFab').forEach(el => el.remove());
@@ -2367,7 +2383,8 @@
             const totalEl = document.getElementById('adminStatTotalIdeas');
             const founderEl = document.getElementById('adminStatFounderPicks');
             const lowEl = document.getElementById('adminStatLowSignal');
-            if (!totalEl && !founderEl && !lowEl) return;
+            const winnerEl = document.getElementById('adminStatWinner');
+            if (!totalEl && !founderEl && !lowEl && !winnerEl) return;
 
             const totalDom = document.getElementById('statTotalIdeas');
             const totalText = totalDom ? totalDom.textContent : '';
@@ -2386,6 +2403,19 @@
 
             if (founderEl) founderEl.textContent = `${founderCount} founder picks`;
             if (lowEl) lowEl.textContent = `${lowSignal} low-signal ideas`;
+
+            if (winnerEl) {
+                let winnerText = 'No winner yet';
+                if (globalWinnerId) {
+                    const winIdea = list.find(i => i.id === globalWinnerId);
+                    if (winIdea) {
+                        winnerText = `Winner: ${winIdea.title || 'Untitled idea'}`;
+                    } else {
+                        winnerText = 'Winner selected';
+                    }
+                }
+                winnerEl.textContent = winnerText;
+            }
         }
 
         function renderLeaderboard() {
