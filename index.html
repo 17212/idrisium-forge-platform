@@ -680,11 +680,6 @@
                         class="px-4 py-2 rounded-lg bg-neon/20 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
                         <i class="fa-solid fa-file-export mr-1"></i> Export CSV
                     </button>
-                    <button onclick="openGeminiKeys()"
-                        class="px-4 py-2 rounded-lg bg-white/10 text-starlight text-xs font-semibold hover:bg-white/20 transition-all flex items-center gap-1">
-                        <i class="fa-solid fa-key"></i>
-                        <span>AI Keys</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -762,7 +757,6 @@
                 <span id="submissionStatus" class="text-xs text-platinum"></span>
             </div>
             <form id="ideaForm" onsubmit="submitIdea(event)" class="space-y-5">
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm text-platinum mb-2">Idea Title <span
@@ -786,18 +780,11 @@
                         class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body resize-none"></textarea>
                     <p class="text-xs text-platinum mt-1 text-right"><span id="descCount">0</span>/1000</p>
                 </div>
-                <div class="flex flex-col md:flex-row gap-3">
-                    <button type="submit" id="submitBtn"
-                        class="neon-btn px-8 py-4 rounded-xl font-heading text-lg flex items-center justify-center gap-3 w-full md:w-auto">
-                        <i class="fa-solid fa-bolt"></i>
-                        <span>Submit to the Forge</span>
-                    </button>
-                    <button type="button" onclick="roastIdea()"
-                        class="px-6 py-4 rounded-xl border border-neon/40 text-neon text-sm font-heading flex items-center justify-center gap-2 w-full md:w-auto">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
-                        <span>Roast My Idea</span>
-                    </button>
-                </div>
+                <button type="submit" id="submitBtn"
+                    class="neon-btn px-8 py-4 rounded-xl font-heading text-lg flex items-center justify-center gap-3 w-full md:w-auto">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Submit to the Forge</span>
+                </button>
             </form>
         </section>
 
@@ -837,12 +824,6 @@
                         class="px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
                         title="Clear Search">
                         <i class="fa-solid fa-times"></i>
-                    </button>
-                    <button onclick="surpriseMe()"
-                        class="px-4 py-3 rounded-xl bg-neon/20 text-neon hover:bg-neon/30 transition-all flex items-center gap-2 w-full md:w-auto"
-                        title="Surprise Me">
-                        <i class="fa-solid fa-dice"></i>
-                        <span class="hidden sm:inline">Surprise Me</span>
                     </button>
                 </div>
             </div>
@@ -1677,7 +1658,7 @@
         // function notifyTelegram...
 
         // ═══════════════════════════════════════════════════════════════════
-        // SUBMIT IDEA (FASTAPI BACKEND)
+        // SUBMIT IDEA
         // ═══════════════════════════════════════════════════════════════════
         window.submitIdea = async function (event) {
             event.preventDefault();
@@ -1699,174 +1680,45 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
 
-            const payload = {
-                title,
-                description: desc,
-                author_uid: currentUser.uid,
-                author_name: author
-            };
-
             try {
-                const res = await fetch('https://idrisium-api.vercel.app/submit_idea', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
+                await addDoc(collection(db, 'ideas'), {
+                    title, description: desc, author,
+                    uid: currentUser.uid,
+                    votes: 0,
+                    timestamp: serverTimestamp()
                 });
 
-                let data = null;
-                try {
-                    data = await res.json();
-                } catch (e) {
-                    data = null;
-                }
+                // Confetti!
+                confetti({ particleCount: 150, spread: 100, origin: { y: 0.7 }, colors: ['#39FF14', '#00D9FF', '#14F4C9', '#FFD700'] });
 
-                if (!res.ok) {
-                    let msg = 'Submission failed.';
-                    if (data) {
-                        if (typeof data.detail === 'string') {
-                            msg = data.detail;
-                        } else if (data.detail && typeof data.detail.message === 'string') {
-                            msg = data.detail.message;
-                            if (data.detail.duplicate_id) {
-                                msg += ` (Existing idea ID: ${data.detail.duplicate_id})`;
-                            }
-                        }
-                    }
-                    throw new Error(msg);
-                }
+                // Telegram Removed
+                // notifyTelegram(author, title, desc);
 
-                if (data && data.difficulty) {
-                    const tagsText = Array.isArray(data.tags) && data.tags.length
-                        ? data.tags.join(', ')
-                        : 'No tags';
-                    const diffRaw = data.difficulty_raw || data.difficulty;
-                    const html = `
-                        <p class="mb-2"><strong>AI Difficulty:</strong> ${escapeHtml(String(data.difficulty))} (${escapeHtml(String(diffRaw))})</p>
-                        <p class="mb-2"><strong>Suggested Title:</strong> ${escapeHtml(String(data.title || ''))}</p>
-                        <p class="mb-2"><strong>Your Original Title:</strong> ${escapeHtml(String(data.raw_title || title))}</p>
-                        <p class="mb-2"><strong>Auto Tags:</strong> ${escapeHtml(tagsText)}</p>
-                        ${data.easter_egg ? '<p class="mt-2 text-neon"><i class="fa-solid fa-egg mr-1"></i>Easter Egg Unlocked!</p>' : ''}
-                    `;
-                    Swal.fire({
-                        icon: 'success',
-                        title: '🎉 Idea Forged!',
-                        html,
-                        timer: 6000,
-                        showConfirmButton: true
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Idea Submitted!',
-                        timer: 3000,
-                        showConfirmButton: false
-                    });
-                }
+                // Refresh Stats & Countdown
+                await checkUserSubmission(currentUser.uid);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '🎉 Idea Forged!',
+                    text: 'Your idea has been successfully submitted.',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
 
                 ideaForm.reset();
                 document.getElementById('titleCount').textContent = '0';
                 document.getElementById('descCount').textContent = '0';
 
-                if (currentUser) {
-                    await checkUserSubmission(currentUser.uid);
-                }
-
+                // Update UI based on remaining
                 updateSubmissionUI();
 
             } catch (err) {
                 console.error(err);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Submission Failed',
-                    text: err.message || 'Unknown error.'
-                });
-            } finally {
+                Swal.fire({ icon: 'error', title: 'Submission Failed', text: err.message });
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit to the Forge';
             }
         };
-
-        window.roastIdea = async function () {
-            if (!currentUser) return Swal.fire({ icon: 'warning', title: 'Please Sign In' });
-
-            const title = document.getElementById('ideaTitle').value.trim();
-            const desc = document.getElementById('ideaDescription').value.trim();
-            const text = (title + '\n\n' + desc).trim();
-            if (!text) {
-                return Swal.fire({ icon: 'info', title: 'Nothing to Roast', text: 'Write an idea title or description first.' });
-            }
-
-            try {
-                const res = await fetch('https://idrisium-api.vercel.app/ai/roast', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ idea_text: text }),
-                });
-                const data = await res.json();
-                if (!res.ok) {
-                    throw new Error(data.detail || 'Roast failed.');
-                }
-                const roastText = data.roast || 'No roast generated.';
-                Swal.fire({
-                    icon: 'info',
-                    title: '🔥 Roast My Idea',
-                    html: `<pre class="text-left whitespace-pre-wrap">${escapeHtml(String(roastText))}</pre>`,
-                });
-            } catch (e) {
-                console.error(e);
-                Swal.fire({ icon: 'error', title: 'Roast Failed', text: e.message || 'Unknown error.' });
-            }
-        };
-
-        window.surpriseMe = async function () {
-            try {
-                const res = await fetch('https://idrisium-api.vercel.app/ideas/random');
-                const data = await res.json();
-                if (!res.ok) {
-                    throw new Error(data.detail || 'Failed to load random idea.');
-                }
-                const id = data.id;
-                if (!id) {
-                    throw new Error('No idea id returned.');
-                }
-
-                let idea = topIdeas.find(i => i.id === id) || newIdeas.find(i => i.id === id);
-                if (!idea && db) {
-                    try {
-                        const snap = await getDoc(doc(db, 'ideas', id));
-                        if (snap.exists()) {
-                            idea = { id: snap.id, ...snap.data() };
-                        }
-                    } catch (e) {
-                        console.warn('Firestore fetch for surpriseMe failed:', e);
-                    }
-                }
-
-                if (!idea) {
-                    return Swal.fire({ icon: 'info', title: 'No Idea Found', text: 'Random idea is not available yet.' });
-                }
-
-                renderFilteredIdeas();
-                const el = document.getElementById(`idea-${id}`);
-                if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    el.classList.add('pulse-glow');
-                    setTimeout(() => el.classList.remove('pulse-glow'), 2000);
-                } else {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Surprise Idea',
-                        html: `<h3 class="font-heading text-lg mb-2">${escapeHtml(String(idea.title || 'Untitled'))}</h3><p class="text-sm text-platinum">${escapeHtml(String(idea.description || ''))}</p>`,
-                    });
-                }
-            } catch (e) {
-                console.error(e);
-                Swal.fire({ icon: 'error', title: 'Surprise Failed', text: e.message || 'Unknown error.' });
-            }
-        };
-
 
         // ═══════════════════════════════════════════════════════════════════
         // TAB SWITCHING
