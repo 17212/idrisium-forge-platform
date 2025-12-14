@@ -10,11 +10,40 @@
     <meta name="theme-color" content="#000000">
     <title>IDRISIUM FORGE | The Ultimate Ideas Event</title>
 
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="IDRISIUM FORGE - The Ultimate App Ideas Crowdsourcing Event">
+    <meta property="og:description"
+        content="Submit, vote, and forge the next generation of apps with the IDRISIUM community.">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="IDRISIUM FORGE - The Ultimate App Ideas Crowdsourcing Event">
+    <meta name="twitter:description"
+        content="A limited-time dark-mode ideas arena where the community decides what IDRISIUM builds next.">
+
+    <!-- Structured Data: Event -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      "name": "IDRISIUM FORGE - App Ideas Crowdsourcing Event",
+      "description": "A limited-time online event where the community submits and votes on app ideas to shape the IDRISIUM ecosystem.",
+      "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
+      "eventStatus": "https://schema.org/EventScheduled",
+      "organizer": {
+        "@type": "Organization",
+        "name": "IDRISIUM Corp",
+        "url": "http://idrisium.linkpc.net/"
+      }
+    }
+    </script>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700&display=swap"
         rel="stylesheet">
 
     <!-- Core Scripts -->
@@ -43,8 +72,8 @@
                         gold: '#FFD700'
                     },
                     fontFamily: {
-                        heading: ['Space Grotesk', 'sans-serif'],
-                        body: ['Manrope', 'sans-serif']
+                        heading: ['IDRISIUMfont', 'Inter', 'Cairo', 'sans-serif'],
+                        body: ['IDRISIUMfont', 'Inter', 'Cairo', 'sans-serif']
                     }
                 }
             }
@@ -58,9 +87,15 @@
             box-sizing: border-box;
         }
 
+        @font-face {
+            font-family: 'IDRISIUMfont';
+            src: url('IDRISIUMfont.ttf') format('truetype');
+            font-display: swap;
+        }
+
         body {
             background-color: #000000;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'IDRISIUMfont', 'Inter', 'Cairo', sans-serif;
             min-height: 100vh;
             color: #EDEDED;
             overflow-x: hidden;
@@ -622,68 +657,98 @@
         <div class="aurora-orb aurora-orb-3"></div>
     </div>
 
-    <!-- Header -->
+    <!-- Header + Admin Tools (merged) -->
     <header
         class="fixed top-0 left-0 w-full z-50 bg-black/20 backdrop-blur-md border-b border-white/5 transition-all duration-300"
         id="mainHeader">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div
-                    class="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon to-teal flex items-center justify-center pulse-glow">
-                    <i class="fa-solid fa-hammer text-black text-xl"></i>
+        <div class="max-w-7xl mx-auto px-6 py-3 flex flex-col gap-3">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon to-teal flex items-center justify-center pulse-glow">
+                        <i class="fa-solid fa-hammer text-black text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM FORGE</h1>
+                        <p class="text-xs text-platinum font-body">Limited-Time Ideas Event</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM FORGE</h1>
-                    <p class="text-xs text-platinum font-body">Limited-Time Ideas Event</p>
+                <!-- Admin Controls (Header) -->
+                <div id="adminHeaderControls" class="hidden flex items-center gap-2">
+                    <button onclick="toggleTimer()" id="toggleTimerBtn"
+                        class="px-3 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
+                        <i class="fa-solid fa-clock"></i> <span id="toggleTimerText">Hide Timer</span>
+                    </button>
+                    <button onclick="resetTimer()"
+                        class="px-3 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
+                        <i class="fa-solid fa-rotate"></i> Reset
+                    </button>
+                </div>
+                <div id="authSection" class="flex items-center gap-4">
+                    <!-- Auth UI will be injected here -->
                 </div>
             </div>
-            <!-- Admin Controls (Header) -->
-            <div id="adminHeaderControls" class="hidden flex items-center gap-2">
-                <button onclick="toggleTimer()" id="toggleTimerBtn"
-                    class="px-3 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
-                    <i class="fa-solid fa-clock"></i> <span id="toggleTimerText">Hide Timer</span>
-                </button>
-                <button onclick="resetTimer()"
-                    class="px-3 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
-                    <i class="fa-solid fa-rotate"></i> Reset
-                </button>
-            </div>
-            <div id="authSection" class="flex items-center gap-4">
-                <!-- Auth UI will be injected here -->
+
+            <!-- Inline Admin Panel (visible only for admins) -->
+            <div id="adminPanel" class="hidden">
+                <div class="glass-card rounded-xl p-4 border-gold/30 bg-gold/5">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
+                                <i class="fa-solid fa-crown text-gold"></i>
+                            </div>
+                            <div>
+                                <p class="font-heading font-bold text-gold">God Mode Activated</p>
+                                <p class="text-xs text-platinum">You have full admin privileges</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="pickRandomIdea()"
+                                class="px-4 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
+                                <i class="fa-solid fa-dice mr-1"></i> Pick Random
+                            </button>
+                            <button onclick="clearWinner()"
+                                class="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
+                                <i class="fa-solid fa-trophy mr-1"></i> Clear Winner
+                            </button>
+                            <button onclick="exportIdeasCSV()"
+                                class="px-4 py-2 rounded-lg bg-neon/20 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
+                                <i class="fa-solid fa-file-export mr-1"></i> Export CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-neon"></i>
+                                <span id="adminStatTotalIdeas">0 total ideas</span>
+                            </span>
+                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-star text-gold"></i>
+                                <span id="adminStatFounderPicks">0 founder picks</span>
+                            </span>
+                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
+                                <span id="adminStatLowSignal">0 low-signal ideas</span>
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="adminFilterSelect"
+                                class="text-[11px] text-platinum/80 uppercase tracking-wide">Admin Filter</label>
+                            <select id="adminFilterSelect" onchange="changeAdminFilter()"
+                                class="neon-input px-3 py-2 rounded-lg text-[12px] bg-onyx cursor-pointer">
+                                <option value="all">All ideas</option>
+                                <option value="high-signal">High Signal (10+ votes)</option>
+                                <option value="low-signal">Low Signal (≤ 0 votes)</option>
+                                <option value="founder">Founder Picks</option>
+                                <option value="winners">Winners Only</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
-
-    <!-- Admin Panel (Below Header) -->
-    <div id="adminPanel" class="hidden max-w-6xl mx-auto px-4 py-3">
-        <div class="glass-card rounded-xl p-4 border-gold/30 bg-gold/5">
-            <div class="flex items-center justify-between flex-wrap gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
-                        <i class="fa-solid fa-crown text-gold"></i>
-                    </div>
-                    <div>
-                        <p class="font-heading font-bold text-gold">God Mode Activated</p>
-                        <p class="text-xs text-platinum">You have full admin privileges</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <button onclick="pickRandomIdea()"
-                        class="px-4 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
-                        <i class="fa-solid fa-dice mr-1"></i> Pick Random
-                    </button>
-                    <button onclick="clearWinner()"
-                        class="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
-                        <i class="fa-solid fa-trophy mr-1"></i> Clear Winner
-                    </button>
-                    <button onclick="exportIdeasCSV()"
-                        class="px-4 py-2 rounded-lg bg-neon/20 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
-                        <i class="fa-solid fa-file-export mr-1"></i> Export CSV
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Main -->
     <main class="max-w-4xl mx-auto px-6 pt-32 pb-24 relative z-10">
@@ -914,6 +979,22 @@
                     <p class="text-[11px] text-platinum/70">Based on total votes received across ideas.</p>
                 </div>
                 <div id="topForgersList" class="space-y-1"></div>
+            </div>
+        </section>
+
+        <!-- Live Activity Feed -->
+        <section class="glass-card rounded-3xl p-6 mb-10">
+            <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
+                <h2 class="font-heading text-2xl font-bold text-starlight flex items-center gap-2">
+                    <i class="fa-solid fa-wave-square text-neon"></i>
+                    Live Forge Activity
+                </h2>
+                <p class="text-[11px] text-platinum/70 max-w-sm text-right md:text-left">
+                    See the latest ideas and comments being forged in real time.
+                </p>
+            </div>
+            <div id="activityFeed" class="space-y-1 max-h-64 overflow-y-auto pr-1">
+                <p class="text-xs text-platinum/60">Waiting for activity...</p>
             </div>
         </section>
 
@@ -1309,6 +1390,10 @@
         let globalWinnerId = null; // Stores the randomly picked winner ID
         let currentIdeaId = null; // Currently open idea for details/comments
         let ideaComments = []; // Store comments for current idea
+        let latestComments = []; // Latest comments snapshot for activity feed
+        let activityEvents = []; // Combined activity events (ideas + comments)
+        let commentsUnsubscribe = null;
+        let adminFilter = 'all';
 
         try {
             app = initializeApp(firebaseConfig);
@@ -1471,21 +1556,94 @@
             }
         };
 
-                    </div>
-                </div>
-            </div>
-        `;
+        window.signOutUser = async function () {
+            await signOut(auth);
+            Swal.fire({ icon: 'info', title: 'Signed Out', timer: 1500, showConfirmButton: false });
+        };
 
-        const authorInput = document.getElementById('authorName');
-        if (authorInput) authorInput.value = user.displayName || '';
-    } else {
-        // Signed-out state
-        loginPrompt.classList.remove('hidden');
-        submitSection.classList.add('hidden');
-        adminPanel.classList.add('hidden');
-        adminHeaderControls.classList.add('hidden');
-        adminHeaderControls.classList.remove('flex');
-        isAdmin = false;
+        onAuthStateChanged(auth, user => {
+            currentUser = user;
+            updateAuthUI(user);
+            if (user) {
+                checkUserSubmission(user.uid);
+            } else {
+                const el = document.getElementById('headerKarmaValue');
+                if (el) el.textContent = '0';
+            }
+        });
+
+        function updateAuthUI(user) {
+            if (user) {
+                // Signed-in state
+                loginPrompt.classList.add('hidden');
+                submitSection.classList.remove('hidden');
+
+                // Check if Admin
+                isAdmin = user.email === _0x5e6f;
+                if (isAdmin) {
+                    adminPanel.classList.remove('hidden');
+                    adminHeaderControls.classList.remove('hidden');
+                    adminHeaderControls.classList.add('flex');
+                    submitSection.classList.add('hidden'); // Admin doesn't submit ideas
+                } else {
+                    adminPanel.classList.add('hidden');
+                    adminHeaderControls.classList.add('hidden');
+                    adminHeaderControls.classList.remove('flex');
+                }
+
+                const adminBadge = isAdmin
+                    ? '<span class="text-gold text-xs"><i class="fa-solid fa-crown mr-1"></i>Admin</span>'
+                    : '';
+
+                authSection.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'U') + '&background=39FF14&color=000'}" 
+                             alt="Avatar" class="user-avatar cursor-pointer hover:scale-110 transition-transform" onclick="window.openProfile()" 
+                             onerror="this.src='https://ui-avatars.com/api/?name=U&background=39FF14&color=000'">
+                        <div class="hidden sm:block">
+                            <p class="text-sm font-semibold text-starlight flex items-center gap-2">
+                                ${escapeHtml(user.displayName || 'Forger')} 
+                                ${adminBadge}
+                            </p>
+                            <div class="flex items-center gap-2 text-xs text-platinum">
+                                <span id="headerKarma" class="inline-flex items-center gap-1 text-neon">
+                                    <i class="fa-solid fa-fire-flame-curved"></i>
+                                    <span class="uppercase tracking-wide text-[10px]">Karma</span>
+                                    <span id="headerKarmaValue">0</span>
+                                </span>
+                                <span class="w-1 h-1 rounded-full bg-platinum/50"></span>
+                                <button onclick="signOutUser()" class="hover:text-white transition-colors">Sign Out</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const authorInput = document.getElementById('authorName');
+                if (authorInput) authorInput.value = user.displayName || '';
+            } else {
+                // Signed-out state
+                loginPrompt.classList.remove('hidden');
+                submitSection.classList.add('hidden');
+                adminPanel.classList.add('hidden');
+                adminHeaderControls.classList.add('hidden');
+                adminHeaderControls.classList.remove('flex');
+                isAdmin = false;
+
+                authSection.innerHTML = `
+                    <button onclick="signInWithGoogle()" class="google-btn px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+                        Sign In
+                    </button>
+                `;
+            }
+        }
+
+        function startCooldownTicker() {
+            if (cooldownInterval) clearInterval(cooldownInterval);
+            cooldownInterval = setInterval(() => {
+                if (!userCooldownDeadline) return;
+                const diff = userCooldownDeadline - Date.now();
+                if (diff <= 0) {
                     clearInterval(cooldownInterval);
                     checkUserSubmission(currentUser.uid);
                     return;
@@ -1660,15 +1818,25 @@
         // ═══════════════════════════════════════════════════════════════════
         let currentSorting = 'votes';
         let searchQuery = '';
+        let searchDebounceTimeout = null;
 
         window.filterIdeas = function () {
-            searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-            renderFilteredIdeas();
+            const input = document.getElementById('searchInput');
+            if (!input) return;
+            const value = input.value.toLowerCase().trim();
+
+            if (searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
+            searchDebounceTimeout = setTimeout(() => {
+                searchQuery = value;
+                renderFilteredIdeas();
+            }, 250);
         };
 
         window.clearSearch = function () {
-            document.getElementById('searchInput').value = '';
+            const input = document.getElementById('searchInput');
+            if (input) input.value = '';
             searchQuery = '';
+            if (searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
             renderFilteredIdeas();
         };
 
@@ -1681,13 +1849,27 @@
             const currentTab = document.getElementById('tabTop').classList.contains('active') ? 'top' : 'new';
             let ideas = currentTab === 'top' ? [...topIdeas] : [...newIdeas];
 
+            const totalCount = ideas.length;
+
             // Apply search filter
             if (searchQuery) {
                 ideas = ideas.filter(idea =>
-                    idea.title.toLowerCase().includes(searchQuery) ||
-                    idea.description.toLowerCase().includes(searchQuery) ||
-                    idea.author.toLowerCase().includes(searchQuery)
+                    (idea.title || '').toLowerCase().includes(searchQuery) ||
+                    (idea.description || '').toLowerCase().includes(searchQuery) ||
+                    (idea.author || '').toLowerCase().includes(searchQuery)
                 );
+            }
+
+            if (isAdmin && adminFilter && adminFilter !== 'all') {
+                ideas = ideas.filter(idea => {
+                    if (!idea) return false;
+                    const votes = idea.votes || 0;
+                    if (adminFilter === 'high-signal') return votes >= 10;
+                    if (adminFilter === 'low-signal') return votes <= 0;
+                    if (adminFilter === 'founder') return idea.founderPick === true;
+                    if (adminFilter === 'winners') return globalWinnerId && idea.id === globalWinnerId;
+                    return true;
+                });
             }
 
             // Apply sorting
@@ -1708,8 +1890,14 @@
             }
 
             // Update results count
-            document.getElementById('resultsCount').textContent =
-                searchQuery ? `${ideas.length} results for "${searchQuery}"` : `${ideas.length} ideas`;
+            const resultsEl = document.getElementById('resultsCount');
+            if (resultsEl) {
+                if (searchQuery) {
+                    resultsEl.textContent = `${ideas.length} of ${totalCount} ideas for "${searchQuery}"`;
+                } else {
+                    resultsEl.textContent = `${ideas.length} ideas`;
+                }
+            }
 
             // Render
             const feed = currentTab === 'top' ? feedTop : feedNew;
@@ -1719,6 +1907,84 @@
                 feed.innerHTML = ideas.map((idea, i) => renderCard(idea, i, currentTab === 'top')).join('');
             }
         }
+
+        window.changeAdminFilter = function () {
+            const select = document.getElementById('adminFilterSelect');
+            if (!select) return;
+            adminFilter = select.value || 'all';
+            renderFilteredIdeas();
+        };
+
+        window.pickRandomIdea = async function () {
+            if (!isAdmin) {
+                Swal.fire({ icon: 'error', title: 'Admin Only', text: 'Only admins can pick a winner.' });
+                return;
+            }
+
+            const map = new Map();
+            (topIdeas || []).forEach(i => { if (i) map.set(i.id, i); });
+            (newIdeas || []).forEach(i => { if (i) map.set(i.id, i); });
+            const pool = Array.from(map.values()).filter(i => !!i);
+
+            if (pool.length === 0) {
+                Swal.fire({ icon: 'info', title: 'No Ideas', text: 'No ideas available to pick from.' });
+                return;
+            }
+
+            const winner = pool[Math.floor(Math.random() * pool.length)];
+            globalWinnerId = winner.id;
+
+            try {
+                await setDoc(doc(db, 'settings', 'forge'), {
+                    winnerId: winner.id,
+                    winnerTitle: winner.title || null,
+                    winnerAuthor: winner.author || null
+                }, { merge: true });
+
+                renderFilteredIdeas();
+                renderActivityFeed();
+
+                confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 }, colors: ['#FFD700', '#39FF14', '#00D9FF'] });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Winner Locked',
+                    html: `<strong>${escapeHtml(winner.title || 'Untitled idea')}</strong><br><span class="text-sm">by ${escapeHtml(winner.author || 'Unknown Forger')}</span>`,
+                    confirmButtonText: 'OK'
+                });
+            } catch (e) {
+                console.error('Winner pick error', e);
+                Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
+            }
+        };
+
+        window.clearWinner = async function () {
+            if (!isAdmin) {
+                Swal.fire({ icon: 'error', title: 'Admin Only', text: 'Only admins can clear the winner.' });
+                return;
+            }
+
+            const result = await Swal.fire({
+                icon: 'warning',
+                title: 'Clear Winner?',
+                text: 'This will remove the current winner highlight.',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Clear',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (!result.isConfirmed) return;
+
+            try {
+                globalWinnerId = null;
+                await setDoc(doc(db, 'settings', 'forge'), { winnerId: null }, { merge: true });
+                renderFilteredIdeas();
+                renderActivityFeed();
+                Swal.fire({ icon: 'success', title: 'Winner Cleared', timer: 1500, showConfirmButton: false });
+            } catch (e) {
+                console.error('Clear winner error', e);
+                Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
+            }
+        };
 
         // ═══════════════════════════════════════════════════════════════════
         // SHARE IDEA
@@ -1902,6 +2168,7 @@
             const isOwner = currentUser && currentUser.uid === idea.uid;
             const canDelete = isAdmin || isOwner;
             const isWinner = globalWinnerId === idea.id;
+            const isFounderPick = idea.founderPick === true;
             const escapedTitle = escapeHtml(idea.title).replace(/'/g, "\\'");
             const escapedDesc = escapeHtml(idea.description).replace(/'/g, "\\'");
 
@@ -1918,22 +2185,32 @@
                 </button>
             ` : '';
 
-            // Winner styling
+            // Winner / Founder styling
             const winnerStyle = isWinner ? 'border: 3px solid #FFD700; box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);' : '';
+            const founderStyle = !isWinner && isFounderPick ? 'border: 2px solid rgba(57,255,20,0.5); box-shadow: 0 0 25px rgba(57,255,20,0.4);' : '';
             const winnerBadge = isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-gold/30 to-yellow-500/30 text-gold rounded-full animate-pulse"><i class="fa-solid fa-trophy mr-1"></i>WINNER</span>' : '';
+            const founderBadge = !isWinner && isFounderPick ? '<span class="px-2 py-1 text-xs font-semibold bg-neon/15 text-neon rounded-full border border-neon/40"><i class="fa-solid fa-star mr-1"></i>Founder Pick</span>' : '';
+
+            const founderToggleBtn = isAdmin ? `
+                <button onclick="toggleFounderPick('${idea.id}', ${isFounderPick})" class="w-8 h-8 rounded-lg bg-neon/10 hover:bg-neon/30 text-neon flex items-center justify-center transition-all" title="${isFounderPick ? 'Remove Founder Pick' : 'Mark as Founder Pick'}">
+                    <i class="fa-solid fa-star${isFounderPick ? '' : '-half-stroke'} text-sm"></i>
+                </button>
+            ` : '';
 
             return `
-                <div id="idea-${idea.id}" class="glass-card rounded-2xl p-6" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s; ${winnerStyle}">
+                <div id="idea-${idea.id}" class="glass-card rounded-2xl p-6" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s; ${winnerStyle} ${founderStyle}">
                     <div class="flex items-start gap-4">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-2">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     ${winnerBadge}
+                                    ${founderBadge}
                                     ${isBadgeTop && index === 0 && !isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-neon/20 to-teal/20 text-neon rounded-full"><i class="fa-solid fa-crown mr-1"></i>Top</span>' : ''}
                                     ${!isBadgeTop && !isWinner ? '<span class="px-2 py-1 text-xs font-semibold bg-aurora/20 text-aurora rounded-full"><i class="fa-solid fa-sparkles mr-1"></i>New</span>' : ''}
                                     <span class="text-xs text-platinum">${formatTime(idea.timestamp)}</span>
                                 </div>
                                 <div class="flex items-center gap-1">
+                                    ${founderToggleBtn}
                                     ${editBtn}
                                     ${deleteBtn}
                                 </div>
@@ -2032,6 +2309,25 @@
         };
 
         // ═══════════════════════════════════════════════════════════════════
+        // ADMIN: TOGGLE FOUNDER PICK
+        // ═══════════════════════════════════════════════════════════════════
+        window.toggleFounderPick = async function (ideaId, current) {
+            try {
+                const ref = doc(db, 'ideas', ideaId);
+                await updateDoc(ref, { founderPick: !current });
+                Swal.fire({
+                    icon: 'success',
+                    title: !current ? 'Marked as Founder Pick' : 'Founder Pick Removed',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } catch (e) {
+                console.error('Founder Pick Error:', e);
+                Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
         // ADMIN: EXPORT CSV
         // ═══════════════════════════════════════════════════════════════════
         window.exportIdeasCSV = function () {
@@ -2065,414 +2361,33 @@
         };
 
         // ═══════════════════════════════════════════════════════════════════
-        // ADMIN: PICK RANDOM IDEA
+        // ADMIN STATS + LEADERBOARD + ACTIVITY FEED
         // ═══════════════════════════════════════════════════════════════════
-        window.pickRandomIdea = async function () {
-            const allIdeas = [...topIdeas];
-            if (allIdeas.length === 0) {
-                return Swal.fire({ icon: 'info', title: 'No Ideas', text: 'No ideas to pick from.' });
+        function updateAdminStats() {
+            const totalEl = document.getElementById('adminStatTotalIdeas');
+            const founderEl = document.getElementById('adminStatFounderPicks');
+            const lowEl = document.getElementById('adminStatLowSignal');
+            if (!totalEl && !founderEl && !lowEl) return;
+
+            const totalDom = document.getElementById('statTotalIdeas');
+            const totalText = totalDom ? totalDom.textContent : '';
+            if (totalEl) {
+                totalEl.textContent = totalText ? `${totalText} total ideas` : 'Total ideas: -';
             }
 
-            // Random selection with animation
-            const randomIndex = Math.floor(Math.random() * allIdeas.length);
-            const winner = allIdeas[randomIndex];
-
-            // Save winner to Firestore (visible to all users)
-            try {
-                await setDoc(doc(db, 'settings', 'forge'), {
-                    winnerId: winner.id,
-                    winnerTitle: winner.title,
-                    winnerAuthor: winner.author,
-                    pickedAt: serverTimestamp()
-                }, { merge: true });
-
-                globalWinnerId = winner.id;
-
-                // Re-render to show winner badge
-                renderFilteredIdeas();
-
-                const winnerEl = document.getElementById(`idea-${winner.id}`);
-                if (winnerEl) {
-                    winnerEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-
-                // Confetti explosion!
-                confetti({
-                    particleCount: 200,
-                    spread: 120,
-                    origin: { y: 0.6 },
-                    colors: ['#FFD700', '#39FF14', '#00D9FF', '#FF6B6B', '#FFFFFF']
-                });
-
-                Swal.fire({
-                    icon: 'success',
-                    title: '🎉 Winner Selected!',
-                    html: `<p class="text-lg font-bold">"${escapeHtml(winner.title)}"</p><p class="text-sm text-gray-400 mt-2">by ${escapeHtml(winner.author)}</p><p class="text-xs text-green-400 mt-3">All users can now see this winner!</p>`,
-                    confirmButtonText: 'Awesome!'
-                });
-            } catch (e) {
-                console.error('Failed to save winner:', e);
-                Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
-            }
-        };
-
-        // ═══════════════════════════════════════════════════════════════════
-        // ADMIN: CLEAR WINNER
-        // ═══════════════════════════════════════════════════════════════════
-        window.clearWinner = async function () {
-            try {
-                await setDoc(doc(db, 'settings', 'forge'), { winnerId: null }, { merge: true });
-                globalWinnerId = null;
-                renderFilteredIdeas();
-                Swal.fire({ icon: 'success', title: 'Winner Cleared', timer: 1500, showConfirmButton: false });
-            } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
-            }
-        };
-
-        window.openComments = async function (ideaId, title, desc) {
-            currentIdeaId = ideaId;
-
-            const modalTitleEl = document.getElementById('modalIdeaTitle');
-            const modalDescEl = document.getElementById('modalIdeaDesc');
-            const modalAuthorEl = document.getElementById('modalIdeaAuthor');
-            const modalMetaEl = document.getElementById('modalIdeaMeta');
-            const modalScoreEl = document.getElementById('modalIdeaScore');
-
-            // Initial content from arguments (fallback while we load full idea doc)
-            if (modalTitleEl) modalTitleEl.textContent = escapeHtml(title || 'Idea');
-            if (modalDescEl) modalDescEl.textContent = escapeHtml(desc || '');
-
-            document.getElementById('commentsModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-
-            // Reset list and set loading spinner
-            document.getElementById('commentsList').innerHTML = '<div class="text-center p-4"><i class="fa-solid fa-spinner fa-spin text-neon text-2xl"></i></div>';
-
-            // Load idea meta (author, votes, timestamp, commentCount) + share links
-            try {
-                const snap = await getDoc(doc(db, 'ideas', ideaId));
-                if (snap.exists()) {
-                    const data = snap.data();
-                    const baseTitle = data.title || title || 'Idea';
-                    const baseDesc = data.description || desc || '';
-                    const baseAuthor = data.author || 'Unknown forger';
-                    const votes = data.votes || 0;
-                    const commentsCount = data.commentCount || 0;
-
-                    if (modalTitleEl) modalTitleEl.textContent = escapeHtml(baseTitle);
-                    if (modalDescEl) modalDescEl.textContent = escapeHtml(baseDesc);
-
-                    if (modalAuthorEl) {
-                        modalAuthorEl.innerHTML = `<i class="fa-solid fa-user text-neon/80"></i><span>${escapeHtml(baseAuthor)}</span>`;
-                    }
-
-                    if (modalMetaEl) {
-                        const tsLabel = formatTime(data.timestamp);
-                        modalMetaEl.innerHTML = `<i class="fa-solid fa-clock text-platinum/70"></i><span>${tsLabel}</span>`;
-                    }
-
-                    if (modalScoreEl) {
-                        modalScoreEl.innerHTML = `<i class="fa-solid fa-fire-flame-curved text-neon"></i><span>${votes} votes · ${commentsCount} comments</span>`;
-                    }
-
-                    // Share controls
-                    const shareUrl = window.location.href.split('?')[0] + '?idea=' + ideaId;
-                    const shareTitle = 'IDRISIUM FORGE - ' + baseTitle;
-
-                    const mainShareBtn = document.getElementById('modalShareButton');
-                    if (mainShareBtn) {
-                        mainShareBtn.onclick = () => window.shareIdea(ideaId, baseTitle);
-                    }
-
-                    const shareX = document.getElementById('modalShareX');
-                    if (shareX) {
-                        shareX.href = 'https://twitter.com/intent/tweet?text=' +
-                            encodeURIComponent('Check this IDRISIUM FORGE idea: ' + baseTitle) +
-                            '&url=' + encodeURIComponent(shareUrl);
-                    }
-
-                    const shareTelegram = document.getElementById('modalShareTelegram');
-                    if (shareTelegram) {
-                        shareTelegram.href = 'https://t.me/share/url?url=' +
-                            encodeURIComponent(shareUrl) +
-                            '&text=' + encodeURIComponent('IDRISIUM FORGE idea: ' + baseTitle);
-                    }
-
-                    const shareWhatsApp = document.getElementById('modalShareWhatsApp');
-                    if (shareWhatsApp) {
-                        shareWhatsApp.href = 'https://wa.me/?text=' +
-                            encodeURIComponent('IDRISIUM FORGE idea: ' + baseTitle + ' ' + shareUrl);
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading idea meta:', error);
-            }
-
-            // Listen to comments real-time (Sort by newest first)
-            const q = query(collection(db, `ideas/${ideaId}/comments`), orderBy('timestamp', 'desc'));
-            onSnapshot(q, (snap) => {
-                ideaComments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderComments();
-            }, (error) => {
-                console.error("Error loading comments:", error);
-                let msg = error.message;
-                if (error.code === 'permission-denied') msg = 'Permission Denied! Deploy Firestore Rules.';
-                if (error.code === 'failed-precondition') msg = 'Missing Index! Check Console for Link.';
-                document.getElementById('commentsList').innerHTML = `
-                    <div class="text-center py-4 text-red-500 bg-red-500/10 rounded-xl m-4 border border-red-500/20">
-                        <i class="fa-solid fa-triangle-exclamation text-2xl mb-2"></i><br>
-                        <strong>Error Loading Comments:</strong><br>${escapeHtml(msg)}
-                    </div>
-                `;
+            const map = new Map();
+            [...topIdeas, ...newIdeas].forEach(idea => {
+                if (!idea) return;
+                map.set(idea.id, idea);
             });
+            const list = Array.from(map.values());
+            const founderCount = list.filter(i => i.founderPick === true).length;
+            const lowSignal = list.filter(i => (i.votes || 0) <= 0).length;
 
-        };
-
-        window.closeComments = function () {
-            document.getElementById('commentsModal').classList.add('hidden');
-            document.body.style.overflow = '';
-            currentIdeaId = null;
-        };
-
-        function renderComments() {
-            const list = document.getElementById('commentsList');
-            const countEl = document.getElementById('commentCount');
-            if (countEl) {
-                countEl.textContent = `${ideaComments.length} comments`;
-            }
-
-            // Keep score meta in sync with live votes + comments
-            const scoreMetaEl = document.getElementById('modalIdeaScore');
-            if (scoreMetaEl && currentIdeaId) {
-                const voteEl = document.getElementById(`vote-count-${currentIdeaId}`);
-                const votes = voteEl ? (parseInt(voteEl.textContent || '0') || 0) : 0;
-                scoreMetaEl.innerHTML = `<i class="fa-solid fa-fire-flame-curved text-neon"></i><span>${votes} votes · ${ideaComments.length} comments</span>`;
-            }
-
-            if (!list) return;
-
-            if (ideaComments.length === 0) {
-                list.innerHTML = '<p class="text-center text-platinum/50 py-8">No comments yet. Start the discussion!</p>';
-                return;
-            }
-
-            // 1. Separate Roots and Replies
-            const roots = ideaComments.filter(c => !c.parentId);
-            const replies = ideaComments.filter(c => c.parentId);
-
-            // 2. Sort Roots by Votes (Desc)
-            roots.sort((a, b) => (b.votes || 0) - (a.votes || 0));
-
-            // 3. Helper to render a single card
-            const createCardHTML = (c, isReply = false) => {
-                const isOwner = currentUser && c.uid === currentUser.uid;
-                const isAdminUser = currentUser && currentUser.email === 'idris.ghamid@gmail.com';
-                const canEdit = isOwner || isAdminUser;
-                const hasUpvoted = currentUser && c.upvoters && c.upvoters.includes(currentUser.uid);
-                const hasDownvoted = currentUser && c.downvoters && c.downvoters.includes(currentUser.uid);
-                const avatarUrl = c.photoURL || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(c.author || 'U') + '&background=random');
-
-                // Karma Logic
-                let karmaBadge = '';
-                if (c.authorKarma !== undefined && !c.isAdmin) { // Hide if Admin
-                    let color = 'text-platinum';
-                    if (c.authorKarma > 200) color = 'text-gold';
-                    else if (c.authorKarma > 50) color = 'text-neon';
-                    else if (c.authorKarma > 10) color = 'text-aurora';
-
-                    karmaBadge = `<span class="text-[10px] ${color} border border-white/10 px-1.5 py-0.5 rounded ml-2 font-mono" title="Karma at time of post"><i class="fa-solid fa-fire mr-1"></i>${c.authorKarma}</span>`;
-                }
-
-                // Legend Style
-                let specialClass = '';
-                if (!c.isAdmin) { // Stealth Mode for Admin
-                    if (c.authorKarma > 200) specialClass = 'border border-gold/50 shadow-[0_0_15px_rgba(255,215,0,0.1)] bg-gold/5';
-                    else if (c.authorKarma < -50) specialClass = 'opacity-50 grayscale';
-                }
-
-                return `
-                    <div class="${isReply ? 'reply-card' : 'comment-card'} flex gap-3 ${isOwner ? 'border-l-2 border-l-neon' : ''} ${specialClass} new-comment" id="comment-${c.id}">
-                        <img src="${avatarUrl}" onerror="this.src='https://ui-avatars.com/api/?name=U'" class="${isReply ? 'w-6 h-6' : 'w-8 h-8'} rounded-full border border-neon/50">
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <span class="font-bold text-starlight text-sm">${escapeHtml(c.author)}</span>
-                                    ${karmaBadge}
-                                    <span class="text-xs text-platinum/50 ml-2">${formatTime(c.timestamp)}</span>
-                                </div>
-                                ${canEdit ? `
-                                <div class="flex gap-2">
-                                    <button onclick="editComment('${c.id}')" class="text-xs text-platinum/40 hover:text-neon transition-colors" title="Edit">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </button>
-                                    <button onclick="deleteComment('${c.id}')" class="text-xs text-platinum/40 hover:text-red-500 transition-colors" title="Delete">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </div>` : ''}
-                            </div>
-                            <p class="text-platinum text-sm mt-1 break-words">${escapeHtml(c.content)}</p>
-                            
-                            <!-- Actions -->
-                            <div class="flex items-center gap-4 mt-2">
-                                ${!isReply ? `
-                                <button onclick="toggleReplyForm('${c.id}')" class="text-xs text-platinum/60 hover:text-neon transition-colors flex items-center gap-1 font-bold">
-                                    <i class="fa-solid fa-reply"></i> Reply
-                                </button>` : ''}
-                            </div>
-                        </div>
-                        
-                        <div class="flex flex-col items-center gap-1">
-                            <button onclick="voteComment('${c.id}', 'up')" class="comment-vote-btn ${hasUpvoted ? 'upvoted' : ''}">
-                                <i class="fa-solid fa-chevron-up text-xs"></i>
-                            </button>
-                            <span class="text-xs font-bold text-platinum">${c.votes || 0}</span>
-                            <button onclick="voteComment('${c.id}', 'down')" class="comment-vote-btn ${hasDownvoted ? 'downvoted' : ''}">
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            };
-
-            // 4. Build Tree
-            list.innerHTML = roots.map(root => {
-                // Find replies for this root, sort by oldest first
-                const childReplies = replies.filter(r => r.parentId === root.id)
-                    .sort((a, b) => {
-                        const tA = a.timestamp?.toMillis ? a.timestamp.toMillis() : 0;
-                        const tB = b.timestamp?.toMillis ? b.timestamp.toMillis() : 0;
-                        return tA - tB;
-                    });
-
-                return `
-                <div class="comment-thread">
-                    <!-- Parent -->
-                    ${createCardHTML(root, false)}
-
-                    <!-- Inline Reply Form (Hidden by default) -->
-                    <div id="reply-form-${root.id}" class="inline-reply-form" style="display: none;">
-                        <input type="text" id="reply-input-${root.id}" placeholder="Write a reply..." 
-                            class="flex-1 bg-transparent border-none text-starlight placeholder-platinum/50 focus:ring-0 text-sm">
-                        <button id="reply-btn-${root.id}" onclick="submitComment('${root.id}')" 
-                            class="text-neon hover:text-white transition-colors">
-                            <i class="fa-solid fa-paper-plane"></i>
-                        </button>
-                    </div>
-
-                    <!-- Toggle Replies Button -->
-                    ${childReplies.length > 0 ? `
-                        <div class="ml-11 mt-2">
-                            <button id="toggle-replies-btn-${root.id}" onclick="toggleReplies('${root.id}')" class="text-xs text-neon hover:text-white transition-colors flex items-center gap-1 font-bold">
-                                <i class="fa-solid fa-chevron-down"></i> View ${childReplies.length} Replies
-                            </button>
-                        </div>
-                    ` : ''}
-
-                    <!-- Children container (Hidden by default) -->
-                    ${childReplies.length > 0 ? `
-                    <div id="replies-${root.id}" class="replies-container hidden">
-                        ${childReplies.map(r => createCardHTML(r, true)).join('')}
-                    </div>
-                    ` : ''}
-                </div>
-                `;
-            }).join('');
+            if (founderEl) founderEl.textContent = `${founderCount} founder picks`;
+            if (lowEl) lowEl.textContent = `${lowSignal} low-signal ideas`;
         }
 
-        window.voteComment = async function (commentId, type) {
-            if (!currentUser) return Swal.fire({ icon: 'warning', title: 'Sign In', text: 'Please sign in to vote.' });
-
-            const commentRef = doc(db, `ideas/${currentIdeaId}/comments`, commentId);
-            const comment = ideaComments.find(c => c.id === commentId);
-            if (!comment) return;
-
-            const uid = currentUser.uid;
-            let updates = {};
-
-            const upvoters = comment.upvoters || [];
-            const downvoters = comment.downvoters || [];
-
-            if (type === 'up') {
-                if (upvoters.includes(uid)) {
-                    updates = { votes: increment(-1), upvoters: upvoters.filter(id => id !== uid) };
-                } else {
-                    updates = {
-                        votes: increment(downvoters.includes(uid) ? 2 : 1),
-                        upvoters: [...upvoters, uid],
-                        downvoters: downvoters.filter(id => id !== uid)
-                    };
-                }
-            } else {
-                if (downvoters.includes(uid)) {
-                    updates = { votes: increment(1), downvoters: downvoters.filter(id => id !== uid) };
-                } else {
-                    updates = {
-                        votes: increment(upvoters.includes(uid) ? -2 : -1),
-                        downvoters: [...downvoters, uid],
-                        upvoters: upvoters.filter(id => id !== uid)
-                    };
-                }
-            }
-
-            try {
-                // Optimistic UI interaction (no need to wait for update)
-                const card = document.getElementById(`comment-${commentId}`);
-                if (card) {
-                    const upBtn = card.querySelector('.comment-vote-btn:first-of-type');
-                    const downBtn = card.querySelector('.comment-vote-btn:last-of-type');
-
-                    if (upBtn && downBtn) {
-                        const countSpan = card.querySelector('span.text-xs.font-bold');
-                        let currentCount = parseInt(countSpan.textContent) || 0;
-
-                        if (type === 'up') {
-                            if (upBtn.classList.contains('upvoted')) {
-                                // toggling off
-                                currentCount -= 1;
-                                upBtn.classList.remove('upvoted');
-                            } else {
-                                // toggling on
-                                if (downBtn.classList.contains('downvoted')) {
-                                    currentCount += 2; // from -1 to +1
-                                    downBtn.classList.remove('downvoted');
-                                } else {
-                                    currentCount += 1;
-                                }
-                                upBtn.classList.add('upvoted');
-                            }
-                        } else {
-                            if (downBtn.classList.contains('downvoted')) {
-                                // toggling off
-                                currentCount += 1;
-                                downBtn.classList.remove('downvoted');
-                            } else {
-                                // toggling on
-                                if (upBtn.classList.contains('upvoted')) {
-                                    currentCount -= 2; // from +1 to -1
-                                    upBtn.classList.remove('upvoted');
-                                } else {
-                                    currentCount -= 1;
-                                }
-                                downBtn.classList.add('downvoted');
-                            }
-                        }
-                        if (countSpan) countSpan.textContent = currentCount;
-                    }
-                }
-
-                await updateDoc(commentRef, updates);
-
-                // Refresh Global Karma logic (for both Header and FAB)
-                if (currentUser) checkUserSubmission(currentUser.uid);
-            } catch (e) {
-                console.error(e);
-            }
-        };
-
-        // ═══════════════════════════════════════════════════════════════════
-        // LEADERBOARD: TOP FORGERS (CLIENT-SIDE AGGREGATION)
-        // ═══════════════════════════════════════════════════════════════════
         function renderLeaderboard() {
             const container = document.getElementById('topForgersList');
             if (!container) return;
@@ -2517,6 +2432,160 @@
             `).join('');
         }
 
+        function renderActivityFeed() {
+            const container = document.getElementById('activityFeed');
+            if (!container) return;
+
+            const events = [];
+
+            // Idea events
+            (newIdeas || []).forEach(idea => {
+                if (!idea) return;
+                events.push({
+                    type: 'idea',
+                    ts: idea.timestamp,
+                    title: idea.title || 'Untitled idea',
+                    author: idea.author || 'Unknown Forger',
+                    votes: idea.votes || 0
+                });
+            });
+
+            // Comment events
+            (latestComments || []).forEach(c => {
+                if (!c) return;
+                events.push({
+                    type: 'comment',
+                    ts: c.timestamp,
+                    content: c.content || '',
+                    author: c.author || 'Unknown Forger'
+                });
+            });
+
+            const ideaMap = new Map();
+            (topIdeas || []).forEach(i => { if (i) ideaMap.set(i.id, i); });
+            (newIdeas || []).forEach(i => { if (i) ideaMap.set(i.id, i); });
+            ideaMap.forEach(idea => {
+                if (idea.founderPick) {
+                    events.push({
+                        type: 'founder',
+                        ts: idea.timestamp,
+                        title: idea.title || 'Untitled idea',
+                        author: idea.author || 'Unknown Forger'
+                    });
+                }
+                if (globalWinnerId && idea.id === globalWinnerId) {
+                    events.push({
+                        type: 'winner',
+                        ts: idea.timestamp,
+                        title: idea.title || 'Untitled idea',
+                        author: idea.author || 'Unknown Forger'
+                    });
+                }
+            });
+
+            if (events.length === 0) {
+                container.innerHTML = '<p class="text-xs text-platinum/60">Waiting for activity...</p>';
+                return;
+            }
+
+            events.sort((a, b) => {
+                const ta = a.ts?.toDate?.() ? a.ts.toDate().getTime() : (a.ts?.toMillis?.() ? a.ts.toMillis() : 0);
+                const tb = b.ts?.toDate?.() ? b.ts.toDate().getTime() : (b.ts?.toMillis?.() ? b.ts.toMillis() : 0);
+                return tb - ta;
+            });
+
+            const limited = events.slice(0, 15);
+
+            container.innerHTML = limited.map(ev => {
+                const when = formatTime(ev.ts);
+                if (ev.type === 'idea') {
+                    const title = escapeHtml(ev.title);
+                    const author = escapeHtml(ev.author);
+                    return `
+                        <div class="flex items-center justify-between text-xs text-platinum/90 py-1 border-b border-white/5 last:border-b-0">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-6 h-6 rounded-full bg-neon/10 flex items-center justify-center text-neon">
+                                    <i class="fa-solid fa-lightbulb text-[10px]"></i>
+                                </span>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="truncate font-semibold">${title}</span>
+                                    <span class="text-[10px] text-platinum/60 truncate">New idea by ${author}</span>
+                                </div>
+                            </div>
+                            <span class="ml-3 text-[10px] text-platinum/60 whitespace-nowrap">${when}</span>
+                        </div>
+                    `;
+                } else if (ev.type === 'comment') {
+                    const content = escapeHtml(ev.content);
+                    const author = escapeHtml(ev.author);
+                    return `
+                        <div class="flex items-center justify-between text-xs text-platinum/90 py-1 border-b border-white/5 last:border-b-0">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-6 h-6 rounded-full bg-aurora/10 flex items-center justify-center text-aurora">
+                                    <i class="fa-solid fa-comment text-[10px]"></i>
+                                </span>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="truncate font-semibold">${author}</span>
+                                    <span class="text-[10px] text-platinum/60 truncate">Commented: \"${content}\"</span>
+                                </div>
+                            </div>
+                            <span class="ml-3 text-[10px] text-platinum/60 whitespace-nowrap">${when}</span>
+                        </div>
+                    `;
+                } else if (ev.type === 'founder') {
+                    const title = escapeHtml(ev.title || '');
+                    const author = escapeHtml(ev.author || 'Unknown Forger');
+                    return `
+                        <div class="flex items-center justify-between text-xs text-platinum/90 py-1 border-b border-white/5 last:border-b-0">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-6 h-6 rounded-full bg-neon/15 flex items-center justify-center text-neon">
+                                    <i class="fa-solid fa-star text-[10px]"></i>
+                                </span>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="truncate font-semibold">${title}</span>
+                                    <span class="text-[10px] text-platinum/60 truncate">Founder pick by ${author}</span>
+                                </div>
+                            </div>
+                            <span class="ml-3 text-[10px] text-platinum/60 whitespace-nowrap">${when}</span>
+                        </div>
+                    `;
+                } else if (ev.type === 'winner') {
+                    const title = escapeHtml(ev.title || '');
+                    return `
+                        <div class="flex items-center justify-between text-xs text-platinum/90 py-1 border-b border-gold/40 last:border-b-0">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-6 h-6 rounded-full bg-gold/20 flex items-center justify-center text-gold">
+                                    <i class="fa-solid fa-trophy text-[10px]"></i>
+                                </span>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="truncate font-semibold">${title}</span>
+                                    <span class="text-[10px] text-platinum/60 truncate">Winner locked in</span>
+                                </div>
+                            </div>
+                            <span class="ml-3 text-[10px] text-platinum/60 whitespace-nowrap">${when}</span>
+                        </div>
+                    `;
+                } else {
+                    const content = ev.content ? escapeHtml(ev.content) : '';
+                    const author = escapeHtml(ev.author || 'Unknown Forger');
+                    return `
+                        <div class="flex items-center justify-between text-xs text-platinum/90 py-1 border-b border-white/5 last:border-b-0">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="w-6 h-6 rounded-full bg-aurora/10 flex items-center justify-center text-aurora">
+                                    <i class="fa-solid fa-comment text-[10px]"></i>
+                                </span>
+                                <div class="flex flex-col min-w-0">
+                                    <span class="truncate font-semibold">${author}</span>
+                                    <span class="text-[10px] text-platinum/60 truncate">${content}</span>
+                                </div>
+                            </div>
+                            <span class="ml-3 text-[10px] text-platinum/60 whitespace-nowrap">${when}</span>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
         // ═══════════════════════════════════════════════════════════════════
         // REAL-TIME LISTENERS
         // ═══════════════════════════════════════════════════════════════════
@@ -2557,6 +2626,7 @@
 
                 // Update leaderboard whenever top ideas change
                 renderLeaderboard();
+                updateAdminStats();
             });
 
             const qNew = query(collection(db, 'ideas'), orderBy('timestamp', 'desc'), limit(10));
@@ -2579,7 +2649,25 @@
                 } else {
                     feedNew.innerHTML = newIdeas.map((idea, i) => renderCard(idea, i, false)).join('');
                 }
+
+                // Update Live Activity Feed & Admin Stats
+                renderActivityFeed();
+                updateAdminStats();
             });
+
+            // Latest comments across all ideas for Activity Feed
+            try {
+                const qComments = query(collectionGroup(db, 'comments'), orderBy('timestamp', 'desc'), limit(10));
+                onSnapshot(qComments, snap => {
+                    latestComments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    renderActivityFeed();
+                }, (e) => {
+                    console.log('Activity comments feed error', e);
+                });
+            } catch (e) {
+                console.log('Activity comments query failed to init', e);
+            }
+
         }
 
         if (db) initListeners();
