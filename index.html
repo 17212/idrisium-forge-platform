@@ -408,6 +408,29 @@
             animation: pulse-glow 2s ease-in-out infinite;
         }
 
+        /* Winner jump highlight */
+        @keyframes winner-jump-pulse {
+
+            0% {
+                box-shadow: 0 0 0 rgba(57, 255, 20, 0.0);
+                transform: translateY(0) scale(1);
+            }
+
+            40% {
+                box-shadow: 0 0 40px rgba(57, 255, 20, 0.7);
+                transform: translateY(-2px) scale(1.02);
+            }
+
+            100% {
+                box-shadow: 0 0 0 rgba(57, 255, 20, 0.0);
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .winner-jump-highlight {
+            animation: winner-jump-pulse 1.6s ease-out;
+        }
+
         /* SweetAlert2 Dark */
         .swal2-popup {
             background: #0a0a0a !important;
@@ -671,6 +694,9 @@
                     <div>
                         <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM FORGE</h1>
                         <p class="text-xs text-platinum font-body">Limited-Time Ideas Event</p>
+                        <p id="eventStatusText"
+                            class="text-[10px] text-neon font-body uppercase tracking-wide mt-0.5">Live · Submissions &
+                            Voting Open</p>
                     </div>
                 </div>
                 <!-- Admin Controls (Header) -->
@@ -710,6 +736,10 @@
                             <button onclick="clearWinner()"
                                 class="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
                                 <i class="fa-solid fa-trophy mr-1"></i> Clear Winner
+                            </button>
+                            <button onclick="jumpToWinner()"
+                                class="px-4 py-2 rounded-lg bg-neon/10 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
+                                <i class="fa-solid fa-location-arrow mr-1"></i> Jump to Winner
                             </button>
                             <button onclick="exportIdeasCSV()"
                                 class="px-4 py-2 rounded-lg bg-neon/20 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
@@ -1465,6 +1495,7 @@
                 forgeClosed.classList.remove('hidden');
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Forge Closed';
+                updateEventStatus();
                 return;
             }
 
@@ -1478,6 +1509,30 @@
             document.getElementById('hours').textContent = String(hours).padStart(2, '0');
             document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
             document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            updateEventStatus();
+        }
+
+        function updateEventStatus() {
+            const el = document.getElementById('eventStatusText');
+            if (!el) return;
+
+            if (!forgeIsOpen) {
+                el.textContent = 'Forge Closed · Outcome Processing';
+                el.classList.remove('text-neon', 'text-gold');
+                el.classList.add('text-red-400');
+                return;
+            }
+
+            if (globalWinnerId) {
+                el.textContent = 'Winner Locked · Forge Outcome Selected';
+                el.classList.remove('text-neon', 'text-red-400');
+                el.classList.add('text-gold');
+                return;
+            }
+
+            el.textContent = 'Live · Submissions & Voting Open';
+            el.classList.remove('text-red-400', 'text-gold');
+            el.classList.add('text-neon');
         }
 
         // Timer visibility from localStorage
@@ -1619,8 +1674,9 @@
                                 </span>
                                 <span class="w-1 h-1 rounded-full bg-platinum/50"></span>
                                 <button onclick="signOutUser()" class="hover:text-white transition-colors">Sign Out</button>
-                                <button id="chatHeaderBtn" onclick="openChat()" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-neon/10 text-neon hover:bg-neon/30 transition-colors" title="Founder Chat">
+                                <button id="chatHeaderBtn" onclick="openChat()" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-neon/10 text-neon hover:bg-neon/30 transition-colors relative" title="Founder Chat">
                                     <i class="fa-solid fa-comments text-sm"></i>
+                                    <span id="chatHeaderBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-black shadow-lg">0</span>
                                 </button>
                                 <button id="inboxHeaderBtn" onclick="openInbox()" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-aurora/10 text-aurora hover:bg-aurora/30 transition-colors" title="Admin Inbox">
                                     <i class="fa-solid fa-inbox text-sm"></i>
@@ -1995,10 +2051,46 @@
                 await setDoc(doc(db, 'settings', 'forge'), { winnerId: null }, { merge: true });
                 renderFilteredIdeas();
                 renderActivityFeed();
+                updateEventStatus();
                 Swal.fire({ icon: 'success', title: 'Winner Cleared', timer: 1500, showConfirmButton: false });
             } catch (e) {
                 console.error('Clear winner error', e);
                 Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
+            }
+        };
+
+        window.jumpToWinner = function () {
+            if (!globalWinnerId) {
+                Swal.fire({ icon: 'info', title: 'No Winner Selected', text: 'Pick a winner first.' });
+                return;
+            }
+
+            const scrollAndHighlight = () => {
+                const el = document.getElementById('idea-' + globalWinnerId);
+                if (!el) return false;
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('winner-jump-highlight');
+                setTimeout(() => {
+                    el.classList.remove('winner-jump-highlight');
+                }, 1700);
+                return true;
+            };
+
+            if (scrollAndHighlight()) return;
+
+            if (typeof window.switchTab === 'function') {
+                window.switchTab('top');
+                setTimeout(() => {
+                    if (scrollAndHighlight()) return;
+                    window.switchTab('new');
+                    setTimeout(() => {
+                        if (!scrollAndHighlight()) {
+                            Swal.fire({ icon: 'info', title: 'Winner Not Visible', text: 'Winner card is not in the current feed window.' });
+                        }
+                    }, 300);
+                }, 300);
+            } else {
+                Swal.fire({ icon: 'info', title: 'Winner Not Visible', text: 'Winner card is not in the current feed window.' });
             }
         };
 
@@ -2386,12 +2478,6 @@
             const winnerEl = document.getElementById('adminStatWinner');
             if (!totalEl && !founderEl && !lowEl && !winnerEl) return;
 
-            const totalDom = document.getElementById('statTotalIdeas');
-            const totalText = totalDom ? totalDom.textContent : '';
-            if (totalEl) {
-                totalEl.textContent = totalText ? `${totalText} total ideas` : 'Total ideas: -';
-            }
-
             const map = new Map();
             [...topIdeas, ...newIdeas].forEach(idea => {
                 if (!idea) return;
@@ -2638,6 +2724,7 @@
                         deadline = new Date(data.deadline);
                         updateTimer();
                     }
+                    updateEventStatus();
                 }
             });
 
@@ -2839,8 +2926,23 @@
 
         function listenToNotifications() {
             if (notifUnsubscribe) notifUnsubscribe();
-            const badge = document.getElementById('chatBadge');
-            if (!badge) return;
+            const fabBadge = document.getElementById('chatBadge');
+            const headerBadge = document.getElementById('chatHeaderBadge');
+            if (!fabBadge && !headerBadge) return;
+
+            const updateBadges = (count) => {
+                const hasUnread = count > 0;
+                const text = count > 9 ? '9+' : String(count);
+                [fabBadge, headerBadge].forEach(el => {
+                    if (!el) return;
+                    if (hasUnread) {
+                        el.textContent = text;
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                });
+            };
 
             if (isAdmin) {
                 // Admin: Sum of 'adminUnread' across all chats
@@ -2848,26 +2950,17 @@
                 notifUnsubscribe = onSnapshot(q, snap => {
                     let total = 0;
                     snap.forEach(d => total += (d.data().adminUnread || 0));
-
-                    if (total > 0) {
-                        badge.textContent = total > 9 ? '9+' : total;
-                        badge.classList.remove('hidden');
-                    } else {
-                        badge.classList.add('hidden');
-                    }
+                    updateBadges(total);
                 });
-            } else {
+            } else if (currentUser) {
                 // User: Check 'userUnread' in their own doc
                 const roleRef = doc(db, 'support_chats', currentUser.uid);
                 notifUnsubscribe = onSnapshot(roleRef, snap => {
                     if (snap.exists()) {
                         const cnt = snap.data().userUnread || 0;
-                        if (cnt > 0) {
-                            badge.textContent = cnt > 9 ? '9+' : cnt;
-                            badge.classList.remove('hidden');
-                        } else {
-                            badge.classList.add('hidden');
-                        }
+                        updateBadges(cnt);
+                    } else {
+                        updateBadges(0);
                     }
                 });
             }
