@@ -97,7 +97,7 @@ app = FastAPI(title="IDRISIUM IDEAS FORGE – AI Backend", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For production, restrict to frontend origin
+    allow_origin_regex=".*",  # For production, restrict to frontend origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -353,9 +353,12 @@ class StatsResponse(BaseModel):
 
 @app.get("/stats", response_model=StatsResponse)
 async def api_stats() -> StatsResponse:
-    db = get_firestore_client()
-    ideas_ref = db.collection("ideas").where("is_deleted", "==", False)
-    docs = list(ideas_ref.stream())
+    try:
+        db = get_firestore_client()
+        ideas_ref = db.collection("ideas").where("is_deleted", "==", False)
+        docs = list(ideas_ref.stream())
+    except Exception:  # noqa: BLE001
+        return StatsResponse(total_ideas=0, wordcloud_tokens=[])
 
     descriptions: List[str] = []
     for doc in docs:
