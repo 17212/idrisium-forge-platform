@@ -2632,6 +2632,7 @@
                     const when = formatTime(idea.timestamp);
                     const votes = idea.votes || 0;
                     const comments = idea.commentCount || 0;
+                    const countEl = document.getElementById('commentCount');
 
                     if (authorSpan) authorSpan.textContent = authorName;
                     if (metaSpan) metaSpan.textContent = when;
