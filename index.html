@@ -431,6 +431,58 @@
             animation: winner-jump-pulse 1.6s ease-out;
         }
 
+        /* Event status glow + tooltip */
+        @keyframes statusGlow {
+            0% {
+                text-shadow: 0 0 0 rgba(57, 255, 20, 0);
+                opacity: 0.9;
+            }
+
+            40% {
+                text-shadow: 0 0 18px rgba(57, 255, 20, 0.8);
+                opacity: 1;
+            }
+
+            100% {
+                text-shadow: 0 0 0 rgba(57, 255, 20, 0);
+                opacity: 0.9;
+            }
+        }
+
+        .event-status-pulse {
+            animation: statusGlow 1.3s ease-out;
+        }
+
+        .event-status-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .event-tooltip {
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: rgba(0, 0, 0, 0.92);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(57, 255, 20, 0.35);
+            padding: 6px 10px;
+            font-size: 10px;
+            color: #EDEDED;
+            max-width: 260px;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.18s ease, transform 0.18s ease;
+            z-index: 60;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+        }
+
+        .event-status-wrapper:hover .event-tooltip {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         /* SweetAlert2 Dark */
         .swal2-popup {
             background: #0a0a0a !important;
@@ -692,11 +744,24 @@
                         <i class="fa-solid fa-hammer text-black text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM FORGE</h1>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM FORGE</h1>
+                            <span id="eventPhaseChip"
+                                class="hidden ml-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold tracking-wide uppercase bg-neon/10 border-neon/60 text-neon">
+                                PHASE: Submissions
+                            </span>
+                        </div>
                         <p class="text-xs text-platinum font-body">Limited-Time Ideas Event</p>
-                        <p id="eventStatusText"
-                            class="text-[10px] text-neon font-body uppercase tracking-wide mt-0.5">Live · Submissions &
-                            Voting Open</p>
+                        <div class="event-status-wrapper mt-0.5">
+                            <p id="eventStatusText"
+                                class="text-[10px] text-neon font-body uppercase tracking-wide cursor-help">
+                                Live · Submissions &amp; Voting Open
+                            </p>
+                            <div id="eventStatusTooltip" class="event-tooltip">
+                                <div class="font-semibold text-[10px] text-neon mb-1">Live · Submissions &amp; Voting Open</div>
+                                <div class="text-[10px] text-platinum/80">Forge window is active. Submit ideas and vote in real time.</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- Admin Controls (Header) -->
@@ -1430,6 +1495,7 @@
         let activityEvents = []; // Combined activity events (ideas + comments)
         let commentsUnsubscribe = null;
         let adminFilter = 'all';
+        let currentEventStatusKey = null; // Track last event status phase for animations
 
         try {
             app = initializeApp(firebaseConfig);
@@ -1516,23 +1582,167 @@
             const el = document.getElementById('eventStatusText');
             if (!el) return;
 
+            const tooltipEl = document.getElementById('eventStatusTooltip');
+            const phaseChip = document.getElementById('eventPhaseChip');
+            const closeLabel = deadline && deadline.toLocaleString ? deadline.toLocaleString() : '';
+
+            let key = '';
+            let statusText = '';
+            let tooltipHtml = '';
+            let phaseLabel = '';
+            let phaseColors = [];
+
             if (!forgeIsOpen) {
-                el.textContent = 'Forge Closed · Outcome Processing';
-                el.classList.remove('text-neon', 'text-gold');
+                // Closed state
+                if (globalWinnerId) {
+                    key = 'closed_winner';
+                    statusText = 'Forge Closed · Winner Locked';
+                } else {
+                    key = 'closed';
+                    statusText = 'Forge Closed · Outcome Processing';
+                }
+                phaseLabel = 'WRAP-UP';
+                phaseColors = ['bg-gold/10', 'border-gold/60', 'text-gold'];
+
+                el.classList.remove('text-neon', 'text-gold', 'text-aurora');
                 el.classList.add('text-red-400');
-                return;
-            }
 
-            if (globalWinnerId) {
-                el.textContent = 'Winner Locked · Forge Outcome Selected';
-                el.classList.remove('text-neon', 'text-red-400');
+                tooltipHtml =
+                    '<div class="font-semibold text-[10px] text-red-400 mb-1">Forge Closed</div>' +
+                    '<div class="text-[10px] text-platinum/80">No new submissions or votes are accepted. The outcome is being processed.</div>';
+                if (closeLabel) {
+                    tooltipHtml +=
+                        '<div class="mt-1 text-[10px] text-platinum/60">Closed at <span class="text-neon">' +
+                        closeLabel +
+                        '</span></div>';
+                }
+            } else if (globalWinnerId) {
+                // Winner selected, forge still technically open
+                key = 'open_winner';
+                statusText = 'Winner Locked · Forge Outcome Selected';
+                phaseLabel = 'WRAP-UP';
+                phaseColors = ['bg-gold/10', 'border-gold/60', 'text-gold'];
+
+                el.classList.remove('text-neon', 'text-red-400', 'text-aurora');
                 el.classList.add('text-gold');
-                return;
+
+                tooltipHtml =
+                    '<div class="font-semibold text-[10px] text-gold mb-1">Winner Locked</div>' +
+                    '<div class="text-[10px] text-platinum/80">A winning idea has been selected. The Forge is in wrap-up mode.</div>';
+                if (closeLabel) {
+                    tooltipHtml +=
+                        '<div class="mt-1 text-[10px] text-platinum/60">Forge closes at <span class="text-neon">' +
+                        closeLabel +
+                        '</span></div>';
+                }
+            } else {
+                // Forge open, no winner yet → derive phase from time
+                const now = new Date();
+                const diff = deadline ? (deadline - now) : 0;
+                const totalMs = EVENT_DURATION_DAYS * 24 * 60 * 60 * 1000;
+                const startMs = deadline ? (deadline.getTime() - totalMs) : (now.getTime() - totalMs);
+                const elapsed = Math.max(0, now.getTime() - startMs);
+                const pct = totalMs > 0 ? Math.min(1, Math.max(0, elapsed / totalMs)) : 0;
+                const hoursLeft = diff / (1000 * 60 * 60);
+                const FINAL_COUNTDOWN_HOURS = 6;
+
+                el.classList.remove('text-red-400', 'text-gold');
+
+                if (hoursLeft <= FINAL_COUNTDOWN_HOURS) {
+                    // Final hours
+                    key = 'final';
+                    statusText = 'Final Countdown · Last Hours to Forge & Vote';
+                    phaseLabel = 'FINAL COUNTDOWN';
+                    phaseColors = ['bg-gold/10', 'border-gold/60', 'text-gold'];
+
+                    el.classList.remove('text-neon', 'text-aurora');
+                    el.classList.add('text-gold');
+
+                    tooltipHtml =
+                        '<div class="font-semibold text-[10px] text-gold mb-1">Final Countdown</div>' +
+                        '<div class="text-[10px] text-platinum/80">We are in the final hours. This is your last chance to forge ideas and vote.</div>';
+                    if (closeLabel) {
+                        tooltipHtml +=
+                            '<div class="mt-1 text-[10px] text-platinum/60">Forge closes at <span class="text-neon">' +
+                            closeLabel +
+                            '</span></div>';
+                    }
+                } else if (pct < 0.5) {
+                    // Early phase → Submissions focus
+                    key = 'submissions';
+                    statusText = 'Submissions Only · Forge Your Idea';
+                    phaseLabel = 'SUBMISSIONS';
+                    phaseColors = ['bg-neon/10', 'border-neon/60', 'text-neon'];
+
+                    el.classList.remove('text-aurora');
+                    el.classList.add('text-neon');
+
+                    tooltipHtml =
+                        '<div class="font-semibold text-[10px] text-neon mb-1">Submissions Window</div>' +
+                        '<div class="text-[10px] text-platinum/80">Share your most powerful ideas. Voting is open but the focus is on forging.</div>';
+                    if (closeLabel) {
+                        tooltipHtml +=
+                            '<div class="mt-1 text-[10px] text-platinum/60">Forge closes at <span class="text-neon">' +
+                            closeLabel +
+                            '</span></div>';
+                    }
+                } else {
+                    // Mid phase → Voting focus
+                    key = 'voting';
+                    statusText = 'Voting Only · Signal the Strongest Ideas';
+                    phaseLabel = 'VOTING';
+                    phaseColors = ['bg-aurora/10', 'border-aurora/60', 'text-aurora'];
+
+                    el.classList.remove('text-neon');
+                    el.classList.add('text-aurora');
+
+                    tooltipHtml =
+                        '<div class="font-semibold text-[10px] text-aurora mb-1">Community Voting</div>' +
+                        '<div class="text-[10px] text-platinum/80">Help the Forge find the strongest ideas by voting and commenting.</div>';
+                    if (closeLabel) {
+                        tooltipHtml +=
+                            '<div class="mt-1 text-[10px] text-platinum/60">Forge closes at <span class="text-neon">' +
+                            closeLabel +
+                            '</span></div>';
+                    }
+                }
             }
 
-            el.textContent = 'Live · Submissions & Voting Open';
-            el.classList.remove('text-red-400', 'text-gold');
-            el.classList.add('text-neon');
+            // Apply status text
+            el.textContent = statusText;
+
+            // Animate when status key changes
+            if (currentEventStatusKey !== key) {
+                currentEventStatusKey = key;
+                el.classList.remove('event-status-pulse');
+                void el.offsetWidth; // reflow
+                el.classList.add('event-status-pulse');
+            }
+
+            // Update phase chip badge
+            if (phaseChip) {
+                const colorClasses = [
+                    'bg-neon/10', 'border-neon/60', 'text-neon',
+                    'bg-aurora/10', 'border-aurora/60', 'text-aurora',
+                    'bg-gold/10', 'border-gold/60', 'text-gold'
+                ];
+                phaseChip.classList.remove(...colorClasses);
+
+                if (phaseLabel) {
+                    phaseChip.textContent = 'PHASE: ' + phaseLabel;
+                    phaseChip.classList.remove('hidden');
+                    if (phaseColors && phaseColors.length) {
+                        phaseChip.classList.add(...phaseColors);
+                    }
+                } else {
+                    phaseChip.classList.add('hidden');
+                }
+            }
+
+            // Update tooltip content
+            if (tooltipEl && tooltipHtml) {
+                tooltipEl.innerHTML = tooltipHtml;
+            }
         }
 
         // Timer visibility from localStorage
