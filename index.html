@@ -2561,6 +2561,175 @@
         }
 
         // ═══════════════════════════════════════════════════════════════════
+        // COMMENTS MODAL HELPERS
+        // ═══════════════════════════════════════════════════════════════════
+        function renderCommentsList() {
+            const listEl = document.getElementById('commentsList');
+            const countEl = document.getElementById('commentCount');
+            if (!listEl) return;
+
+            if (!ideaComments || ideaComments.length === 0) {
+                listEl.innerHTML = '<p class="text-center text-platinum/60 py-6 text-xs">No comments yet. Start the conversation.</p>';
+                if (countEl) countEl.textContent = '0 comments';
+                return;
+            }
+
+            listEl.innerHTML = ideaComments.map(c => {
+                const when = formatTime(c.timestamp);
+                const author = escapeHtml(c.author || 'Unknown Forger');
+                const content = escapeHtml(c.content || '');
+                const votes = c.votes || 0;
+                return `
+                    <div class="glass-card rounded-xl p-3 text-xs flex flex-col gap-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-semibold text-starlight truncate">${author}</span>
+                            <span class="text-[10px] text-platinum/60 whitespace-nowrap">${when}</span>
+                        </div>
+                        <p class="text-platinum mt-1">${content}</p>
+                        <div class="flex items-center justify-between mt-1 text-[11px] text-platinum/70">
+                            <span><i class="fa-solid fa-arrow-trend-up text-neon/70 mr-1"></i>${votes} karma</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (countEl) {
+                const count = ideaComments.length;
+                countEl.textContent = count + (count === 1 ? ' comment' : ' comments');
+            }
+        }
+
+        window.openComments = async function (ideaId, title, desc) {
+            currentIdeaId = ideaId;
+
+            const modal = document.getElementById('commentsModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+
+            const inputEl = document.getElementById('commentInput');
+            if (inputEl) inputEl.value = '';
+
+            const titleEl = document.getElementById('modalIdeaTitle');
+            if (titleEl) titleEl.textContent = title || 'Comments';
+
+            const descEl = document.getElementById('modalIdeaDesc');
+            if (descEl) descEl.textContent = desc || '';
+
+            const authorSpan = document.querySelector('#modalIdeaAuthor span:last-child');
+            const metaSpan = document.querySelector('#modalIdeaMeta span:last-child');
+            const scoreSpan = document.querySelector('#modalIdeaScore span:last-child');
+
+            if (authorSpan) authorSpan.textContent = 'Loading forger...';
+            if (metaSpan) metaSpan.textContent = 'Loading...';
+            if (scoreSpan) scoreSpan.textContent = 'Loading...';
+
+            try {
+                const ideaRef = doc(db, 'ideas', ideaId);
+                const snap = await getDoc(ideaRef);
+                if (snap.exists()) {
+                    const idea = snap.data();
+                    const authorName = idea.author || 'Unknown Forger';
+                    const when = formatTime(idea.timestamp);
+                    const votes = idea.votes || 0;
+                    const comments = idea.commentCount || 0;
+
+                    if (authorSpan) authorSpan.textContent = authorName;
+                    if (metaSpan) metaSpan.textContent = when;
+                    if (scoreSpan) scoreSpan.textContent = votes + ' votes  ' + comments + ' comments';
+
+                    if (countEl) {
+                        countEl.textContent = comments + (comments === 1 ? ' comment' : ' comments');
+                    }
+                }
+            } catch (e) {
+                console.log('Idea meta load error', e);
+            }
+
+            if (commentsUnsubscribe) {
+                commentsUnsubscribe();
+                commentsUnsubscribe = null;
+            }
+
+            try {
+                const commentsRef = collection(db, 'ideas', ideaId, 'comments');
+                const q = query(commentsRef, orderBy('timestamp', 'desc'));
+                commentsUnsubscribe = onSnapshot(q, snap => {
+                    ideaComments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                    renderCommentsList();
+                }, e => {
+                    console.log('Comments listener error', e);
+                    const listEl = document.getElementById('commentsList');
+                    if (listEl) {
+                        listEl.innerHTML = '<p class="text-center text-red-400 py-6 text-xs">Unable to load comments.</p>';
+                    }
+                });
+            } catch (e) {
+                console.log('Comments init error', e);
+            }
+        };
+
+        window.closeComments = function () {
+            const modal = document.getElementById('commentsModal');
+            if (modal) modal.classList.add('hidden');
+
+            if (commentsUnsubscribe) {
+                commentsUnsubscribe();
+                commentsUnsubscribe = null;
+            }
+            currentIdeaId = null;
+            ideaComments = [];
+        };
+
+        window.submitComment = async function () {
+            if (!currentUser) {
+                return Swal.fire({ icon: 'warning', title: 'Please Sign In', text: 'Sign in to join the discussion.' });
+            }
+            if (!currentIdeaId) {
+                return Swal.fire({ icon: 'error', title: 'No Idea Selected', text: 'Open an idea before adding a comment.' });
+            }
+
+            const inputEl = document.getElementById('commentInput');
+            const btnEl = document.getElementById('submitCommentBtn');
+            if (!inputEl) return;
+
+            const text = inputEl.value.trim();
+            if (!text) return;
+            if (!validateText(text)) {
+                return Swal.fire({ icon: 'error', title: ' Language Detected', text: 'Be respectful. No profanity allowed.' });
+            }
+
+            try {
+                if (btnEl) {
+                    btnEl.disabled = true;
+                    btnEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                }
+
+                const commentsRef = collection(db, 'ideas', currentIdeaId, 'comments');
+                await addDoc(commentsRef, {
+                    content: text,
+                    uid: currentUser.uid,
+                    author: currentUser.displayName || 'Unknown Forger',
+                    votes: 0,
+                    timestamp: serverTimestamp()
+                });
+
+                await updateDoc(doc(db, 'ideas', currentIdeaId), {
+                    commentCount: increment(1)
+                });
+
+                inputEl.value = '';
+            } catch (e) {
+                console.error('Comment error', e);
+                Swal.fire({ icon: 'error', title: 'Comment Failed', text: e.message });
+            } finally {
+                if (btnEl) {
+                    btnEl.disabled = false;
+                    btnEl.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+                }
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
         // USER: EDIT IDEA
         // ═══════════════════════════════════════════════════════════════════
         window.editIdea = async function (ideaId, currentTitle, currentDesc) {
