@@ -232,8 +232,8 @@ app = FastAPI(title="IDRISIUM IDEAS FORGE – AI Backend", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=".*",  # For production, restrict to frontend origin
-    allow_credentials=True,
+    allow_origins=["*"],  # During development allow all; restrict in production
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
