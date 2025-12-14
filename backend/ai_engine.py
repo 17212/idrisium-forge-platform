@@ -85,6 +85,14 @@ class DebateResponse(BaseModel):
     transcript: str
 
 
+class EvolutionRequest(BaseModel):
+    idea_text: str
+
+
+class EvolutionResponse(BaseModel):
+    evolution: str
+
+
 class ModerationRequest(BaseModel):
     text: str
 
@@ -359,6 +367,19 @@ class GeminiManager:
         )
         transcript = await self._call_gemini(system_instruction, user_prompt, temperature=0.8)
         return DebateResponse(transcript=transcript.strip())
+
+    async def idea_evolution(self, idea_text: str) -> EvolutionResponse:
+        """Generate a phase-2 roadmap for the idea (Idea Evolution feature)."""
+
+        system_instruction = (
+            "You are a senior product strategist. "
+            "Given a startup idea, outline how this product should evolve in version 2.0. "
+            "Focus on scalability, monetization, ecosystem effects, and long-term moat. "
+            "Respond with a concise, well-structured markdown section."
+        )
+        user_prompt = f"IDEA:\n{idea_text}\n\nDescribe the version 2.0 evolution roadmap."
+        text = await self._call_gemini(system_instruction, user_prompt, temperature=0.7, max_output_tokens=768)
+        return EvolutionResponse(evolution=text.strip())
 
 
 # --- Moderation & Analytics helpers (backend will wire these to Firestore) ---
