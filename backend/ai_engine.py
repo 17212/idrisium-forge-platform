@@ -419,9 +419,12 @@ STOP_WORDS: List[str] = [
 async def context_aware_filter_text(manager: GeminiManager, text: str) -> ModerationResponse:
     cleaned = _strip_html(text)
     lowered = cleaned.lower()
+    compacted = "".join(ch for ch in lowered if ch.isalpha())
 
     # Hard block if explicit words appear clearly out of context
-    if any(word in lowered for word in BANNED_WORDS):
+    if any(word in lowered for word in BANNED_WORDS) or any(
+        word in compacted for word in BANNED_WORDS
+    ):
         return ModerationResponse(allowed=False, toxicity_score=1.0, reason="Contains banned terms.")
 
     system_instruction = (

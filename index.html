@@ -1,0 +1,2956 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="IDRISIUM FORGE - The Ultimate App Ideas Crowdsourcing Event. Vote for the future.">
+    <meta name="author" content="IDRIS GHAMID">
+    <meta name="theme-color" content="#000000">
+    <title>IDRISIUM FORGE | The Ultimate Ideas Event</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Core Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Removed Vanilla Tilt for Static Stability -->
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        void: '#000000',
+                        abyss: '#050505',
+                        neon: '#39FF14',
+                        'neon-dim': 'rgba(57, 255, 20, 0.1)',
+                        'neon-glow': 'rgba(57, 255, 20, 0.3)',
+                        aurora: '#00D9FF',
+                        'aurora-dim': 'rgba(0, 217, 255, 0.1)',
+                        teal: '#14F4C9',
+                        onyx: '#0a0a0a',
+                        platinum: '#888888',
+                        starlight: '#EDEDED',
+                        gold: '#FFD700'
+                    },
+                    fontFamily: {
+                        heading: ['Space Grotesk', 'sans-serif'],
+                        body: ['Manrope', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            font-family: 'Manrope', sans-serif;
+            min-height: 100vh;
+            color: #EDEDED;
+            overflow-x: hidden;
+        }
+
+        /* Aurora Background */
+        .aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .aurora-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .aurora-orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #39FF14 0%, transparent 70%);
+            top: -200px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .aurora-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #00D9FF 0%, transparent 70%);
+            top: 50%;
+            right: -150px;
+            animation-delay: -5s;
+            animation-duration: 25s;
+        }
+
+        .aurora-orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #14F4C9 0%, transparent 70%);
+            bottom: -100px;
+            left: 30%;
+            animation-delay: -10s;
+            animation-duration: 30s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            25% {
+                transform: translate(50px, -30px) scale(1.1);
+            }
+
+            50% {
+                transform: translate(-30px, 50px) scale(0.9);
+            }
+
+            75% {
+                transform: translate(-50px, -20px) scale(1.05);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #39FF14;
+            border-radius: 3px;
+        }
+
+        /* 🔦 Spotlight */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle 600px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(57, 255, 20, 0.05), transparent 40%);
+            z-index: 999;
+        }
+
+        /* 🏆 Rank Progress */
+        .rank-progress-bg {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .rank-progress-fill {
+            height: 100%;
+            background: #39FF14;
+            box-shadow: 0 0 10px #39FF14;
+            transition: width 1s ease;
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(57, 255, 20, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(57, 255, 20, 0.3);
+            box-shadow: 0 0 40px rgba(57, 255, 20, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Neon Input */
+        .neon-input {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(57, 255, 20, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .neon-input:focus {
+            outline: none;
+            border-color: #39FF14;
+            box-shadow: 0 0 25px rgba(57, 255, 20, 0.3);
+        }
+
+        /* Neon Button */
+        .neon-btn {
+            background: linear-gradient(135deg, #39FF14 0%, #14F4C9 100%);
+            color: #000000;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neon-btn:hover:not(:disabled) {
+            box-shadow: 0 0 40px rgba(57, 255, 20, 0.6);
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .neon-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #333;
+            color: #666;
+        }
+
+        .neon-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .neon-btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        /* Google Button */
+        .google-btn {
+            background: #FFFFFF;
+            color: #333;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .google-btn:hover {
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+            transform: scale(1.02);
+        }
+
+        /* Vote Button */
+        .vote-btn {
+            background: transparent;
+            border: 2px solid rgba(57, 255, 20, 0.4);
+            color: #39FF14;
+            transition: all 0.3s ease;
+        }
+
+        .vote-btn:hover:not(:disabled) {
+            background: rgba(57, 255, 20, 0.15);
+            border-color: #39FF14;
+            box-shadow: 0 0 25px rgba(57, 255, 20, 0.4);
+            transform: scale(1.05);
+        }
+
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .vote-btn.voted {
+            background: rgba(57, 255, 20, 0.25);
+            border-color: #39FF14;
+        }
+
+        /* Tab Button */
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: rgba(57, 255, 20, 0.1);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.2) 0%, rgba(20, 244, 201, 0.2) 100%);
+            border-color: #39FF14;
+            color: #39FF14;
+        }
+
+        /* Skeleton */
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        /* Timer */
+        .timer-digit {
+            background: linear-gradient(180deg, rgba(57, 255, 20, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            text-shadow: 0 0 20px rgba(57, 255, 20, 0.8);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #39FF14 0%, #00D9FF 50%, #14F4C9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* User Avatar */
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #39FF14;
+            object-fit: cover;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+        }
+
+        /* Line Clamp */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Pulse */
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(57, 255, 20, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(57, 255, 20, 0.6);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        /* SweetAlert2 Dark */
+        .swal2-popup {
+            background: #0a0a0a !important;
+            border: 1px solid rgba(57, 255, 20, 0.3) !important;
+            border-radius: 20px !important;
+        }
+
+        .swal2-title {
+            color: #EDEDED !important;
+            font-family: 'Space Grotesk', sans-serif !important;
+        }
+
+        .swal2-html-container {
+            color: #888 !important;
+            font-family: 'Manrope', sans-serif !important;
+        }
+
+        .swal2-confirm {
+            background: linear-gradient(135deg, #39FF14 0%, #14F4C9 100%) !important;
+            color: #000 !important;
+            font-weight: 700 !important;
+            border-radius: 12px !important;
+        }
+
+        .swal2-cancel {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #EDEDED !important;
+            border-radius: 12px !important;
+        }
+
+        .swal2-input,
+        .swal2-textarea {
+            background: #111 !important;
+            border: 1px solid rgba(57, 255, 20, 0.3) !important;
+            color: #EDEDED !important;
+            border-radius: 12px !important;
+        }
+
+        /* Forge Closed Banner */
+        .forge-closed {
+            background: linear-gradient(135deg, rgba(255, 50, 50, 0.2) 0%, rgba(100, 0, 0, 0.3) 100%);
+            border: 2px solid #FF3333;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(255, 50, 50, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(255, 50, 50, 0.6);
+            }
+        }
+
+        /* Comment System */
+        .comment-card {
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(57, 255, 20, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .comment-card:hover {
+            border-color: rgba(57, 255, 20, 0.3);
+        }
+
+        .comment-vote-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            color: #888;
+        }
+
+        .comment-vote-btn:hover {
+            background: rgba(57, 255, 20, 0.2);
+            color: #39FF14;
+        }
+
+        .comment-vote-btn.upvoted {
+            background: rgba(57, 255, 20, 0.2);
+            color: #39FF14;
+        }
+
+        .comment-vote-btn.downvoted {
+            background: rgba(255, 80, 80, 0.2);
+            color: #FF5050;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-content {
+            background: #0a0a0a;
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 24px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Replies */
+        /* ═══════════════════════════════════════════════════════════════════
+           ADVANCED NESTED REPLIES (Facebook Style)
+           ═══════════════════════════════════════════════════════════════════ */
+        .comment-thread {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .comment-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            z-index: 2;
+        }
+
+        .comment-card:hover {
+            border-color: rgba(57, 255, 20, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Thread Connector Line */
+        .replies-container {
+            margin-left: 20px;
+            padding-left: 20px;
+            border-left: 2px solid rgba(57, 255, 20, 0.15);
+            /* VISIBLE THREAD LINE */
+            margin-top: 0;
+            padding-top: 12px;
+        }
+
+        .reply-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        /* The horizontal connector line */
+        .reply-card::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: -22px;
+            /* Connects to the main vertical line */
+            width: 20px;
+            height: 2px;
+            background: rgba(57, 255, 20, 0.15);
+            border-radius: 2px;
+        }
+
+        /* Inline Reply Form */
+        .inline-reply-form {
+            margin-top: 8px;
+            margin-left: 20px;
+            padding: 12px;
+            background: rgba(57, 255, 20, 0.02);
+            border: 1px dashed rgba(57, 255, 20, 0.2);
+            border-radius: 12px;
+            display: flex;
+            gap: 12px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reply-form {
+            margin-top: 10px;
+            margin-left: 32px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Pulse animation for new comments */
+        .new-comment {
+            animation: pulseGreen 0.5s ease;
+        }
+
+        @keyframes pulseGreen {
+            0% {
+                box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 0 0 15px rgba(57, 255, 20, 0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Aurora Background -->
+    <div class="aurora-bg">
+        <div class="aurora-orb aurora-orb-1"></div>
+        <div class="aurora-orb aurora-orb-2"></div>
+        <div class="aurora-orb aurora-orb-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header
+        class="fixed top-0 left-0 w-full z-50 bg-black/20 backdrop-blur-md border-b border-white/5 transition-all duration-300"
+        id="mainHeader">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon to-teal flex items-center justify-center pulse-glow">
+                    <i class="fa-solid fa-hammer text-black text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM FORGE</h1>
+                    <p class="text-xs text-platinum font-body">Limited-Time Ideas Event</p>
+                </div>
+            </div>
+            <!-- Admin Controls (Header) -->
+            <div id="adminHeaderControls" class="hidden flex items-center gap-2">
+                <button onclick="toggleTimer()" id="toggleTimerBtn"
+                    class="px-3 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
+                    <i class="fa-solid fa-clock"></i> <span id="toggleTimerText">Hide Timer</span>
+                </button>
+                <button onclick="resetTimer()"
+                    class="px-3 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
+                    <i class="fa-solid fa-rotate"></i> Reset
+                </button>
+            </div>
+            <div id="authSection" class="flex items-center gap-4">
+                <!-- Auth UI will be injected here -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Panel (Below Header) -->
+    <div id="adminPanel" class="hidden max-w-6xl mx-auto px-4 py-3">
+        <div class="glass-card rounded-xl p-4 border-gold/30 bg-gold/5">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
+                        <i class="fa-solid fa-crown text-gold"></i>
+                    </div>
+                    <div>
+                        <p class="font-heading font-bold text-gold">God Mode Activated</p>
+                        <p class="text-xs text-platinum">You have full admin privileges</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="pickRandomIdea()"
+                        class="px-4 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
+                        <i class="fa-solid fa-dice mr-1"></i> Pick Random
+                    </button>
+                    <button onclick="clearWinner()"
+                        class="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
+                        <i class="fa-solid fa-trophy mr-1"></i> Clear Winner
+                    </button>
+                    <button onclick="exportIdeasCSV()"
+                        class="px-4 py-2 rounded-lg bg-neon/20 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
+                        <i class="fa-solid fa-file-export mr-1"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <main class="max-w-4xl mx-auto px-6 pt-32 pb-24 relative z-10">
+
+        <!-- Doomsday Timer -->
+        <section id="timerSection" class="glass-card rounded-3xl p-8 mb-10 text-center">
+            <p class="text-sm text-aurora font-semibold tracking-widest uppercase mb-2">
+                <i class="fa-solid fa-clock mr-2"></i>Event Ends In
+            </p>
+            <div id="countdown" class="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
+                    <span id="days" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
+                    <p class="text-xs text-platinum mt-1">DAYS</p>
+                </div>
+                <span class="text-3xl text-neon font-bold">:</span>
+                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
+                    <span id="hours" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
+                    <p class="text-xs text-platinum mt-1">HOURS</p>
+                </div>
+                <span class="text-3xl text-neon font-bold">:</span>
+                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
+                    <span id="minutes" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
+                    <p class="text-xs text-platinum mt-1">MINS</p>
+                </div>
+                <span class="text-3xl text-neon font-bold">:</span>
+                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
+                    <span id="seconds" class="font-heading text-3xl sm:text-5xl font-bold text-aurora">00</span>
+                    <p class="text-xs text-platinum mt-1">SECS</p>
+                </div>
+            </div>
+            <!-- Forge Closed Banner (Hidden) -->
+            <div id="forgeClosed" class="hidden forge-closed rounded-2xl p-6 mt-6">
+                <h3 class="font-heading text-2xl font-bold text-red-400">
+                    <i class="fa-solid fa-lock mr-2"></i>FORGE CLOSED
+                </h3>
+                <p class="text-red-300 mt-2">The submission period has ended. Thank you for participating!</p>
+            </div>
+        </section>
+
+        <!-- Login Prompt -->
+        <section id="loginPrompt" class="glass-card rounded-3xl p-10 mb-10 text-center hidden">
+            <div
+                class="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-neon/20 to-aurora/20 flex items-center justify-center">
+                <i class="fa-solid fa-user-lock text-neon text-4xl"></i>
+            </div>
+            <h2 class="font-heading text-3xl font-bold text-starlight mb-3">Join the Forge</h2>
+            <p class="text-platinum mb-8 max-w-md mx-auto">Sign in with Google to submit revolutionary ideas and vote
+                for the future of IDRISIUM.</p>
+            <button onclick="signInWithGoogle()"
+                class="google-btn px-8 py-4 rounded-2xl text-lg font-semibold flex items-center gap-3 mx-auto">
+                <svg width="24" height="24" viewBox="0 0 48 48">
+                    <path fill="#FFC107"
+                        d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                    <path fill="#FF3D00"
+                        d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                    <path fill="#4CAF50"
+                        d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                    <path fill="#1976D2"
+                        d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+                </svg>
+                Sign in with Google
+            </button>
+        </section>
+
+        <!-- Submit Form -->
+        <section id="submitSection" class="glass-card rounded-3xl p-8 mb-10 hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-heading text-xl font-bold text-starlight flex items-center gap-3">
+                    <i class="fa-solid fa-wand-magic-sparkles text-neon"></i> Forge Your Idea
+                </h3>
+                <span id="submissionStatus" class="text-xs text-platinum"></span>
+            </div>
+            <form id="ideaForm" onsubmit="submitIdea(event)" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm text-platinum mb-2">Idea Title <span
+                                class="text-neon">*</span></label>
+                        <input type="text" id="ideaTitle" required maxlength="200"
+                            placeholder="Your revolutionary idea..."
+                            class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body">
+                        <p class="text-xs text-platinum mt-1 text-right"><span id="titleCount">0</span>/200</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-platinum mb-2">Your Display Name <span
+                                class="text-neon">*</span></label>
+                        <input type="text" id="authorName" required maxlength="50" placeholder="Anonymous Forger"
+                            class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-platinum mb-2">Description <span class="text-neon">*</span></label>
+                    <textarea id="ideaDescription" required rows="4" maxlength="1000"
+                        placeholder="Describe your idea in detail. What problem does it solve? Who is it for?"
+                        class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body resize-none"></textarea>
+                    <p class="text-xs text-platinum mt-1 text-right"><span id="descCount">0</span>/1000</p>
+                </div>
+                <button type="submit" id="submitBtn"
+                    class="neon-btn px-8 py-4 rounded-xl font-heading text-lg flex items-center justify-center gap-3 w-full md:w-auto">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Submit to the Forge</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Stats -->
+        <section class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+            <div class="glass-card rounded-2xl p-5 text-center">
+                <p id="statTopIdeas" class="font-heading text-3xl font-bold text-neon">0</p>
+                <p class="text-xs text-platinum mt-1">Top Ideas</p>
+            </div>
+            <div class="glass-card rounded-2xl p-5 text-center">
+                <p id="statNewIdeas" class="font-heading text-3xl font-bold text-aurora">0</p>
+                <p class="text-xs text-platinum mt-1">New Ideas</p>
+            </div>
+            <div class="glass-card rounded-2xl p-5 text-center">
+                <p id="statTotalIdeas" class="font-heading text-3xl font-bold text-teal">0</p>
+                <p class="text-xs text-platinum mt-1">Total Ideas</p>
+            </div>
+        </section>
+
+        <!-- Search & Filter Bar -->
+        <section class="glass-card rounded-2xl p-4 mb-6">
+            <div class="flex flex-col md:flex-row items-center gap-4">
+                <div class="relative flex-1 w-full">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-platinum"></i>
+                    <input type="text" id="searchInput" placeholder="Search ideas..."
+                        class="neon-input w-full pl-12 pr-4 py-3 rounded-xl text-starlight placeholder-platinum/50"
+                        oninput="filterIdeas()">
+                </div>
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <select id="sortSelect" onchange="changeSorting()"
+                        class="neon-input px-4 py-3 rounded-xl text-starlight bg-onyx cursor-pointer">
+                        <option value="votes">🔥 Most Votes</option>
+                        <option value="newest">🕐 Newest First</option>
+                        <option value="oldest">📅 Oldest First</option>
+                    </select>
+                    <button onclick="clearSearch()"
+                        class="px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
+                        title="Clear Search">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab Navigation -->
+        <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
+            <div class="flex items-center gap-3">
+                <button onclick="switchTab('top')" id="tabTop"
+                    class="tab-btn active px-6 py-3 rounded-xl font-heading font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-fire"></i> Top 30
+                </button>
+                <button onclick="switchTab('new')" id="tabNew"
+                    class="tab-btn px-6 py-3 rounded-xl font-heading font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-clock"></i> New Arrivals
+                </button>
+            </div>
+            <p id="resultsCount" class="text-xs text-platinum"></p>
+        </div>
+
+        <!-- Ideas Feed: Top -->
+        <div id="feedTop" class="space-y-4">
+            <!-- Skeleton -->
+            <div class="skeleton-container">
+                <div class="glass-card rounded-2xl p-6 mb-4">
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <div class="skeleton h-6 w-3/4 mb-3"></div>
+                            <div class="skeleton h-4 w-full mb-2"></div>
+                            <div class="skeleton h-4 w-1/2"></div>
+                        </div>
+                        <div class="skeleton w-16 h-20 rounded-xl"></div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6 mb-4">
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <div class="skeleton h-6 w-1/2 mb-3"></div>
+                            <div class="skeleton h-4 w-full mb-2"></div>
+                            <div class="skeleton h-4 w-2/3"></div>
+                        </div>
+                        <div class="skeleton w-16 h-20 rounded-xl"></div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <div class="skeleton h-6 w-2/3 mb-3"></div>
+                            <div class="skeleton h-4 w-full mb-2"></div>
+                            <div class="skeleton h-4 w-1/3"></div>
+                        </div>
+                        <div class="skeleton w-16 h-20 rounded-xl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ideas Feed: New (Hidden) -->
+        <div id="feedNew" class="space-y-4 hidden">
+            <div class="skeleton-container">
+                <div class="glass-card rounded-2xl p-6 mb-4">
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <div class="skeleton h-6 w-2/3 mb-3"></div>
+                            <div class="skeleton h-4 w-full mb-2"></div>
+                        </div>
+                        <div class="skeleton w-16 h-20 rounded-xl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <div
+                class="w-28 h-28 mx-auto mb-6 rounded-full bg-gradient-to-br from-neon/10 to-aurora/10 flex items-center justify-center">
+                <i class="fa-solid fa-rocket text-neon text-5xl"></i>
+            </div>
+            <h3 class="font-heading text-2xl font-bold text-starlight mb-2">No Ideas Yet</h3>
+            <p class="text-platinum">Be the first to forge the future!</p>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-neon/10 mt-20 py-10">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-neon to-teal flex items-center justify-center">
+                    <i class="fa-solid fa-hammer text-black"></i>
+                </div>
+                <span class="font-heading text-xl font-bold gradient-text">IDRISIUM FORGE</span>
+            </div>
+            <p class="text-platinum text-sm mb-6">Intelligence from the Shadows</p>
+            <div class="flex items-center justify-center gap-5 mb-6">
+                <a href="http://idrisium.linkpc.net/" target="_blank"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-solid fa-globe"></i></a>
+                <a href="https://github.com/IDRISIUM" target="_blank"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-brands fa-github"></i></a>
+                <a href="https://tiktok.com/@idris.ghamid" target="_blank"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-brands fa-tiktok"></i></a>
+                <a href="https://instagram.com/idris.ghamid" target="_blank"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-brands fa-instagram"></i></a>
+                <a href="https://t.me/IDRV72" target="_blank"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-brands fa-telegram"></i></a>
+                <a href="mailto:idris.ghamid@gmail.com"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-solid fa-envelope"></i></a>
+            </div>
+            <p class="text-xs text-platinum/50">
+                Created by <span class="text-neon">IDRIS GHAMID</span> • Powered by <span class="gradient-text">IDRISIUM
+                    Corp</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal-overlay hidden" onclick="if(event.target === this) closeProfile()">
+        <div class="glass-card max-w-lg w-full p-8 mx-4 relative flex flex-col items-center">
+            <button onclick="closeProfile()" class="absolute top-4 right-4 text-platinum hover:text-white"><i
+                    class="fa-solid fa-times text-xl"></i></button>
+
+            <!-- Rank Badge -->
+            <div class="relative mb-6">
+                <div class="w-24 h-24 rounded-full p-1 border-2 border-neon shadow-lg shadow-neon/50">
+                    <img id="profileAvatar" src="" class="w-full h-full rounded-full object-cover">
+                </div>
+                <div id="profileRankBadge"
+                    class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-black border border-neon text-neon text-xs font-bold px-3 py-1 rounded-full uppercase whitespace-nowrap box-shadow-neon">
+                    Novice
+                </div>
+            </div>
+
+            <h2 id="profileName" class="text-2xl font-bold text-white mb-1">User Name</h2>
+            <p id="profileEmail" class="text-sm text-platinum mb-6">user@example.com</p>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-4 w-full mb-6 text-center">
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileIdeaCount" class="text-2xl font-bold text-teal">0</p>
+                    <p class="text-xs text-platinum">Forged</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileVoteCount" class="text-2xl font-bold text-neon">0</p>
+                    <p class="text-xs text-platinum">Karma</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileRankLevel" class="text-2xl font-bold text-aurora">1</p>
+                    <p class="text-xs text-platinum">Level</p>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <!-- Progress -->
+            <div class="w-full text-left mb-6">
+                <div class="flex justify-between text-xs text-platinum mb-2">
+                    <span id="rankCurrent">Novice</span>
+                    <span id="rankNext">Apprentice</span>
+                </div>
+                <div class="rank-progress-bg w-full">
+                    <div id="rankProgress" class="rank-progress-fill" style="width: 0%"></div>
+                </div>
+                <p id="rankMsg" class="text-xs text-center mt-3 text-neon-dim">10 votes to next rank</p>
+            </div>
+
+            <!-- Badges Grid -->
+            <div class="w-full">
+                <h3 class="text-white font-bold text-sm mb-3 border-b border-white/10 pb-2">Your Badges</h3>
+                <div id="profileBadges" class="flex flex-wrap gap-2 text-2xl text-platinum/30 justify-center">
+                    <!-- Badges injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Modal -->
+    <div id="commentsModal" class="modal-overlay hidden" onclick="if(event.target === this) closeComments()">
+        <div class="modal-content">
+            <div class="p-6 border-b border-neon/20">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-heading text-xl font-bold text-starlight">
+                        <i class="fa-solid fa-comments text-neon mr-2"></i>
+                        <span id="modalIdeaTitle">Comments</span>
+                    </h3>
+                    <button onclick="closeComments()"
+                        class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-platinum transition-all">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                <p id="modalIdeaDesc" class="text-sm text-platinum mt-2 line-clamp-2"></p>
+            </div>
+
+            <!-- Add Comment Form -->
+            <div class="p-4 border-b border-neon/10">
+                <div class="flex gap-3">
+                    <input type="text" id="commentInput" placeholder="Add a comment..." maxlength="500"
+                        class="neon-input flex-1 px-4 py-3 rounded-xl text-starlight placeholder-platinum/50">
+                    <button onclick="submitComment()" id="submitCommentBtn"
+                        class="neon-btn px-6 py-3 rounded-xl font-semibold">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-platinum/50 mt-2">Be respectful. Comments are public.</p>
+            </div>
+
+            <!-- Comments List -->
+            <div id="commentsList" class="p-4 space-y-3 max-h-[50vh] overflow-y-auto">
+                <p class="text-center text-platinum py-8">Loading comments...</p>
+            </div>
+
+            <!-- Comment Count -->
+            <div class="p-4 border-t border-neon/10 text-center">
+                <span id="commentCount" class="text-xs text-platinum">0 comments</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal (No Tilt) -->
+    <div id="chatModal" class="modal-overlay hidden" onclick="if(event.target === this) closeChat()">
+        <div
+            class="bg-[#111111] border border-neon/20 rounded-2xl max-w-md w-full h-[80vh] mx-4 relative flex flex-col shadow-2xl">
+            <!-- Header -->
+            <div class="p-4 border-b border-neon/20 flex items-center justify-between bg-black/50 rounded-t-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full border border-neon p-0.5 relative">
+                        <img id="chatAvatar" src="" class="w-full h-full rounded-full object-cover">
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-neon rounded-full border-2 border-black"></div>
+                    </div>
+                    <div>
+                        <h3 id="chatName" class="font-bold text-white text-sm">Founder</h3>
+                        <p id="chatStatus" class="text-[10px] text-neon uppercase tracking-wider">Direct Line</p>
+                    </div>
+                </div>
+                <button onclick="closeChat()" class="text-platinum hover:text-white transition-colors">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
+                <div class="text-center text-xs text-platinum/30 py-4">Encrypted Channel Established</div>
+            </div>
+
+            <!-- Input (No Form) -->
+            <div class="p-4 border-t border-neon/10 bg-black/30 rounded-b-2xl">
+                <div class="flex gap-2">
+                    <input type="text" id="chatInput" placeholder="Type your message..." autocomplete="off"
+                        onkeydown="if(event.key === 'Enter') { event.preventDefault(); sendChatMessage(); }"
+                        class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-platinum/30 focus:border-neon focus:outline-none transition-colors">
+                    <button onclick="sendChatMessage()"
+                        class="bg-gradient-to-r from-neon to-teal text-black w-12 h-12 rounded-xl flex items-center justify-center hover:scale-105 transition-transform font-bold">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Inbox Modal (No Tilt) -->
+    <div id="inboxModal" class="modal-overlay hidden" onclick="if(event.target === this) closeInbox()">
+        <div
+            class="bg-[#111111] border border-neon/20 rounded-2xl max-w-md w-full h-[70vh] mx-4 relative flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-neon/20 flex items-center justify-between">
+                <h3 class="font-bold text-white"><i class="fa-solid fa-inbox text-neon mr-2"></i>Inbox</h3>
+                <button onclick="closeInbox()" class="text-platinum hover:text-white"><i
+                        class="fa-solid fa-times"></i></button>
+            </div>
+            <div id="inboxList" class="flex-1 overflow-y-auto p-2 space-y-2">
+                <!-- User Items -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // ═══════════════════════════════════════════════════════════════════
+        // CONFIGURATION
+        // ═══════════════════════════════════════════════════════════════════
+        const _0x1a2b = atob('ODIzODU0OTUwODpBQUVRWURxQXRLb2NxOE9ob0dYdFJUV1dVcHlHaWVxd0ZkSQ==');
+        const _0x3c4d = atob('ODIzODU0OTUwOA==');
+        const _0x5e6f = atob('bXVycGh5c2VjNzJAZ21haWwuY29t');
+        const EVENT_DURATION_DAYS = 7;
+        const MAX_IDEAS_PER_USER = 3; // Maximum ideas per user
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: atob("QUl6YVN5QXRIZXhOVVV1eWcyc18yN29ZdUtUNlBZMUNIeHR1M3JF"),
+            authDomain: atob("aWRyaXNpdW0tZm9yZ2UuZmlyZWJhc2VhcHAuY29t"),
+            projectId: atob("aWRyaXNpdW0tZm9yZ2U="),
+            storageBucket: atob("aWRyaXNpdW0tZm9yZ2UuZmlyZWJhc2VzdG9yYWdlLmFwcA=="),
+            messagingSenderId: atob("OTc3NDQwODk0NjEw"),
+            appId: atob("MTo5Nzc0NDA4OTQ2MTA6d2ViOjAyMzhmYWVmNzJjNjFjOGViNDQwNGI="),
+            measurementId: atob("Ry1NSzJaMTNZR0pE")
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // FIREBASE IMPORTS
+        // ═══════════════════════════════════════════════════════════════════
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        const {
+            getFirestore, collection, addDoc, getDocs, getDoc, updateDoc,
+            deleteDoc, doc, query, where, orderBy, limit, serverTimestamp,
+            enableIndexedDbPersistence, increment, collectionGroup,
+            onSnapshot, setDoc, writeBatch, getCountFromServer
+        } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+        import {
+            getAuth, signInWithPopup, signOut, GoogleAuthProvider, onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // ═══════════════════════════════════════════════════════════════════
+        // INITIALIZE
+        // ═══════════════════════════════════════════════════════════════════
+        let app, db, auth;
+        let currentUser = null;
+        let topIdeas = [];
+        let newIdeas = [];
+        let userSubmissionCount = 0;
+        let canSubmit = true;
+        let timeRemainingMsg = '';
+        let userCooldownDeadline = null;
+        let cooldownInterval = null;
+        let forgeIsOpen = true;
+        let isAdmin = false;
+        let currentUserKarma = 0; // Global Karma Tracker
+        let timerVisible = true;
+        let globalWinnerId = null; // Stores the randomly picked winner ID
+        let currentIdeaId = null; // Currently open idea for details/comments
+        let ideaComments = []; // Store comments for current idea
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log("🔥 Firebase Initialized");
+        } catch (err) {
+            console.error("Firebase Error:", err);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DOM ELEMENTS
+        // ═══════════════════════════════════════════════════════════════════
+        const authSection = document.getElementById('authSection');
+        const loginPrompt = document.getElementById('loginPrompt');
+        const submitSection = document.getElementById('submitSection');
+        const feedTop = document.getElementById('feedTop');
+        const feedNew = document.getElementById('feedNew');
+        const emptyState = document.getElementById('emptyState');
+        const ideaForm = document.getElementById('ideaForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const forgeClosed = document.getElementById('forgeClosed');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminHeaderControls = document.getElementById('adminHeaderControls');
+        const timerSection = document.getElementById('timerSection');
+
+        // Char counters
+        document.getElementById('ideaTitle').addEventListener('input', e => {
+            document.getElementById('titleCount').textContent = e.target.value.length;
+        });
+        document.getElementById('ideaDescription').addEventListener('input', e => {
+            document.getElementById('descCount').textContent = e.target.value.length;
+        });
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DOOMSDAY TIMER
+        // ═══════════════════════════════════════════════════════════════════
+        const DEADLINE_KEY = 'idrisium_forge_deadline';
+        let deadline;
+
+        function initDeadline() {
+            const stored = localStorage.getItem(DEADLINE_KEY);
+            if (stored) {
+                deadline = new Date(parseInt(stored));
+            } else {
+                deadline = new Date(Date.now() + EVENT_DURATION_DAYS * 24 * 60 * 60 * 1000);
+                localStorage.setItem(DEADLINE_KEY, deadline.getTime().toString());
+            }
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const now = new Date();
+            const diff = deadline - now;
+
+            if (diff <= 0) {
+                forgeIsOpen = false;
+                document.getElementById('days').textContent = '00';
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+                forgeClosed.classList.remove('hidden');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Forge Closed';
+                return;
+            }
+
+            forgeIsOpen = true;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        // Timer visibility from localStorage
+        timerVisible = localStorage.getItem('idrisium_timer_visible') !== 'false';
+
+        initDeadline();
+
+        // Apply saved timer visibility
+        if (!timerVisible) {
+            timerSection.classList.add('hidden');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ADMIN: TIMER CONTROLS (Global via Firestore)
+        // ═══════════════════════════════════════════════════════════════════
+        window.toggleTimer = async function () {
+            timerVisible = !timerVisible;
+            try {
+                await setDoc(doc(db, 'settings', 'forge'), { timerVisible }, { merge: true });
+                timerSection.classList.toggle('hidden', !timerVisible);
+                document.getElementById('toggleTimerText').textContent = timerVisible ? 'Hide Timer' : 'Show Timer';
+                Swal.fire({ icon: 'info', title: timerVisible ? 'Timer Visible for All' : 'Timer Hidden for All', timer: 1500, showConfirmButton: false });
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
+            }
+        };
+
+        window.resetTimer = async function () {
+            const result = await Swal.fire({
+                icon: 'warning',
+                title: 'Reset Timer for Everyone?',
+                text: 'This will restart the countdown to ' + EVENT_DURATION_DAYS + ' days for ALL users.',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Reset',
+                cancelButtonText: 'Cancel'
+            });
+            if (result.isConfirmed) {
+                try {
+                    // Create new deadline
+                    deadline = new Date(Date.now() + EVENT_DURATION_DAYS * 24 * 60 * 60 * 1000);
+
+                    // Save to Firestore (global)
+                    await setDoc(doc(db, 'settings', 'forge'), {
+                        deadline: deadline.getTime()
+                    }, { merge: true });
+
+                    // Reset UI state
+                    forgeClosed.classList.add('hidden');
+                    forgeIsOpen = true;
+                    updateTimer();
+
+                    // Confetti celebration!
+                    confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#39FF14', '#00D9FF'] });
+                    Swal.fire({ icon: 'success', title: 'Timer Reset for Everyone!', text: 'New countdown started.', timer: 2000, showConfirmButton: false });
+                } catch (e) {
+                    Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
+                }
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // AUTHENTICATION
+        // ═══════════════════════════════════════════════════════════════════
+        const provider = new GoogleAuthProvider();
+
+        window.signInWithGoogle = async function () {
+            try {
+                await signInWithPopup(auth, provider);
+                Swal.fire({ icon: 'success', title: 'Welcome, Forger!', timer: 2000, showConfirmButton: false });
+            } catch (error) {
+                if (error.code === 'auth/unauthorized-domain') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Domain Not Authorized',
+                        html: `<p>Add <code>${window.location.hostname}</code> to Firebase → Authentication → Authorized Domains.</p>`,
+                        confirmButtonText: 'Open Firebase',
+                        showCancelButton: true
+                    }).then(r => { if (r.isConfirmed) window.open('https://console.firebase.google.com/project/idrisium-forge/authentication/settings', '_blank'); });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Sign-in Failed', text: error.message });
+                }
+            }
+        };
+
+        window.signOutUser = async function () {
+            await signOut(auth);
+            Swal.fire({ icon: 'info', title: 'Signed Out', timer: 1500, showConfirmButton: false });
+        };
+
+        onAuthStateChanged(auth, user => {
+            currentUser = user;
+            updateAuthUI(user);
+            if (user) checkUserSubmission(user.uid);
+        });
+
+        function updateAuthUI(user) {
+            if (user) {
+                loginPrompt.classList.add('hidden');
+                submitSection.classList.remove('hidden');
+
+                // Check if Admin
+                isAdmin = user.email === _0x5e6f;
+                if (isAdmin) {
+                    adminPanel.classList.remove('hidden');
+                    adminHeaderControls.classList.remove('hidden');
+                    adminHeaderControls.classList.add('flex');
+                    submitSection.classList.add('hidden'); // Admin doesn't submit ideas
+                    console.log('👑 Admin Mode Activated');
+                } else {
+                    adminPanel.classList.add('hidden');
+                    adminHeaderControls.classList.add('hidden');
+                    adminHeaderControls.classList.remove('flex');
+                    submitSection.classList.remove('hidden');
+                }
+
+                const adminBadge = isAdmin ? '<span class="text-gold text-xs"><i class="fa-solid fa-crown mr-1"></i>Admin</span>' : '';
+
+                authSection.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'U') + '&background=39FF14&color=000'}" 
+                             alt="Avatar" class="user-avatar cursor-pointer hover:scale-110 transition-transform" onclick="window.openProfile()" 
+                             onerror="this.src='https://ui-avatars.com/api/?name=U&background=39FF14&color=000'">
+                        <div class="hidden sm:block">
+                            <p class="text-sm font-semibold text-starlight flex items-center gap-2">
+                                ${escapeHtml(user.displayName || 'Forger')} 
+                                ${adminBadge}
+                            </p>
+                            <div class="flex items-center gap-2 text-xs text-platinum">
+                                <span id="headerKarma" class="hidden text-neon flex items-center gap-1">
+                                    <i class="fa-solid fa-fire-flame-curved"></i> <span id="headerKarmaValue">...</span>
+                                </span>
+                                ${isAdmin ? '' : ''}
+                                <span class="w-1 h-1 rounded-full bg-platinum/50"></span>
+                                <button onclick="signOutUser()" class="hover:text-white transition-colors">Sign Out</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('authorName').value = user.displayName || '';
+            } else {
+                loginPrompt.classList.remove('hidden');
+                submitSection.classList.add('hidden');
+                adminPanel.classList.add('hidden');
+                adminHeaderControls.classList.add('hidden');
+                isAdmin = false;
+                authSection.innerHTML = `
+                    <button onclick="signInWithGoogle()" class="google-btn px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+                        Sign In
+                    </button>
+                `;
+            }
+        }
+
+        function startCooldownTicker() {
+            if (cooldownInterval) clearInterval(cooldownInterval);
+            cooldownInterval = setInterval(() => {
+                if (!userCooldownDeadline) return;
+                const diff = userCooldownDeadline - Date.now();
+                if (diff <= 0) {
+                    clearInterval(cooldownInterval);
+                    checkUserSubmission(currentUser.uid);
+                    return;
+                }
+                const h = Math.floor(diff / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+                const ts = `${h}h ${m}m ${s}s`;
+
+                // Update UI directly
+                if (!canSubmit) {
+                    const statusEl = document.getElementById('submissionStatus');
+                    const btnEl = document.getElementById('submitBtn');
+                    if (statusEl) statusEl.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-clock mr-1"></i>Cooldown: ${ts}</span>`;
+                    if (btnEl) btnEl.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> Wait ${ts}`;
+                }
+            }, 1000);
+        }
+
+        async function checkUserSubmission(uid) {
+            canSubmit = true;
+            timeRemainingMsg = '';
+            if (cooldownInterval) clearInterval(cooldownInterval);
+
+            // Check Firestore for accurate count & cooldown
+            const q = query(collection(db, 'ideas'), where('uid', '==', uid));
+            const snap = await getDocs(q);
+            userSubmissionCount = snap.size;
+
+            // Dynamic Limit & Ban Check
+            let myKarma = 0;
+            // Need accurate karma for logic, assume previous check populated header or do quick fetch
+            // But we already fetch snapshot for count.
+
+            // Actually, we need to sum user's karma here to determine Max Ideas
+            // This is "World Class" logic - Including Comments via Collection Group
+            let karmaSum = 0;
+            snap.docs.forEach(d => karmaSum += (d.data().votes || 0));
+
+            try {
+                const commentsQ = query(collectionGroup(db, 'comments'), where('uid', '==', uid));
+                const commentsSnap = await getDocs(commentsQ);
+                commentsSnap.forEach(d => karmaSum += (d.data().votes || 0));
+            } catch (e) {
+                console.log('Comment karma sync skipped (Index needed?)', e);
+            }
+
+            // TESTER BOOST
+            if (currentUser.email === 'youssefhondi@gmail.com') karmaSum = 999;
+
+            currentUserKarma = karmaSum; // Sync Global
+
+            // KARMA TIERS
+            let dynamicMax = 3; // Basic
+            if (karmaSum > 10) dynamicMax = 5;  // 10 Karma = 5 Ideas
+            if (karmaSum > 30) dynamicMax = 10; // 30 Karma = 10 Ideas
+            if (karmaSum > 50) dynamicMax = 20; // 50 Karma = 20 Ideas (and Chat)
+
+            if (karmaSum < -50) {
+                // SOFT BAN
+                canSubmit = false;
+                document.getElementById('submissionStatus').innerHTML = `<span class="text-red-500 font-bold"><i class="fa-solid fa-ban mr-1"></i>ACCOUNT RESTRICTED (Low Karma)</span>`;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Restricted';
+                return; // Stop here
+            }
+
+            if (userSubmissionCount >= dynamicMax) {
+                const ideas = snap.docs.map(d => d.data());
+                ideas.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+                if (ideas.length > 0) {
+                    const lastTime = ideas[0].timestamp ? ideas[0].timestamp.toDate() : new Date();
+                    const diffMs = Date.now() - lastTime.getTime();
+                    const cooldownMs = 12 * 60 * 60 * 1000;
+
+                    if (diffMs < cooldownMs) {
+                        canSubmit = false;
+                        const remainingMs = cooldownMs - diffMs;
+                        userCooldownDeadline = new Date(Date.now() + remainingMs);
+                        const h = Math.floor(remainingMs / (1000 * 60 * 60));
+                        const m = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+                        timeRemainingMsg = `${h}h ${m}m`;
+                        startCooldownTicker();
+                    }
+                }
+            } else {
+                // Update limit display text
+                document.getElementById('submissionStatus').innerHTML = `<span class="text-neon"><i class="fa-solid fa-lightbulb mr-1"></i>${dynamicMax - userSubmissionCount} ideas remaining (Limit: ${dynamicMax})</span>`;
+            }
+
+            updateSubmissionUI();
+
+            // Header Karma
+            if (uid) {
+                const qKarma = query(collection(db, 'ideas'), where('uid', '==', uid));
+                getDocs(qKarma).then(snap => {
+                    let k = 0;
+                    snap.forEach(d => k += (d.data().votes || 0));
+                    const el = document.getElementById('headerKarmaValue');
+                    if (el) el.textContent = k;
+                });
+            }
+
+            // Dynamic Text
+            const submitLimitMsg = document.getElementById('submitLimitMsg');
+            if (submitLimitMsg) submitLimitMsg.textContent = `Daily limit: ${dynamicMax} Ideas`;
+
+            document.getElementById('headerKarmaValue').textContent = karmaSum;
+
+            // Founder Chat / Admin Inbox (Floating Action Button) - MOVED HERE FOR AUTO-LOAD
+            document.querySelectorAll('#founderChatFab').forEach(el => el.remove());
+
+            if (karmaSum >= 50 || isAdmin) {
+                const fab = document.createElement('button');
+                fab.id = 'founderChatFab';
+                fab.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (isAdmin) window.openInbox();
+                    else window.openChat();
+                };
+                // Fixed Bottom Right
+                fab.className = 'fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-neon to-teal text-black rounded-full shadow-[0_0_20px_rgba(57,255,20,0.6)] flex items-center justify-center hover:scale-110 transition-transform animate-bounce-slow group';
+
+                // Icon & Badge
+                fab.innerHTML = `
+                    <i class="fa-solid ${isAdmin ? 'fa-inbox' : 'fa-comments'} text-2xl"></i>
+                    <span id="chatBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-black shadow-lg">0</span>
+                `;
+                fab.title = isAdmin ? "Admin Inbox" : "Founder Direct Line";
+                document.body.appendChild(fab);
+
+                // Start Listening for Badges
+                listenToNotifications();
+            }
+        }
+
+        function updateSubmissionUI() {
+            const remaining = MAX_IDEAS_PER_USER - userSubmissionCount;
+
+            if (!canSubmit) {
+                document.getElementById('submissionStatus').innerHTML = `<span class="text-red-400"><i class="fa-solid fa-clock mr-1"></i>Cooldown: ${timeRemainingMsg}</span>`;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> Wait ${timeRemainingMsg}`;
+            } else if (remaining <= 0) {
+                document.getElementById('submissionStatus').innerHTML = `<span class="text-aurora"><i class="fa-solid fa-star mr-1"></i>Bonus Submission Available</span>`;
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit Bonus Idea';
+            } else {
+                document.getElementById('submissionStatus').innerHTML = `<span class="text-neon"><i class="fa-solid fa-lightbulb mr-1"></i>${remaining} ideas remaining</span>`;
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit to the Forge';
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // PROFANITY FILTER
+        // ═══════════════════════════════════════════════════════════════════
+        const BANNED = ['fuck', 'shit', 'bitch', 'nigger', 'nigga', 'faggot', 'cunt', 'كس', 'طيز', 'زب', 'شرموط', 'عرص', 'منيك', 'خرا', 'قحبة', 'متناك', 'احا', 'نيك'];
+
+        function validateText(text) {
+            const lower = text.toLowerCase();
+            for (const w of BANNED) {
+                if (lower.includes(w)) return false;
+            }
+            return true;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // SEARCH, FILTER & SORT
+        // ═══════════════════════════════════════════════════════════════════
+        let currentSorting = 'votes';
+        let searchQuery = '';
+
+        window.filterIdeas = function () {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            renderFilteredIdeas();
+        };
+
+        window.clearSearch = function () {
+            document.getElementById('searchInput').value = '';
+            searchQuery = '';
+            renderFilteredIdeas();
+        };
+
+        window.changeSorting = function () {
+            currentSorting = document.getElementById('sortSelect').value;
+            renderFilteredIdeas();
+        };
+
+        function renderFilteredIdeas() {
+            const currentTab = document.getElementById('tabTop').classList.contains('active') ? 'top' : 'new';
+            let ideas = currentTab === 'top' ? [...topIdeas] : [...newIdeas];
+
+            // Apply search filter
+            if (searchQuery) {
+                ideas = ideas.filter(idea =>
+                    idea.title.toLowerCase().includes(searchQuery) ||
+                    idea.description.toLowerCase().includes(searchQuery) ||
+                    idea.author.toLowerCase().includes(searchQuery)
+                );
+            }
+
+            // Apply sorting
+            if (currentSorting === 'votes') {
+                ideas.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+            } else if (currentSorting === 'newest') {
+                ideas.sort((a, b) => {
+                    const ta = a.timestamp?.toDate?.() || new Date(0);
+                    const tb = b.timestamp?.toDate?.() || new Date(0);
+                    return tb - ta;
+                });
+            } else if (currentSorting === 'oldest') {
+                ideas.sort((a, b) => {
+                    const ta = a.timestamp?.toDate?.() || new Date(0);
+                    const tb = b.timestamp?.toDate?.() || new Date(0);
+                    return ta - tb;
+                });
+            }
+
+            // Update results count
+            document.getElementById('resultsCount').textContent =
+                searchQuery ? `${ideas.length} results for "${searchQuery}"` : `${ideas.length} ideas`;
+
+            // Render
+            const feed = currentTab === 'top' ? feedTop : feedNew;
+            if (ideas.length === 0) {
+                feed.innerHTML = `<div class="text-center py-10"><i class="fa-solid fa-search text-4xl text-platinum mb-4"></i><p class="text-platinum">No ideas found</p></div>`;
+            } else {
+                feed.innerHTML = ideas.map((idea, i) => renderCard(idea, i, currentTab === 'top')).join('');
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // SHARE IDEA
+        // ═══════════════════════════════════════════════════════════════════
+        window.shareIdea = async function (ideaId, title) {
+            const url = window.location.href.split('?')[0] + '?idea=' + ideaId;
+            const shareData = {
+                title: 'IDRISIUM FORGE - ' + title,
+                text: '🔥 Check out this idea on IDRISIUM FORGE: ' + title,
+                url: url
+            };
+
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    await navigator.clipboard.writeText(url);
+                    Swal.fire({ icon: 'success', title: 'Link Copied!', text: 'Share link copied to clipboard.', timer: 2000, showConfirmButton: false });
+                }
+            } catch (e) {
+                console.log('Share failed:', e);
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // TELEGRAM REMOVED
+        // ═══════════════════════════════════════════════════════════════════
+        // function notifyTelegram...
+
+        // ═══════════════════════════════════════════════════════════════════
+        // SUBMIT IDEA (FASTAPI BACKEND)
+        // ═══════════════════════════════════════════════════════════════════
+        window.submitIdea = async function (event) {
+            event.preventDefault();
+            if (!currentUser) return Swal.fire({ icon: 'warning', title: 'Please Sign In' });
+            if (!forgeIsOpen) return Swal.fire({ icon: 'error', title: 'Forge Closed', text: 'Submissions are no longer accepted.' });
+            if (!canSubmit) {
+                return Swal.fire({ icon: 'info', title: 'Cooldown Active', text: `Please wait ${timeRemainingMsg} before submitting again.` });
+            }
+
+            const title = document.getElementById('ideaTitle').value.trim();
+            const desc = document.getElementById('ideaDescription').value.trim();
+            const author = document.getElementById('authorName').value.trim();
+
+            if (!title || !desc || !author) return Swal.fire({ icon: 'error', title: 'Incomplete', text: 'Fill all fields.' });
+            if (!validateText(title) || !validateText(desc) || !validateText(author)) {
+                return Swal.fire({ icon: 'error', title: '🚫 Language Detected', text: 'Be respectful. No profanity allowed.' });
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+            const payload = {
+                title,
+                description: desc,
+                author_uid: currentUser.uid,
+                author_name: author
+            };
+
+            try {
+                const res = await fetch('https://idrisium-api.vercel.app/submit_idea', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                let data = null;
+                try {
+                    data = await res.json();
+                } catch (e) {
+                    data = null;
+                }
+
+                if (!res.ok) {
+                    let msg = 'Submission failed.';
+                    if (data) {
+                        if (typeof data.detail === 'string') {
+                            msg = data.detail;
+                        } else if (data.detail && typeof data.detail.message === 'string') {
+                            msg = data.detail.message;
+                            if (data.detail.duplicate_id) {
+                                msg += ` (Existing idea ID: ${data.detail.duplicate_id})`;
+                            }
+                        }
+                    }
+                    throw new Error(msg);
+                }
+
+                if (data && data.difficulty) {
+                    const tagsText = Array.isArray(data.tags) && data.tags.length
+                        ? data.tags.join(', ')
+                        : 'No tags';
+                    const diffRaw = data.difficulty_raw || data.difficulty;
+                    const html = `
+                        <p class="mb-2"><strong>AI Difficulty:</strong> ${escapeHtml(String(data.difficulty))} (${escapeHtml(String(diffRaw))})</p>
+                        <p class="mb-2"><strong>Suggested Title:</strong> ${escapeHtml(String(data.title || ''))}</p>
+                        <p class="mb-2"><strong>Your Original Title:</strong> ${escapeHtml(String(data.raw_title || title))}</p>
+                        <p class="mb-2"><strong>Auto Tags:</strong> ${escapeHtml(tagsText)}</p>
+                        ${data.easter_egg ? '<p class="mt-2 text-neon"><i class="fa-solid fa-egg mr-1"></i>Easter Egg Unlocked!</p>' : ''}
+                    `;
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🎉 Idea Forged!',
+                        html,
+                        timer: 6000,
+                        showConfirmButton: true
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Idea Submitted!',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+
+                ideaForm.reset();
+                document.getElementById('titleCount').textContent = '0';
+                document.getElementById('descCount').textContent = '0';
+
+                if (currentUser) {
+                    await checkUserSubmission(currentUser.uid);
+                }
+
+                updateSubmissionUI();
+
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Submission Failed',
+                    text: err.message || 'Unknown error.'
+                });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit to the Forge';
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // TAB SWITCHING
+        // ═══════════════════════════════════════════════════════════════════
+        window.switchTab = function (tab) {
+            document.getElementById('tabTop').classList.toggle('active', tab === 'top');
+            document.getElementById('tabNew').classList.toggle('active', tab === 'new');
+            feedTop.classList.toggle('hidden', tab !== 'top');
+            feedNew.classList.toggle('hidden', tab !== 'new');
+            renderFilteredIdeas();
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // VOTING
+        // ═══════════════════════════════════════════════════════════════════
+        function hasVoted(id) { return JSON.parse(localStorage.getItem('idrisium_votes') || '{}')[id] === true; }
+        function markVoted(id) { const v = JSON.parse(localStorage.getItem('idrisium_votes') || '{}'); v[id] = true; localStorage.setItem('idrisium_votes', JSON.stringify(v)); }
+
+        window.handleVote = async function (id, type) {
+            if (!currentUser) return Swal.fire({ icon: 'warning', title: 'Sign In Required' });
+
+            // BAN CHECK
+            const myKarma = parseInt(document.getElementById('headerKarmaValue').textContent) || 0;
+            if (myKarma < -50) return Swal.fire({ icon: 'error', title: 'Account Restricted', text: 'Your karma is too low to participate.' });
+
+            const voteKey = `idrisium_vote_${id}`;
+            const existingVote = localStorage.getItem(voteKey); // 'up', 'down', or null
+
+            if (existingVote === type) return; // Already voted this way
+
+            try {
+                const ideaRef = doc(db, 'ideas', id);
+                let incrementValue = 0;
+
+                if (type === 'up') {
+                    if (existingVote === 'down') incrementValue = 2; // -1 -> +1 = +2
+                    else incrementValue = 1;
+                } else {
+                    if (existingVote === 'up') incrementValue = -2; // +1 -> -1 = -2
+                    else incrementValue = -1;
+                }
+
+                await updateDoc(ideaRef, { votes: increment(incrementValue) });
+
+                localStorage.setItem(voteKey, type);
+
+                // Update UI immediately (Optimistic)
+                const countEl = document.getElementById(`vote-count-${id}`);
+                const upBtn = document.getElementById(`vote-up-${id}`);
+                const downBtn = document.getElementById(`vote-down-${id}`);
+
+                if (countEl) countEl.textContent = parseInt(countEl.textContent || 0) + incrementValue;
+
+                if (type === 'up') {
+                    upBtn.classList.add('text-neon');
+                    downBtn.classList.remove('text-red-500');
+                } else {
+                    downBtn.classList.add('text-red-500');
+                    upBtn.classList.remove('text-neon');
+                }
+
+                // Silent success
+                if (navigator.vibrate) navigator.vibrate(50);
+
+                // REFRESH STATS
+                if (currentUser) checkUserSubmission(currentUser.uid);
+            } catch (e) {
+                console.error(e);
+                Swal.fire({ icon: 'error', title: 'Vote Failed', text: e.message });
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // RENDER CARDS
+        // ═══════════════════════════════════════════════════════════════════
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+        function formatTime(ts) {
+            if (!ts) return 'Just now';
+            const d = ts.toDate ? ts.toDate() : new Date(ts);
+            const diff = Math.floor((Date.now() - d) / 1000);
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            return `${Math.floor(diff / 86400)}d ago`;
+        }
+
+        function renderCard(idea, index, isBadgeTop = false) {
+            const voted = hasVoted(idea.id);
+            const isOwner = currentUser && currentUser.uid === idea.uid;
+            const canDelete = isAdmin || isOwner;
+            const isWinner = globalWinnerId === idea.id;
+            const escapedTitle = escapeHtml(idea.title).replace(/'/g, "\\'");
+            const escapedDesc = escapeHtml(idea.description).replace(/'/g, "\\'");
+
+            // Edit button for owner only
+            const editBtn = isOwner ? `
+                <button onclick="editIdea('${idea.id}', '${escapedTitle}', '${escapedDesc}')" class="w-8 h-8 rounded-lg bg-aurora/10 hover:bg-aurora/30 text-aurora flex items-center justify-center transition-all" title="Edit Idea">
+                    <i class="fa-solid fa-pen text-sm"></i>
+                </button>
+            ` : '';
+
+            const deleteBtn = canDelete ? `
+                <button onclick="deleteIdea('${idea.id}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 flex items-center justify-center transition-all" title="Delete Idea">
+                    <i class="fa-solid fa-trash text-sm"></i>
+                </button>
+            ` : '';
+
+            // Winner styling
+            const winnerStyle = isWinner ? 'border: 3px solid #FFD700; box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);' : '';
+            const winnerBadge = isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-gold/30 to-yellow-500/30 text-gold rounded-full animate-pulse"><i class="fa-solid fa-trophy mr-1"></i>WINNER</span>' : '';
+
+            return `
+                <div id="idea-${idea.id}" class="glass-card rounded-2xl p-6" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s; ${winnerStyle}">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    ${winnerBadge}
+                                    ${isBadgeTop && index === 0 && !isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-neon/20 to-teal/20 text-neon rounded-full"><i class="fa-solid fa-crown mr-1"></i>Top</span>' : ''}
+                                    ${!isBadgeTop && !isWinner ? '<span class="px-2 py-1 text-xs font-semibold bg-aurora/20 text-aurora rounded-full"><i class="fa-solid fa-sparkles mr-1"></i>New</span>' : ''}
+                                    <span class="text-xs text-platinum">${formatTime(idea.timestamp)}</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    ${editBtn}
+                                    ${deleteBtn}
+                                </div>
+                            </div>
+                            <h4 class="font-heading text-lg font-bold text-starlight mb-2 line-clamp-2">${escapeHtml(idea.title)}</h4>
+                            <p class="text-sm text-platinum line-clamp-3 mb-3">${escapeHtml(idea.description)}</p>
+                            <div class="flex items-center gap-3 text-xs text-platinum mt-3">
+                                <span><i class="fa-solid fa-user text-neon/60 mr-1"></i>${escapeHtml(idea.author)}</span>
+                                <button onclick="openComments('${idea.id}', '${escapedTitle}', '${escapedDesc}')" class="hover:text-neon transition-colors flex items-center gap-1">
+                                    <i class="fa-solid fa-comment"></i> ${idea.commentCount || 0} Comments
+                                </button>
+                                ${isOwner ? '<span class="text-neon"><i class="fa-solid fa-check-circle mr-1"></i>Yours</span>' : ''}
+                                ${isAdmin && !isOwner ? '<span class="text-gold"><i class="fa-solid fa-shield mr-1"></i>Admin View</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center gap-1 bg-white/5 rounded-xl p-1 min-w-[50px]">
+                            <button id="vote-up-${idea.id}" onclick="handleVote('${idea.id}', 'up')" 
+                                class="hover:bg-white/10 p-1 rounded-lg transition-colors ${localStorage.getItem(`idrisium_vote_${idea.id}`) === 'up' ? 'text-neon' : 'text-platinum'}">
+                                <i class="fa-solid fa-chevron-up"></i>
+                            </button>
+                            <span id="vote-count-${idea.id}" class="font-bold text-lg text-white">${idea.votes || 0}</span>
+                            <button id="vote-down-${idea.id}" onclick="handleVote('${idea.id}', 'down')" 
+                                class="hover:bg-white/10 p-1 rounded-lg transition-colors ${localStorage.getItem(`idrisium_vote_${idea.id}`) === 'down' ? 'text-red-500' : 'text-platinum'}">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // USER: EDIT IDEA
+        // ═══════════════════════════════════════════════════════════════════
+        window.editIdea = async function (ideaId, currentTitle, currentDesc) {
+            const { value: formValues } = await Swal.fire({
+                title: 'Edit Your Idea',
+                html: `
+                    <input id="swal-title" class="swal2-input" placeholder="Title" value="${currentTitle}" maxlength="200">
+                    <textarea id="swal-desc" class="swal2-textarea" placeholder="Description" maxlength="1000">${currentDesc}</textarea>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Save Changes',
+                cancelButtonText: 'Cancel',
+                preConfirm: () => {
+                    const title = document.getElementById('swal-title').value.trim();
+                    const desc = document.getElementById('swal-desc').value.trim();
+                    if (!title || !desc) {
+                        Swal.showValidationMessage('Both fields are required');
+                        return false;
+                    }
+                    if (!validateText(title) || !validateText(desc)) {
+                        Swal.showValidationMessage('🚫 No profanity allowed');
+                        return false;
+                    }
+                    return { title, desc };
+                }
+            });
+
+            if (formValues) {
+                try {
+                    await updateDoc(doc(db, 'ideas', ideaId), {
+                        title: formValues.title,
+                        description: formValues.desc
+                    });
+                    Swal.fire({ icon: 'success', title: 'Updated!', timer: 1500, showConfirmButton: false });
+                } catch (e) {
+                    Swal.fire({ icon: 'error', title: 'Update Failed', text: e.message });
+                }
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ADMIN: DELETE IDEA
+        // ═══════════════════════════════════════════════════════════════════
+        window.deleteIdea = async function (ideaId) {
+            const result = await Swal.fire({
+                icon: 'warning',
+                title: 'Delete this Idea?',
+                text: 'This action cannot be undone.',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#FF4444'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    await deleteDoc(doc(db, 'ideas', ideaId));
+                    Swal.fire({ icon: 'success', title: 'Idea Deleted', timer: 1500, showConfirmButton: false });
+                } catch (e) {
+                    console.error('Delete Error:', e);
+                    Swal.fire({ icon: 'error', title: 'Delete Failed', text: e.message });
+                }
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ADMIN: EXPORT CSV
+        // ═══════════════════════════════════════════════════════════════════
+        window.exportIdeasCSV = function () {
+            const allIdeas = [...topIdeas];
+            if (allIdeas.length === 0) {
+                return Swal.fire({ icon: 'info', title: 'No Ideas', text: 'No ideas to export.' });
+            }
+
+            const headers = ['Title', 'Description', 'Author', 'Votes', 'Date'];
+            const rows = allIdeas.map(idea => {
+                const date = idea.timestamp?.toDate?.() ? idea.timestamp.toDate().toISOString() : 'N/A';
+                return [
+                    `"${(idea.title || '').replace(/"/g, '""')}"`,
+                    `"${(idea.description || '').replace(/"/g, '""')}"`,
+                    `"${(idea.author || '').replace(/"/g, '""')}"`,
+                    idea.votes || 0,
+                    date
+                ].join(',');
+            });
+
+            const csv = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `idrisium_forge_ideas_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            Swal.fire({ icon: 'success', title: 'Exported!', text: `${allIdeas.length} ideas exported to CSV.`, timer: 2000, showConfirmButton: false });
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ADMIN: PICK RANDOM IDEA
+        // ═══════════════════════════════════════════════════════════════════
+        window.pickRandomIdea = async function () {
+            const allIdeas = [...topIdeas];
+            if (allIdeas.length === 0) {
+                return Swal.fire({ icon: 'info', title: 'No Ideas', text: 'No ideas to pick from.' });
+            }
+
+            // Random selection with animation
+            const randomIndex = Math.floor(Math.random() * allIdeas.length);
+            const winner = allIdeas[randomIndex];
+
+            // Save winner to Firestore (visible to all users)
+            try {
+                await setDoc(doc(db, 'settings', 'forge'), {
+                    winnerId: winner.id,
+                    winnerTitle: winner.title,
+                    winnerAuthor: winner.author,
+                    pickedAt: serverTimestamp()
+                }, { merge: true });
+
+                globalWinnerId = winner.id;
+
+                // Re-render to show winner badge
+                renderFilteredIdeas();
+
+                const winnerEl = document.getElementById(`idea-${winner.id}`);
+                if (winnerEl) {
+                    winnerEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                // Confetti explosion!
+                confetti({
+                    particleCount: 200,
+                    spread: 120,
+                    origin: { y: 0.6 },
+                    colors: ['#FFD700', '#39FF14', '#00D9FF', '#FF6B6B', '#FFFFFF']
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '🎉 Winner Selected!',
+                    html: `<p class="text-lg font-bold">"${escapeHtml(winner.title)}"</p><p class="text-sm text-gray-400 mt-2">by ${escapeHtml(winner.author)}</p><p class="text-xs text-green-400 mt-3">All users can now see this winner!</p>`,
+                    confirmButtonText: 'Awesome!'
+                });
+            } catch (e) {
+                console.error('Failed to save winner:', e);
+                Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ADMIN: CLEAR WINNER
+        // ═══════════════════════════════════════════════════════════════════
+        window.clearWinner = async function () {
+            try {
+                await setDoc(doc(db, 'settings', 'forge'), { winnerId: null }, { merge: true });
+                globalWinnerId = null;
+                renderFilteredIdeas();
+                Swal.fire({ icon: 'success', title: 'Winner Cleared', timer: 1500, showConfirmButton: false });
+            } catch (e) {
+                Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // COMMENTS SYSTEM
+        // ═══════════════════════════════════════════════════════════════════
+        window.openComments = async function (ideaId, title, desc) {
+            currentIdeaId = ideaId;
+            document.getElementById('modalIdeaTitle').textContent = escapeHtml(title);
+            document.getElementById('modalIdeaDesc').textContent = escapeHtml(desc);
+            document.getElementById('commentsModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Reset list and set loading spinner
+            document.getElementById('commentsList').innerHTML = '<div class="text-center p-4"><i class="fa-solid fa-spinner fa-spin text-neon text-2xl"></i></div>';
+
+            // Listen to comments real-time (Sort by newest first)
+            const q = query(collection(db, `ideas/${ideaId}/comments`), orderBy('timestamp', 'desc'));
+            onSnapshot(q, (snap) => {
+                ideaComments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderComments();
+            }, (error) => {
+                console.error("Error loading comments:", error);
+                let msg = error.message;
+                if (error.code === 'permission-denied') msg = 'Permission Denied! Deploy Firestore Rules.';
+                if (error.code === 'failed-precondition') msg = 'Missing Index! Check Console for Link.';
+                document.getElementById('commentsList').innerHTML = `<div class="text-center py-4 text-red-500 bg-red-500/10 rounded-xl m-4 border border-red-500/20">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl mb-2"></i><br>
+                    <strong>Error Loading Comments:</strong><br>${escapeHtml(msg)}
+                </div>`;
+            });
+        };
+
+        window.closeComments = function () {
+            document.getElementById('commentsModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            currentIdeaId = null;
+        };
+
+        window.submitComment = async function (parentId = null) {
+            if (!currentUser) return Swal.fire({ icon: 'warning', title: 'Sign In Required', text: 'You must be signed in to comment.' });
+
+            let input, btnId;
+            if (parentId) {
+                input = document.getElementById(`reply-input-${parentId}`);
+                btnId = `reply-btn-${parentId}`;
+            } else {
+                input = document.getElementById('commentInput');
+                btnId = 'submitCommentBtn';
+            }
+
+            const content = input.value.trim();
+            if (!content) return;
+            if (!validateText(content)) {
+                return Swal.fire({ icon: 'error', title: '🚫 Profanity Detected', text: 'Please be respectful.' });
+            }
+
+            // Button loading state
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            }
+
+            try {
+                // Use Global synced variable (Checking User Submission updates this)
+                const karma = currentUserKarma || 0;
+
+                const commentData = {
+                    content,
+                    author: currentUser.displayName,
+                    uid: currentUser.uid,
+                    photoURL: currentUser.photoURL,
+                    authorKarma: karma,
+                    isAdmin: isAdmin || false, // Tag Admin
+                    timestamp: serverTimestamp(),
+                    votes: 0,
+                    upvoters: [],
+                    downvoters: []
+                };
+
+                if (parentId) {
+                    commentData.parentId = parentId;
+                }
+
+                await addDoc(collection(db, `ideas/${currentIdeaId}/comments`), commentData);
+
+                // Update comment count on idea
+                await updateDoc(doc(db, 'ideas', currentIdeaId), { commentCount: increment(1) });
+
+                input.value = '';
+
+                // Hide reply form if successful
+                if (parentId) {
+                    const replyForm = document.getElementById(`reply-form-${parentId}`);
+                    if (replyForm) replyForm.style.display = 'none';
+                }
+
+                if (navigator.vibrate) navigator.vibrate(50);
+            } catch (e) {
+                console.error(e);
+                Swal.fire({ icon: 'error', title: 'Error', text: e.message });
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+                }
+            }
+        };
+
+        window.toggleReplyForm = function (commentId) {
+            const form = document.getElementById(`reply-form-${commentId}`);
+            if (form) {
+                const isHidden = form.style.display === 'none';
+                form.style.display = isHidden ? 'flex' : 'none';
+                if (isHidden) {
+                    const input = document.getElementById(`reply-input-${commentId}`);
+                    if (input) input.focus();
+                }
+            }
+        };
+
+        // Toggle Replies Visibility
+        window.toggleReplies = function (rootId) {
+            const container = document.getElementById(`replies-${rootId}`);
+            const btn = document.getElementById(`toggle-replies-btn-${rootId}`);
+            if (container) {
+                const isHidden = container.classList.contains('hidden');
+                container.classList.toggle('hidden');
+                if (btn) {
+                    btn.innerHTML = isHidden
+                        ? `<i class="fa-solid fa-chevron-up"></i> Hide Replies`
+                        : `<i class="fa-solid fa-chevron-down"></i> View Replies`;
+                }
+            }
+        };
+
+        // Edit Comment
+        window.editComment = async function (commentId) {
+            const comment = ideaComments.find(c => c.id === commentId);
+            if (!comment) return;
+
+            const { value: newContent } = await Swal.fire({
+                title: 'Edit Comment',
+                input: 'textarea',
+                inputValue: comment.content,
+                inputPlaceholder: 'Update your comment...',
+                background: '#000000',
+                color: '#EDEDED',
+                confirmButtonColor: '#39FF14',
+                cancelButtonColor: '#d33',
+                showCancelButton: true,
+                customClass: { popup: 'border border-neon/50 rounded-xl' }
+            });
+
+            if (newContent && newContent !== comment.content) {
+                try {
+                    await updateDoc(doc(db, `ideas/${currentIdeaId}/comments`, commentId), {
+                        content: newContent
+                    });
+                    Swal.fire({ icon: 'success', title: 'Updated', timer: 1500, showConfirmButton: false });
+                } catch (e) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: e.message });
+                }
+            }
+        };
+
+        // Delete Comment (Recursive)
+        window.deleteComment = async function (commentId) {
+            const result = await Swal.fire({
+                title: 'Delete Comment?',
+                text: "This will remove the comment and any replies.",
+                icon: 'warning',
+                background: '#000000',
+                color: '#EDEDED',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    // 1. Find the comment
+                    const comment = ideaComments.find(c => c.id === commentId);
+                    if (!comment) return;
+
+                    const batch = writeBatch(db);
+                    let deleteCount = 1;
+
+                    // 2. Add root comment delete to batch
+                    const commentRef = doc(db, `ideas/${currentIdeaId}/comments`, commentId);
+                    batch.delete(commentRef);
+
+                    // 3. If it's a root comment, find and delete its replies
+                    if (!comment.parentId) {
+                        const replies = ideaComments.filter(c => c.parentId === commentId);
+                        replies.forEach(r => {
+                            const replyRef = doc(db, `ideas/${currentIdeaId}/comments`, r.id);
+                            batch.delete(replyRef);
+                            deleteCount++;
+                        });
+                    }
+
+                    // 4. Commit batch
+                    await batch.commit();
+
+                    // 5. Decrement global comment count
+                    await updateDoc(doc(db, 'ideas', currentIdeaId), {
+                        commentCount: increment(-deleteCount)
+                    });
+
+                    Swal.fire({ icon: 'success', title: 'Deleted', timer: 1500, showConfirmButton: false });
+                } catch (e) {
+                    console.error(e);
+                    Swal.fire({ icon: 'error', title: 'Error', text: e.message });
+                }
+            }
+        };
+
+        function renderComments() {
+            const list = document.getElementById('commentsList');
+            document.getElementById('commentCount').textContent = `${ideaComments.length} comments`;
+
+            if (ideaComments.length === 0) {
+                list.innerHTML = '<p class="text-center text-platinum/50 py-8">No comments yet. Start the discussion!</p>';
+                return;
+            }
+
+            // 1. Separate Roots and Replies
+            const roots = ideaComments.filter(c => !c.parentId);
+            const replies = ideaComments.filter(c => c.parentId);
+
+            // 2. Sort Roots by Votes (Desc)
+            roots.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+
+            // 3. Helper to render a single card
+            const createCardHTML = (c, isReply = false) => {
+                const isOwner = currentUser && c.uid === currentUser.uid;
+                const isAdmin = currentUser && currentUser.email === 'idris.ghamid@gmail.com';
+                const canEdit = isOwner || isAdmin;
+                const hasUpvoted = currentUser && c.upvoters && c.upvoters.includes(currentUser.uid);
+                const hasDownvoted = currentUser && c.downvoters && c.downvoters.includes(currentUser.uid);
+                const avatarUrl = c.photoURL || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(c.author || 'U') + '&background=random');
+
+                // Karma Logic
+                let karmaBadge = '';
+                if (c.authorKarma !== undefined && !c.isAdmin) { // Hide if Admin
+                    let color = 'text-platinum';
+                    if (c.authorKarma > 200) color = 'text-gold';
+                    else if (c.authorKarma > 50) color = 'text-neon';
+                    else if (c.authorKarma > 10) color = 'text-aurora';
+
+                    karmaBadge = `<span class="text-[10px] ${color} border border-white/10 px-1.5 py-0.5 rounded ml-2 font-mono" title="Karma at time of post"><i class="fa-solid fa-fire mr-1"></i>${c.authorKarma}</span>`;
+                }
+
+                // Legend Style
+                let specialClass = '';
+                if (!c.isAdmin) { // Stealth Mode for Admin
+                    if (c.authorKarma > 200) specialClass = 'border border-gold/50 shadow-[0_0_15px_rgba(255,215,0,0.1)] bg-gold/5';
+                    else if (c.authorKarma < -50) specialClass = 'opacity-50 grayscale';
+                }
+
+                return `
+                    <div class="${isReply ? 'reply-card' : 'comment-card'} flex gap-3 ${isOwner ? 'border-l-2 border-l-neon' : ''} ${specialClass} new-comment" id="comment-${c.id}">
+                        <img src="${avatarUrl}" onerror="this.src='https://ui-avatars.com/api/?name=U'" class="${isReply ? 'w-6 h-6' : 'w-8 h-8'} rounded-full border border-neon/50">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="font-bold text-starlight text-sm">${escapeHtml(c.author)}</span>
+                                    ${karmaBadge}
+                                    <span class="text-xs text-platinum/50 ml-2">${formatTime(c.timestamp)}</span>
+                                </div>
+                                ${canEdit ? `
+                                <div class="flex gap-2">
+                                    <button onclick="editComment('${c.id}')" class="text-xs text-platinum/40 hover:text-neon transition-colors" title="Edit">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="deleteComment('${c.id}')" class="text-xs text-platinum/40 hover:text-red-500 transition-colors" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>` : ''}
+                            </div>
+                            <p class="text-platinum text-sm mt-1 break-words">${escapeHtml(c.content)}</p>
+                            
+                            <!-- Actions -->
+                            <div class="flex items-center gap-4 mt-2">
+                                ${!isReply ? `
+                                <button onclick="toggleReplyForm('${c.id}')" class="text-xs text-platinum/60 hover:text-neon transition-colors flex items-center gap-1 font-bold">
+                                    <i class="fa-solid fa-reply"></i> Reply
+                                </button>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col items-center gap-1">
+                            <button onclick="voteComment('${c.id}', 'up')" class="comment-vote-btn ${hasUpvoted ? 'upvoted' : ''}">
+                                <i class="fa-solid fa-chevron-up text-xs"></i>
+                            </button>
+                            <span class="text-xs font-bold text-platinum">${c.votes || 0}</span>
+                            <button onclick="voteComment('${c.id}', 'down')" class="comment-vote-btn ${hasDownvoted ? 'downvoted' : ''}">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            };
+
+            // 4. Build Tree
+            list.innerHTML = roots.map(root => {
+                // Find replies for this root, sort by oldest first
+                const childReplies = replies.filter(r => r.parentId === root.id)
+                    .sort((a, b) => {
+                        const tA = a.timestamp?.toMillis ? a.timestamp.toMillis() : 0;
+                        const tB = b.timestamp?.toMillis ? b.timestamp.toMillis() : 0;
+                        return tA - tB;
+                    });
+
+                return `
+                <div class="comment-thread">
+                    <!-- Parent -->
+                    ${createCardHTML(root, false)}
+
+                    <!-- Inline Reply Form (Hidden by default) -->
+                    <div id="reply-form-${root.id}" class="inline-reply-form" style="display: none;">
+                        <input type="text" id="reply-input-${root.id}" placeholder="Write a reply..." 
+                            class="flex-1 bg-transparent border-none text-starlight placeholder-platinum/50 focus:ring-0 text-sm">
+                        <button id="reply-btn-${root.id}" onclick="submitComment('${root.id}')" 
+                            class="text-neon hover:text-white transition-colors">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+
+                    <!-- Toggle Replies Button -->
+                    ${childReplies.length > 0 ? `
+                        <div class="ml-11 mt-2">
+                            <button id="toggle-replies-btn-${root.id}" onclick="toggleReplies('${root.id}')" class="text-xs text-neon hover:text-white transition-colors flex items-center gap-1 font-bold">
+                                <i class="fa-solid fa-chevron-down"></i> View ${childReplies.length} Replies
+                            </button>
+                        </div>
+                    ` : ''}
+
+                    <!-- Children container (Hidden by default) -->
+                    ${childReplies.length > 0 ? `
+                    <div id="replies-${root.id}" class="replies-container hidden">
+                        ${childReplies.map(r => createCardHTML(r, true)).join('')}
+                    </div>
+                    ` : ''}
+                </div>
+                `;
+            }).join('');
+        }
+
+        window.voteComment = async function (commentId, type) {
+            if (!currentUser) return Swal.fire({ icon: 'warning', title: 'Sign In', text: 'Please sign in to vote.' });
+
+            const commentRef = doc(db, `ideas/${currentIdeaId}/comments`, commentId);
+            const comment = ideaComments.find(c => c.id === commentId);
+            if (!comment) return;
+
+            const uid = currentUser.uid;
+            let updates = {};
+
+            const upvoters = comment.upvoters || [];
+            const downvoters = comment.downvoters || [];
+
+            if (type === 'up') {
+                if (upvoters.includes(uid)) {
+                    updates = { votes: increment(-1), upvoters: upvoters.filter(id => id !== uid) };
+                } else {
+                    updates = {
+                        votes: increment(downvoters.includes(uid) ? 2 : 1),
+                        upvoters: [...upvoters, uid],
+                        downvoters: downvoters.filter(id => id !== uid)
+                    };
+                }
+            } else {
+                if (downvoters.includes(uid)) {
+                    updates = { votes: increment(1), downvoters: downvoters.filter(id => id !== uid) };
+                } else {
+                    updates = {
+                        votes: increment(upvoters.includes(uid) ? -2 : -1),
+                        downvoters: [...downvoters, uid],
+                        upvoters: upvoters.filter(id => id !== uid)
+                    };
+                }
+            }
+
+            try {
+                // Optimistic UI interaction (no need to wait for update)
+                const card = document.getElementById(`comment-${commentId}`);
+                if (card) {
+                    const upBtn = card.querySelector('.comment-vote-btn:first-of-type');
+                    const downBtn = card.querySelector('.comment-vote-btn:last-of-type');
+
+                    if (upBtn && downBtn) {
+                        const countSpan = card.querySelector('span.text-xs.font-bold');
+                        let currentCount = parseInt(countSpan.textContent) || 0;
+
+                        if (type === 'up') {
+                            if (upBtn.classList.contains('upvoted')) {
+                                // toggling off
+                                currentCount -= 1;
+                                upBtn.classList.remove('upvoted');
+                            } else {
+                                // toggling on
+                                if (downBtn.classList.contains('downvoted')) {
+                                    currentCount += 2; // from -1 to +1
+                                    downBtn.classList.remove('downvoted');
+                                } else {
+                                    currentCount += 1;
+                                }
+                                upBtn.classList.add('upvoted');
+                            }
+                        } else {
+                            if (downBtn.classList.contains('downvoted')) {
+                                // toggling off
+                                currentCount += 1;
+                                downBtn.classList.remove('downvoted');
+                            } else {
+                                // toggling on
+                                if (upBtn.classList.contains('upvoted')) {
+                                    currentCount -= 2; // from +1 to -1
+                                    upBtn.classList.remove('upvoted');
+                                } else {
+                                    currentCount -= 1;
+                                }
+                                downBtn.classList.add('downvoted');
+                            }
+                        }
+                        if (countSpan) countSpan.textContent = currentCount;
+                    }
+                }
+
+                await updateDoc(commentRef, updates);
+
+                // Refresh Global Karma logic (for both Header and FAB)
+                if (currentUser) checkUserSubmission(currentUser.uid);
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // REAL-TIME LISTENERS
+        // ═══════════════════════════════════════════════════════════════════
+        function initListeners() {
+            onSnapshot(doc(db, 'settings', 'forge'), snap => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.winnerId !== undefined) {
+                        globalWinnerId = data.winnerId;
+                        renderFilteredIdeas();
+                    }
+                    if (data.timerVisible !== undefined) {
+                        timerVisible = data.timerVisible;
+                        timerSection.classList.toggle('hidden', !timerVisible);
+                        if (document.getElementById('toggleTimerText')) {
+                            document.getElementById('toggleTimerText').textContent = timerVisible ? 'Hide Timer' : 'Show Timer';
+                        }
+                    }
+                    if (data.deadline) {
+                        deadline = new Date(data.deadline);
+                        updateTimer();
+                    }
+                }
+            });
+
+            const qTop = query(collection(db, 'ideas'), orderBy('votes', 'desc'), limit(30));
+            onSnapshot(qTop, snap => {
+                topIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                document.getElementById('statTopIdeas').textContent = topIdeas.length;
+
+                if (topIdeas.length === 0) {
+                    feedTop.innerHTML = '';
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                    feedTop.innerHTML = topIdeas.map((idea, i) => renderCard(idea, i, true)).join('');
+                }
+            });
+
+            const qNew = query(collection(db, 'ideas'), orderBy('timestamp', 'desc'), limit(10));
+            onSnapshot(qNew, async snap => {
+                newIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                document.getElementById('statNewIdeas').textContent = newIdeas.length;
+
+                // Update Total Ideas Count
+                try {
+                    const snapshot = await getCountFromServer(collection(db, 'ideas'));
+                    document.getElementById('statTotalIdeas').textContent = snapshot.data().count;
+                } catch (e) {
+                    console.error('Count error:', e);
+                    // Fallback to local count
+                    document.getElementById('statTotalIdeas').textContent = topIdeas.length || newIdeas.length;
+                }
+
+                if (newIdeas.length === 0) {
+                    feedNew.innerHTML = '<p class="text-center text-platinum py-10">No new ideas yet.</p>';
+                } else {
+                    feedNew.innerHTML = newIdeas.map((idea, i) => renderCard(idea, i, false)).join('');
+                }
+            });
+        }
+
+        if (db) initListeners();
+
+        // ═══════════════════════════════════════════════════════════════════
+        // SPOTLIGHT & TILT
+        // ═══════════════════════════════════════════════════════════════════
+        document.addEventListener('mousemove', e => {
+            document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
+            document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
+        });
+
+        // ═══════════════════════════════════════════════════════════════════
+        // PROFILE & GAMIFICATION
+        // ═══════════════════════════════════════════════════════════════════
+        window.openProfile = async function () {
+            if (!currentUser) return;
+            const modal = document.getElementById('profileModal');
+
+            // Set basic info
+            document.getElementById('profileAvatar').src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName}&background=39FF14&color=000`;
+            document.getElementById('profileName').textContent = currentUser.displayName;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('profileIdeaCount').textContent = userSubmissionCount;
+
+            // Calculate Votes
+            let totalVotesReceived = 0;
+            const q = query(collection(db, 'ideas'), where('uid', '==', currentUser.uid));
+            try {
+                const snap = await getDocs(q);
+                snap.forEach(doc => {
+                    totalVotesReceived += (doc.data().votes || 0);
+                });
+            } catch (e) { console.error(e); }
+
+            // TESTER BOOST
+            if (currentUser.email === 'youssefhondi@gmail.com') totalVotesReceived = 999;
+
+            document.getElementById('profileVoteCount').textContent = totalVotesReceived;
+
+            // Determine Rank
+            // Ranks: Novice(0), Apprentice(10), Artisan(50), Master(200), Legend(500)
+            let rank = 'Novice';
+            let nextRank = 'Apprentice';
+            let min = 0, max = 10;
+            let level = 1;
+
+            if (totalVotesReceived >= 500) { rank = 'Legend'; nextRank = 'God Mode'; min = 500; max = 1000; level = 5; }
+            else if (totalVotesReceived >= 200) { rank = 'Master'; nextRank = 'Legend'; min = 200; max = 500; level = 4; }
+            else if (totalVotesReceived >= 50) { rank = 'Artisan'; nextRank = 'Master'; min = 50; max = 200; level = 3; }
+            else if (totalVotesReceived >= 10) { rank = 'Apprentice'; nextRank = 'Artisan'; min = 10; max = 50; level = 2; }
+
+            document.getElementById('profileRankBadge').textContent = rank;
+            document.getElementById('profileRankLevel').textContent = level;
+            document.getElementById('rankCurrent').textContent = rank;
+            document.getElementById('rankNext').textContent = nextRank;
+
+            // Progress Calc
+            let percent = 0;
+            if (rank === 'Legend') percent = 100;
+            else {
+                percent = Math.min(100, Math.max(0, ((totalVotesReceived - min) / (max - min)) * 100));
+            }
+            document.getElementById('rankProgress').style.width = percent + '%';
+
+            if (rank === 'Legend') document.getElementById('rankMsg').textContent = 'Maximum Rank Achieved!';
+            else document.getElementById('rankMsg').textContent = `${max - totalVotesReceived} more karma to reach ${nextRank}`;
+
+            // Render Badges
+            const badgesEl = document.getElementById('profileBadges');
+            let badgesHtml = '';
+
+            // 1. Founder (Use has submitted)
+            if (userSubmissionCount > 0) badgesHtml += `<div class="tooltip" title="Founder: Forged an Idea"><i class="fa-solid fa-hammer text-teal drop-shadow-lg"></i></div>`;
+            else badgesHtml += `<i class="fa-solid fa-hammer"></i>`;
+
+            // 2. Rising Star (10+ Votes)
+            if (totalVotesReceived >= 10) badgesHtml += `<div class="tooltip" title="Rising Star: 10+ Karma"><i class="fa-solid fa-star text-gold drop-shadow-lg"></i></div>`;
+            else badgesHtml += `<i class="fa-solid fa-star"></i>`;
+
+            // 3. Influencer (50+ Votes)
+            if (totalVotesReceived >= 50) badgesHtml += `<div class="tooltip" title="Influencer: 50+ Karma"><i class="fa-solid fa-bullhorn text-aurora drop-shadow-lg"></i></div>`;
+            else badgesHtml += `<i class="fa-solid fa-bullhorn"></i>`;
+
+            // 4. Legend (200+ Votes)
+            if (totalVotesReceived >= 200) badgesHtml += `<div class="tooltip" title="Living Legend: 200+ Karma"><i class="fa-solid fa-crown text-neon drop-shadow-lg"></i></div>`;
+            else badgesHtml += `<i class="fa-solid fa-crown"></i>`;
+
+            // GUIDE
+            badgesHtml += `
+            <div class="mt-4 w-full bg-white/5 rounded-xl p-3 text-left">
+                <h4 class="text-neon text-xs font-bold mb-2 uppercase tracking-wider">Progression Guide</h4>
+                <ul class="text-[10px] text-platinum space-y-1">
+                     <li><i class="fa-solid fa-star text-gold mr-1"></i> 10 Karma: Unlock 5 Ideas</li>
+                     <li><i class="fa-solid fa-bullhorn text-aurora mr-1"></i> 30 Karma: Unlock 10 Ideas</li>
+                     <li><i class="fa-solid fa-crown text-neon mr-1"></i> 50 Karma: Unlock 20 Ideas + Founder Chat</li>
+                     <li><i class="fa-solid fa-medal text-yellow-400 mr-1"></i> 200 Karma: Legend Border (Comments)</li>
+                </ul>
+            </div>`;
+
+            // 5. Admin
+            if (isAdmin) badgesHtml += `<div class="tooltip" title="System Architect"><i class="fa-solid fa-user-shield text-red-500 drop-shadow-lg"></i></div>`;
+
+            badgesEl.innerHTML = badgesHtml;
+
+            // Founder Chat FAB logic moved to checkUserSubmission to appear on load
+            document.querySelectorAll('#founderChatFab').forEach(el => el.remove());  // Cleanup duplicate if any from profile logic
+
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // SFX.click(); // Removed
+        };
+
+        window.closeProfile = function () {
+            const modal = document.getElementById('profileModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // SECURITY SHIELD REMOVED (User Request)
+        // ═══════════════════════════════════════════════════════════════════
+        // Context menu and key blocks removed.
+
+        // Animation CSS
+        const style = document.createElement('style');
+        style.textContent = `@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); }}`;
+        document.head.appendChild(style);
+        // ═══════════════════════════════════════════════════════════════════
+        // IN-APP CHAT (FOUNDER DIRECT LINE)
+        // ═══════════════════════════════════════════════════════════════════
+        let chatUnsubscribe = null;
+        let inboxUnsubscribe = null;
+        let activeChatUserId = null;
+
+        let notifUnsubscribe = null;
+
+        function listenToNotifications() {
+            if (notifUnsubscribe) notifUnsubscribe();
+            const badge = document.getElementById('chatBadge');
+            if (!badge) return;
+
+            if (isAdmin) {
+                // Admin: Sum of 'adminUnread' across all chats
+                const q = query(collection(db, 'support_chats'), where('adminUnread', '>', 0));
+                notifUnsubscribe = onSnapshot(q, snap => {
+                    let total = 0;
+                    snap.forEach(d => total += (d.data().adminUnread || 0));
+
+                    if (total > 0) {
+                        badge.textContent = total > 9 ? '9+' : total;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                });
+            } else {
+                // User: Check 'userUnread' in their own doc
+                const roleRef = doc(db, 'support_chats', currentUser.uid);
+                notifUnsubscribe = onSnapshot(roleRef, snap => {
+                    if (snap.exists()) {
+                        const cnt = snap.data().userUnread || 0;
+                        if (cnt > 0) {
+                            badge.textContent = cnt > 9 ? '9+' : cnt;
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+                    }
+                });
+            }
+        }
+
+        window.openChat = async function (targetUserId) {
+            // Cleanup previous listeners
+            if (chatUnsubscribe) chatUnsubscribe();
+
+            const isUserAdmin = isAdmin;
+            const chatId = (isUserAdmin && targetUserId) ? targetUserId : currentUser.uid;
+            activeChatUserId = chatId;
+
+            // Clear Unread Counts Logic
+            try {
+                const chatRef = doc(db, 'support_chats', chatId);
+                if (isUserAdmin) {
+                    await setDoc(chatRef, { adminUnread: 0 }, { merge: true });
+                } else {
+                    await setDoc(chatRef, { userUnread: 0 }, { merge: true });
+                }
+            } catch (e) { console.log('Read mark error', e); }
+
+            const modal = document.getElementById('chatModal');
+            modal.classList.remove('hidden');
+
+            const avatarEl = document.getElementById('chatAvatar');
+            const nameEl = document.getElementById('chatName');
+            const statusEl = document.getElementById('chatStatus');
+
+            if (isUserAdmin) {
+                // Initial State
+                nameEl.textContent = 'Loading...';
+                statusEl.textContent = 'Fetching Data...';
+                avatarEl.src = `https://ui-avatars.com/api/?name=${chatId}&background=random`;
+
+                // Fetch Real User Meta
+                try {
+                    const docSnap = await getDoc(doc(db, 'support_chats', chatId));
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        nameEl.textContent = data.userName || `User ${chatId.substring(0, 4)}`;
+                        statusEl.textContent = 'Active User';
+                        // Default to stored photo, fallback to UI Avatar
+                        avatarEl.src = data.userPhoto || `https://ui-avatars.com/api/?name=${data.userName || 'User'}&background=random`;
+                    } else {
+                        nameEl.textContent = `User ${chatId.substring(0, 4)}`;
+                        statusEl.textContent = 'New Connection';
+                    }
+                } catch (e) {
+                    console.error(e);
+                    nameEl.textContent = 'User (Error)';
+                }
+            } else {
+                nameEl.textContent = 'Founder (Idris)';
+                statusEl.textContent = 'Direct Support';
+                avatarEl.src = 'https://ui-avatars.com/api/?name=Idris+Ghamid&background=39FF14&color=000';
+            }
+
+            listenToChat(chatId);
+        };
+
+        window.closeChat = function () {
+            document.getElementById('chatModal').classList.add('hidden');
+            if (chatUnsubscribe) chatUnsubscribe();
+            activeChatUserId = null;
+        };
+
+        function listenToChat(chatId) {
+            const msgsDiv = document.getElementById('chatMessages');
+            msgsDiv.innerHTML = '<div class="text-center text-xs text-platinum/30 py-4">Encrypted Channel Established</div>';
+
+            const q = query(collection(db, `support_chats/${chatId}/messages`), orderBy('timestamp', 'asc'));
+            chatUnsubscribe = onSnapshot(q, snap => {
+                snap.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        renderMessage(change.doc.data());
+                    }
+                });
+            });
+        }
+
+        function renderMessage(msg) {
+            const msgsDiv = document.getElementById('chatMessages');
+            const isMe = msg.senderUid === currentUser.uid;
+
+            const div = document.createElement('div');
+            div.className = `flex w-full mb-2 ${isMe ? 'justify-end' : 'justify-start'}`;
+
+            div.innerHTML = `
+                <div class="${isMe ? 'bg-neon/20 text-white border-neon/30' : 'bg-white/10 text-platinum border-white/5'} border px-4 py-2 rounded-xl max-w-[80%] text-sm">
+                    ${escapeHtml(msg.text)}
+                    <div class="text-[10px] opacity-50 mt-1 text-right">${formatTime(msg.timestamp)}</div>
+                </div>
+            `;
+            msgsDiv.appendChild(div);
+            msgsDiv.scrollTop = msgsDiv.scrollHeight;
+        }
+
+        let isSending = false;
+
+        window.sendChatMessage = async function () {
+            if (isSending) return; // Prevent double send
+
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || !activeChatUserId) return;
+
+            isSending = true; // Lock
+
+            // Clear Input Immediately to prevent double send
+            input.value = '';
+
+            const chatId = activeChatUserId; // Capture current ID
+            const currentUid = currentUser.uid;
+
+            try {
+                await addDoc(collection(db, `support_chats/${chatId}/messages`), {
+                    text,
+                    senderUid: currentUid,
+                    timestamp: serverTimestamp(),
+                    read: false
+                });
+
+                // Update Inbox Meta & Unread Counts
+                const chatRef = doc(db, 'support_chats', chatId);
+
+                if (isAdmin) {
+                    await setDoc(chatRef, {
+                        lastMessage: text,
+                        updated: serverTimestamp(),
+                        userUnread: increment(1) // Admin replying -> User has unread
+                    }, { merge: true });
+                } else {
+                    await setDoc(chatRef, {
+                        lastMessage: text,
+                        updated: serverTimestamp(),
+                        userId: chatId,
+                        userName: currentUser.displayName,
+                        userPhoto: currentUser.photoURL || null,
+                        adminUnread: increment(1) // User sending -> Admin has unread
+                    }, { merge: true });
+                }
+            } catch (e) {
+                console.error('Chat error', e);
+            } finally {
+                isSending = false; // Unlock
+            }
+        };
+
+        // ADMIN INBOX
+        // ADMIN INBOX
+        window.openInbox = function () {
+            document.getElementById('inboxModal').classList.remove('hidden');
+            const list = document.getElementById('inboxList');
+            list.innerHTML = '<p class="text-center text-platinum">Loading...</p>';
+
+            const q = query(collection(db, 'support_chats'), orderBy('updated', 'desc'));
+            inboxUnsubscribe = onSnapshot(q, snap => {
+                list.innerHTML = '';
+                if (snap.empty) list.innerHTML = '<p class="text-center text-platinum/50 py-4">No Active Chats</p>';
+                snap.forEach(d => {
+                    const chat = d.data();
+                    const el = document.createElement('div');
+                    el.className = 'p-3 bg-white/5 rounded-xl hover:bg-white/10 cursor-pointer flex justify-between items-center transition-colors';
+                    // Use a wrapper to close inbox then open chat
+                    el.onclick = () => {
+                        window.closeInbox();
+                        setTimeout(() => window.openChat(d.id), 100);
+                    };
+
+                    const avatarSrc = chat.userPhoto || `https://ui-avatars.com/api/?name=${chat.userName || 'User'}&background=random`;
+
+                    el.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${avatarSrc}" class="w-10 h-10 rounded-full border border-neon/30 object-cover">
+                            <div>
+                                <h4 class="text-sm font-bold text-white">${escapeHtml(chat.userName || 'User')}</h4>
+                                <p class="text-xs text-platinum line-clamp-1">${escapeHtml(chat.lastMessage)}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] text-neon">${formatTime(chat.updated)}</span>
+                     `;
+                    list.appendChild(el);
+                });
+            });
+        };
+
+        window.closeInbox = function () {
+            document.getElementById('inboxModal').classList.add('hidden');
+            if (inboxUnsubscribe) inboxUnsubscribe();
+        };
+
+    </script>
+</body>
+
+</html>

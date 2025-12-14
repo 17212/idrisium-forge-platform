@@ -1,9 +1,12 @@
+import csv
+import io
 import os
 import random
 from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse, Response
 from google.cloud import firestore as gcf
 from pydantic import BaseModel
 
@@ -16,6 +19,7 @@ from ai_engine import (
     DebateResponse,
     DetectDuplicateRequest,
     DetectDuplicateResponse,
+    DuplicateCandidate,
     EvolutionRequest,
     EvolutionResponse,
     FixTitleRequest,
@@ -50,11 +54,85 @@ class SubmitIdeaRequest(BaseModel):
 class SubmitIdeaResponse(BaseModel):
     id: str
     title: str
+    raw_title: str
     description: str
     author: str
     uid: str
     difficulty: str | None = None
+    difficulty_raw: str | None = None
     tags: List[str] = []
+    easter_egg: bool = False
+
+
+class VoteRequest(BaseModel):
+    user_id: str
+    user_name: str | None = None
+    user_email: str | None = None
+
+
+class VoteResponse(BaseModel):
+    ok: bool
+    already_voted: bool
+    votes: int | None = None
+
+
+class TrendingIdea(BaseModel):
+    id: str
+    title: str
+    recent_votes: int
+    total_votes: int
+
+
+class TrendingResponse(BaseModel):
+    ideas: List[TrendingIdea]
+
+
+class GrowthBucket(BaseModel):
+    date: str
+    count: int
+
+
+class GrowthResponse(BaseModel):
+    buckets: List[GrowthBucket]
+
+
+class RecentVote(BaseModel):
+    idea_id: str
+    idea_title: str
+    user_id: str
+    user_name: str | None = None
+    created_at_ts: float | None = None
+
+
+class RecentVotesResponse(BaseModel):
+    items: List[RecentVote]
+
+
+class UserRankingEntry(BaseModel):
+    user_id: str
+    display_name: str | None = None
+    reputation_score: float
+    ideas_count: int
+    votes_given: int
+    votes_received: int
+    badges: List[str]
+
+
+class UserRankingResponse(BaseModel):
+    users: List[UserRankingEntry]
+
+
+class DeletedIdeaSummary(BaseModel):
+    id: str
+    title: str
+    raw_title: str | None = None
+    author: str | None = None
+    votes: int = 0
+    status: str | None = None
+
+
+class DeletedIdeasResponse(BaseModel):
+    ideas: List[DeletedIdeaSummary]
 
 
 # Environment & dependency wiring
@@ -91,6 +169,63 @@ def get_gemini_manager() -> GeminiManager:
         keys = [k.strip() for k in keys_env.split(",") if k.strip()]
 
     return GeminiManager(api_keys=keys)
+
+
+def detect_easter_egg_text(title: str, description: str) -> bool:
+    secrets: List[str] = []
+    env_code = os.getenv("EASTER_EGG_CODE")
+    if env_code:
+        secrets.append(env_code.lower())
+    secrets.extend(["idris", "idrisium", "idris ghamid"])
+    combined = f"{title}\n\n{description}".lower()
+    return any(code in combined for code in secrets)
+
+
+def _update_user_reputation(
+    db,
+    user_id: str,
+    *,
+    ideas_delta: int = 0,
+    votes_given_delta: int = 0,
+    votes_received_delta: int = 0,
+    implemented_delta: int = 0,
+) -> None:
+    if not user_id:
+        return
+
+    user_ref = db.collection("users").document(user_id)
+    snapshot = user_ref.get()
+    data = snapshot.to_dict() or {}
+
+    ideas_count = int(data.get("ideas_count") or 0) + ideas_delta
+    votes_given = int(data.get("votes_given") or 0) + votes_given_delta
+    votes_received = int(data.get("votes_received") or 0) + votes_received_delta
+    implemented_count = int(data.get("implemented_ideas_count") or 0) + implemented_delta
+    badges = list(data.get("badges") or [])
+
+    if ideas_count >= 5 and "Thinker" not in badges:
+        badges.append("Thinker")
+    if implemented_count >= 1 and "Co-Founder" not in badges:
+        badges.append("Co-Founder")
+
+    reputation_score = (
+        ideas_count * 3.0
+        + votes_received * 2.0
+        + votes_given * 0.5
+        + implemented_count * 5.0
+    )
+
+    user_ref.set(
+        {
+            "ideas_count": ideas_count,
+            "votes_given": votes_given,
+            "votes_received": votes_received,
+            "implemented_ideas_count": implemented_count,
+            "badges": badges,
+            "reputation_score": reputation_score,
+        },
+        merge=True,
+    )
 
 
 app = FastAPI(title="IDRISIUM IDEAS FORGE – AI Backend", version="1.0.0")
@@ -184,6 +319,22 @@ async def api_submit_idea(
 ) -> SubmitIdeaResponse:
     db = get_firestore_client()
 
+    system_doc = db.collection("config").document("system_settings").get()
+    if system_doc.exists:
+        system_data = system_doc.to_dict() or {}
+        if not system_data.get("are_submissions_open", True):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Submissions are currently closed.",
+            )
+
+    spam_state = await api_spam_guard(SpamGuardRequest(user_id=body.author_uid))
+    if not spam_state.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=spam_state.reason or "Rate limit exceeded.",
+        )
+
     combined_text = f"{body.title}\n\n{body.description}"
     moderation = await context_aware_filter_text(manager, combined_text)
     if not moderation.allowed:
@@ -192,14 +343,43 @@ async def api_submit_idea(
             detail=f"Content rejected: {moderation.reason}",
         )
 
+    existing_ref = (
+        db.collection("ideas")
+        .where("is_deleted", "==", False)
+        .order_by("created_at", direction=gcf.Query.DESCENDING)
+        .limit(200)
+    )
+    candidates: List[DuplicateCandidate] = []
+    for doc in existing_ref.stream():
+        data = doc.to_dict() or {}
+        base_title = data.get("raw_title") or data.get("title") or ""
+        base_desc = data.get("description") or ""
+        text = f"{base_title}\n\n{base_desc}".strip()
+        if not text:
+            continue
+        candidates.append(DuplicateCandidate(id=doc.id, text=text))
+
+    if candidates:
+        duplicate_result = manager.detect_duplicate(combined_text, candidates)
+        if duplicate_result.is_duplicate and duplicate_result.duplicate_id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "message": "Duplicate idea detected. Please vote on the existing idea instead of submitting a new one.",
+                    "duplicate_id": duplicate_result.duplicate_id,
+                    "similarity": duplicate_result.similarity,
+                },
+            )
+
     fixed_title = await manager.fix_title(body.title, body.description)
     difficulty = await manager.analyze_difficulty(body.description)
     tags = await manager.auto_tagger(body.description)
 
     raw_level = difficulty.level
-    display_level = "Hard" if raw_level == "Impossible" else raw_level
+    display_level = raw_level
     cleaned_title = fixed_title.suggested_title or body.title
     author_name = body.author_name or "Anonymous Forger"
+    easter_egg = detect_easter_egg_text(body.title, body.description)
 
     doc_ref = db.collection("ideas").document()
     doc_ref.set(
@@ -215,21 +395,75 @@ async def api_submit_idea(
             "difficulty_raw": raw_level,
             "difficulty_reason": difficulty.reason,
             "tags": tags.tags,
+            "easter_egg": easter_egg,
             "is_deleted": False,
             "timestamp": gcf.SERVER_TIMESTAMP,
             "created_at": gcf.SERVER_TIMESTAMP,
         },
     )
 
+    _update_user_reputation(db, body.author_uid, ideas_delta=1)
+
     return SubmitIdeaResponse(
         id=doc_ref.id,
         title=cleaned_title,
+        raw_title=body.title,
         description=body.description,
         author=author_name,
         uid=body.author_uid,
         difficulty=display_level,
+        difficulty_raw=raw_level,
         tags=tags.tags,
+        easter_egg=easter_egg,
     )
+
+
+@app.post("/ideas/{idea_id}/vote", response_model=VoteResponse)
+async def api_vote_idea(idea_id: str, body: VoteRequest) -> VoteResponse:
+    db = get_firestore_client()
+    idea_ref = db.collection("ideas").document(idea_id)
+    idea_doc = idea_ref.get()
+    if not idea_doc.exists:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Idea not found.",
+        )
+    idea_data = idea_doc.to_dict() or {}
+    if idea_data.get("is_deleted"):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Idea not found.",
+        )
+
+    votes_ref = idea_ref.collection("votes")
+    existing = list(
+        votes_ref.where("user_id", "==", body.user_id).limit(1).stream(),
+    )
+    if existing:
+        current_votes = int(idea_data.get("votes") or 0)
+        return VoteResponse(ok=True, already_voted=True, votes=current_votes)
+
+    votes_ref.document().set(
+        {
+            "user_id": body.user_id,
+            "user_name": body.user_name,
+            "user_email": body.user_email,
+            "created_at": gcf.SERVER_TIMESTAMP,
+        },
+    )
+
+    idea_doc = idea_ref.get()
+    idea_data = idea_doc.to_dict() or {}
+    current_votes = int(idea_data.get("votes") or 0)
+    new_votes = current_votes + 1
+    idea_ref.update({"votes": new_votes})
+
+    author_uid = idea_data.get("author_uid")
+    _update_user_reputation(db, body.user_id, votes_given_delta=1)
+    if isinstance(author_uid, str) and author_uid:
+        _update_user_reputation(db, author_uid, votes_received_delta=1)
+
+    return VoteResponse(ok=True, already_voted=False, votes=new_votes)
 
 
 # --- Security & Moderation ---
@@ -375,6 +609,161 @@ async def api_stats() -> StatsResponse:
     return StatsResponse(total_ideas=len(docs), wordcloud_tokens=tokens)
 
 
+@app.get("/analytics/growth", response_model=GrowthResponse)
+async def api_growth() -> GrowthResponse:
+    from datetime import datetime
+
+    db = get_firestore_client()
+    ideas_ref = db.collection("ideas").where("is_deleted", "==", False)
+    docs = list(ideas_ref.stream())
+
+    buckets: dict[str, int] = {}
+    for doc in docs:
+        data = doc.to_dict() or {}
+        created_at = data.get("created_at") or data.get("timestamp")
+        if hasattr(created_at, "timestamp"):
+            dt = datetime.utcfromtimestamp(created_at.timestamp())
+        else:
+            continue
+        key = dt.date().isoformat()
+        buckets[key] = buckets.get(key, 0) + 1
+
+    items = [
+        GrowthBucket(date=date_str, count=count)
+        for date_str, count in sorted(buckets.items())
+    ]
+    return GrowthResponse(buckets=items)
+
+
+@app.get("/analytics/trending", response_model=TrendingResponse)
+async def api_trending() -> TrendingResponse:
+    from datetime import datetime, timedelta, timezone
+
+    db = get_firestore_client()
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(hours=1)
+
+    ideas_ref = db.collection("ideas").where("is_deleted", "==", False).limit(200)
+    candidates: List[TrendingIdea] = []
+
+    for idea_doc in ideas_ref.stream():
+        idea_data = idea_doc.to_dict() or {}
+        title = idea_data.get("title") or "Untitled Idea"
+        total_votes = int(idea_data.get("votes") or 0)
+        votes_ref = idea_doc.reference.collection("votes")
+        recent_docs = list(
+            votes_ref.where("created_at", ">=", cutoff).stream(),
+        )
+        recent_count = len(recent_docs)
+        if recent_count > 0:
+            candidates.append(
+                TrendingIdea(
+                    id=idea_doc.id,
+                    title=title,
+                    recent_votes=recent_count,
+                    total_votes=total_votes,
+                ),
+            )
+
+    candidates.sort(key=lambda i: (i.recent_votes, i.total_votes), reverse=True)
+    return TrendingResponse(ideas=candidates[:20])
+
+
+@app.get("/analytics/voting-heatmap", response_model=HeatmapResponse)
+async def api_voting_heatmap() -> HeatmapResponse:
+    from datetime import datetime, timedelta, timezone
+
+    db = get_firestore_client()
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(days=7)
+
+    ts_list: List[float] = []
+    ideas_ref = db.collection("ideas").where("is_deleted", "==", False).limit(500)
+    for idea_doc in ideas_ref.stream():
+        votes_ref = idea_doc.reference.collection("votes")
+        vote_docs = votes_ref.where("created_at", ">=", cutoff).stream()
+        for vote_doc in vote_docs:
+            data = vote_doc.to_dict() or {}
+            created_at = data.get("created_at")
+            if hasattr(created_at, "timestamp"):
+                ts_list.append(float(created_at.timestamp()))
+
+    counts: dict[tuple[int, int], int] = {}
+    for ts in ts_list:
+        dt = datetime.utcfromtimestamp(ts)
+        key = (dt.weekday(), dt.hour)
+        counts[key] = counts.get(key, 0) + 1
+
+    buckets = [
+        HeatmapBucket(day=day, hour=hour, count=count)
+        for (day, hour), count in counts.items()
+    ]
+    return HeatmapResponse(buckets=buckets)
+
+
+@app.get("/analytics/recent-votes", response_model=RecentVotesResponse)
+async def api_recent_votes() -> RecentVotesResponse:
+    db = get_firestore_client()
+    votes_query = (
+        db.collection_group("votes")
+        .order_by("created_at", direction=gcf.Query.DESCENDING)
+        .limit(30)
+    )
+
+    items: List[RecentVote] = []
+    for vote_doc in votes_query.stream():
+        vote_data = vote_doc.to_dict() or {}
+        created_at = vote_data.get("created_at")
+        ts = float(created_at.timestamp()) if hasattr(created_at, "timestamp") else None
+        idea_ref = vote_doc.reference.parent.parent
+        idea_id = ""
+        idea_title = ""
+        if idea_ref is not None:
+            idea_snapshot = idea_ref.get()
+            if idea_snapshot.exists:
+                idea_id = idea_ref.id
+                idea_data = idea_snapshot.to_dict() or {}
+                idea_title = idea_data.get("title") or "Untitled Idea"
+        items.append(
+            RecentVote(
+                idea_id=idea_id,
+                idea_title=idea_title,
+                user_id=str(vote_data.get("user_id") or ""),
+                user_name=vote_data.get("user_name"),
+                created_at_ts=ts,
+            ),
+        )
+
+    return RecentVotesResponse(items=items)
+
+
+@app.get("/analytics/user-ranking", response_model=UserRankingResponse)
+async def api_user_ranking() -> UserRankingResponse:
+    db = get_firestore_client()
+    users_ref = (
+        db.collection("users")
+        .order_by("reputation_score", direction=gcf.Query.DESCENDING)
+        .limit(50)
+    )
+
+    users: List[UserRankingEntry] = []
+    for doc in users_ref.stream():
+        data = doc.to_dict() or {}
+        users.append(
+            UserRankingEntry(
+                user_id=doc.id,
+                display_name=data.get("display_name"),
+                reputation_score=float(data.get("reputation_score") or 0.0),
+                ideas_count=int(data.get("ideas_count") or 0),
+                votes_given=int(data.get("votes_given") or 0),
+                votes_received=int(data.get("votes_received") or 0),
+                badges=list(data.get("badges") or []),
+            ),
+        )
+
+    return UserRankingResponse(users=users)
+
+
 # --- Cron / system endpoints (auto lock) ---
 
 
@@ -406,6 +795,10 @@ class UpdateGeminiKeysRequest(BaseModel):
     keys: List[str]
 
 
+class GeminiKeysResponse(BaseModel):
+    keys: List[str]
+
+
 class AdminActionResponse(BaseModel):
     ok: bool
 
@@ -413,6 +806,62 @@ class AdminActionResponse(BaseModel):
 class RandomIdeaResponse(BaseModel):
     id: str
     title: str
+
+
+@app.get("/admin/ideas/deleted", response_model=DeletedIdeasResponse)
+async def api_admin_deleted_ideas(
+    admin=Depends(get_admin_user),  # noqa: B008
+) -> DeletedIdeasResponse:
+    db = get_firestore_client()
+    ideas_ref = db.collection("ideas").where("is_deleted", "==", True).limit(200)
+    items: List[DeletedIdeaSummary] = []
+    for doc in ideas_ref.stream():
+        data = doc.to_dict() or {}
+        items.append(
+            DeletedIdeaSummary(
+                id=doc.id,
+                title=data.get("title") or "Untitled Idea",
+                raw_title=data.get("raw_title"),
+                author=data.get("author"),
+                votes=int(data.get("votes") or 0),
+                status=data.get("status"),
+            ),
+        )
+    return DeletedIdeasResponse(ideas=items)
+
+
+@app.get("/ideas/random", response_model=RandomIdeaResponse)
+async def api_random_idea_public() -> RandomIdeaResponse:
+    db = get_firestore_client()
+    ideas_ref = db.collection("ideas").where("is_deleted", "==", False).limit(200)
+    docs = list(ideas_ref.stream())
+    if not docs:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No ideas available for random selection",
+        )
+
+    doc = random.choice(docs)
+    data = doc.to_dict() or {}
+    title = data.get("title") or "Untitled Idea"
+    return RandomIdeaResponse(id=doc.id, title=title)
+
+
+@app.post("/admin/ideas/{idea_id}/delete", response_model=AdminActionResponse)
+async def api_admin_delete_idea(
+    idea_id: str,
+    admin=Depends(get_admin_user),  # noqa: B008
+) -> AdminActionResponse:
+    db = get_firestore_client()
+    idea_ref = db.collection("ideas").document(idea_id)
+    doc = idea_ref.get()
+    if not doc.exists:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Idea not found",
+        )
+    idea_ref.set({"is_deleted": True}, merge=True)
+    return AdminActionResponse(ok=True)
 
 
 @app.post("/admin/gemini-keys", response_model=AdminActionResponse)
@@ -424,6 +873,46 @@ async def api_update_gemini_keys(
     cleaned = [k.strip() for k in body.keys if k.strip()]
     db.collection("config").document("ai_settings").set(
         {"gemini_api_keys": cleaned},
+        merge=True,
+    )
+    return AdminActionResponse(ok=True)
+
+
+@app.get("/admin/gemini-keys", response_model=GeminiKeysResponse)
+async def api_get_gemini_keys(
+    admin=Depends(get_admin_user),  # noqa: B008
+) -> GeminiKeysResponse:
+    db = get_firestore_client()
+    doc = db.collection("config").document("ai_settings").get()
+    keys: List[str] = []
+    if doc.exists:
+        data = doc.to_dict() or {}
+        stored = data.get("gemini_api_keys") or []
+        keys = [k.strip() for k in stored if isinstance(k, str) and k.strip()]
+
+    if not keys:
+        keys_env = os.getenv("GEMINI_API_KEYS", "").strip()
+        if keys_env:
+            keys = [k.strip() for k in keys_env.split(",") if k.strip()]
+
+    return GeminiKeysResponse(keys=keys)
+
+
+@app.post("/admin/ideas/{idea_id}/approve", response_model=AdminActionResponse)
+async def api_admin_approve_idea(
+    idea_id: str,
+    admin=Depends(get_admin_user),  # noqa: B008
+) -> AdminActionResponse:
+    db = get_firestore_client()
+    idea_ref = db.collection("ideas").document(idea_id)
+    doc = idea_ref.get()
+    if not doc.exists:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Idea not found",
+        )
+    idea_ref.set(
+        {"status": "approved", "approved_at": gcf.SERVER_TIMESTAMP},
         merge=True,
     )
     return AdminActionResponse(ok=True)
