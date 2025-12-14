@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #000000;
+  color: #ededed;
+}
+
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(57, 255, 20, 0.18), transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(124, 58, 237, 0.24), transparent 55%),
+    #000000;
+}
+
+.aurora-orb {
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.4), transparent 70%);
+  filter: blur(40px);
+  opacity: 0.7;
+  animation: aurora-drift 22s infinite alternate ease-in-out;
+}
+
+.aurora-orb.secondary {
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.35), transparent 70%);
+  animation-duration: 30s;
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(-10%, -10%, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(15%, 10%, 0) scale(1.15);
+  }
+}
+
+.matrix-rain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.4),
+      rgba(0, 0, 0, 0.4) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+  mix-blend-mode: screen;
+}
