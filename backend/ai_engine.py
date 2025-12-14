@@ -3,12 +3,11 @@ import json
 import os
 import time
 from dataclasses import dataclass, field
+from difflib import SequenceMatcher
 from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 from pydantic import BaseModel, Field
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
 
 GEMINI_API_BASE = os.getenv("GEMINI_API_BASE", "https://generativelanguage.googleapis.com/v1beta")
@@ -279,14 +278,18 @@ class GeminiManager:
         if not existing_ideas:
             return DetectDuplicateResponse(is_duplicate=False, similarity=0.0, duplicate_id=None)
 
-        corpus = [new_idea] + [c.text for c in existing_ideas]
-        vectorizer = TfidfVectorizer(stop_words="english")
-        tfidf = vectorizer.fit_transform(corpus)
-        sims = cosine_similarity(tfidf[0:1], tfidf[1:]).flatten()
+        best_idx = -1
+        best_score = 0.0
+        for idx, candidate in enumerate(existing_ideas):
+            score = SequenceMatcher(None, new_idea, candidate.text).ratio()
+            if score > best_score:
+                best_score = score
+                best_idx = idx
 
-        best_idx = int(sims.argmax())
-        best_score = float(sims[best_idx])
         threshold = 0.85
+        if best_idx == -1:
+            return DetectDuplicateResponse(is_duplicate=False, similarity=0.0, duplicate_id=None)
+
         if best_score >= threshold:
             return DetectDuplicateResponse(
                 is_duplicate=True,
