@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
+
 type Props = {
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export default function AuroraBackground({ children }: Props) {

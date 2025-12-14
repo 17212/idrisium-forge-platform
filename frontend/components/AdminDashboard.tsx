@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { useEffect, useState, type ChangeEvent } from "react";
+import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient";
 
 const ADMIN_EMAIL =
@@ -22,7 +22,9 @@ export default function AdminDashboard() {
   const [actionState, setActionState] = useState<ActionState>({ status: "idle" });
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
+    if (!auth) return;
+
+    const unsub = onAuthStateChanged(auth, (user: User | null) => {
       const mail = user?.email ?? null;
       setEmail(mail);
       setIsAdmin(mail === ADMIN_EMAIL);
@@ -83,7 +85,7 @@ export default function AdminDashboard() {
           </p>
           <textarea
             value={keyInput}
-            onChange={(e) => setKeyInput(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setKeyInput(e.target.value)}
             className="mb-2 h-20 w-full rounded-lg border border-zinc-700 bg-black/60 p-2 text-xs text-zinc-100 outline-none focus:border-aurora-neon/70"
             placeholder="Paste one API key per line"
           />
