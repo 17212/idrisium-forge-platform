@@ -40,6 +40,23 @@ class HealthResponse(BaseModel):
     status: str
 
 
+class SubmitIdeaRequest(BaseModel):
+    title: str
+    description: str
+    author_uid: str
+    author_name: str | None = None
+
+
+class SubmitIdeaResponse(BaseModel):
+    id: str
+    title: str
+    description: str
+    author: str
+    uid: str
+    difficulty: str | None = None
+    tags: List[str] = []
+
+
 # Environment & dependency wiring
 
 
@@ -160,6 +177,61 @@ async def api_evolution(
     return await manager.idea_evolution(body.idea_text)
 
 
+@app.post("/submit_idea", response_model=SubmitIdeaResponse)
+async def api_submit_idea(
+    body: SubmitIdeaRequest,
+    manager: GeminiManager = Depends(get_gemini_manager),
+) -> SubmitIdeaResponse:
+    db = get_firestore_client()
+
+    combined_text = f"{body.title}\n\n{body.description}"
+    moderation = await context_aware_filter_text(manager, combined_text)
+    if not moderation.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Content rejected: {moderation.reason}",
+        )
+
+    fixed_title = await manager.fix_title(body.title, body.description)
+    difficulty = await manager.analyze_difficulty(body.description)
+    tags = await manager.auto_tagger(body.description)
+
+    raw_level = difficulty.level
+    display_level = "Hard" if raw_level == "Impossible" else raw_level
+    cleaned_title = fixed_title.suggested_title or body.title
+    author_name = body.author_name or "Anonymous Forger"
+
+    doc_ref = db.collection("ideas").document()
+    doc_ref.set(
+        {
+            "title": cleaned_title,
+            "raw_title": body.title,
+            "description": body.description,
+            "author": author_name,
+            "uid": body.author_uid,
+            "author_uid": body.author_uid,
+            "votes": 0,
+            "difficulty": display_level,
+            "difficulty_raw": raw_level,
+            "difficulty_reason": difficulty.reason,
+            "tags": tags.tags,
+            "is_deleted": False,
+            "timestamp": gcf.SERVER_TIMESTAMP,
+            "created_at": gcf.SERVER_TIMESTAMP,
+        },
+    )
+
+    return SubmitIdeaResponse(
+        id=doc_ref.id,
+        title=cleaned_title,
+        description=body.description,
+        author=author_name,
+        uid=body.author_uid,
+        difficulty=display_level,
+        tags=tags.tags,
+    )
+
+
 # --- Security & Moderation ---
 
 
@@ -267,6 +339,37 @@ class WordCloudRequest(BaseModel):
 @app.post("/analytics/wordcloud")
 async def api_generate_wordcloud(body: WordCloudRequest):
     return generate_wordcloud_tokens(body.texts)
+
+
+class WordToken(BaseModel):
+    text: str
+    weight: int
+
+
+class StatsResponse(BaseModel):
+    total_ideas: int
+    wordcloud_tokens: List[WordToken]
+
+
+@app.get("/stats", response_model=StatsResponse)
+async def api_stats() -> StatsResponse:
+    db = get_firestore_client()
+    ideas_ref = db.collection("ideas").where("is_deleted", "==", False)
+    docs = list(ideas_ref.stream())
+
+    descriptions: List[str] = []
+    for doc in docs:
+        data = doc.to_dict() or {}
+        desc = data.get("description")
+        if isinstance(desc, str) and desc.strip():
+            descriptions.append(desc)
+
+    tokens: List[WordToken] = []
+    if descriptions:
+        wc = generate_wordcloud_tokens(descriptions)
+        tokens = [WordToken(text=t.text, weight=t.weight) for t in wc.tokens]
+
+    return StatsResponse(total_ideas=len(docs), wordcloud_tokens=tokens)
 
 
 # --- Cron / system endpoints (auto lock) ---
