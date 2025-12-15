@@ -2203,6 +2203,11 @@
                 return;
             }
 
+            if (forgeIsOpen) {
+                Swal.fire({ icon: 'info', title: 'Wait for Timer', text: 'You can only pick a random winner after the event ends.' });
+                return;
+            }
+
             const map = new Map();
             (topIdeas || []).forEach(i => { if (i) map.set(i.id, i); });
             (newIdeas || []).forEach(i => { if (i) map.set(i.id, i); });
@@ -2310,8 +2315,8 @@
         window.shareIdea = async function (ideaId, title) {
             const url = window.location.href.split('?')[0] + '?idea=' + ideaId;
             const shareData = {
-                title: 'IDRISIUM FORGE - ' + title,
-                text: '🔥 Check out this idea on IDRISIUM FORGE: ' + title,
+                title: 'IDRISIUM IDEAS - ' + title,
+                text: '🔥 Check out this idea on IDRISIUM IDEAS: ' + title,
                 url: url
             };
 
@@ -2544,15 +2549,17 @@
                                 ${isAdmin && !isOwner ? '<span class="text-gold"><i class="fa-solid fa-shield mr-1"></i>Admin View</span>' : ''}
                             </div>
                         </div>
-                        <div class="flex flex-col items-center gap-1 bg-white/5 rounded-xl p-1 min-w-[50px]">
-                            <button id="vote-up-${idea.id}" onclick="handleVote('${idea.id}', 'up')" 
-                                class="hover:bg-white/10 p-1 rounded-lg transition-colors ${localStorage.getItem(`idrisium_vote_${idea.id}`) === 'up' ? 'text-neon' : 'text-platinum'}">
-                                <i class="fa-solid fa-chevron-up"></i>
+                        <div class="flex flex-col items-center gap-1 bg-white/5 rounded-xl p-1 min-w-[56px]">
+                            <button id="vote-up-${idea.id}" onclick="handleVote('${idea.id}', 'up')"
+                                class="hover:bg-white/10 p-1.5 rounded-lg transition-colors ${localStorage.getItem(`idrisium_vote_${idea.id}`) === 'up' ? 'text-neon' : 'text-platinum'}"
+                                title="Like">
+                                <i class="fa-solid fa-thumbs-up"></i>
                             </button>
                             <span id="vote-count-${idea.id}" class="font-bold text-lg text-white">${idea.votes || 0}</span>
-                            <button id="vote-down-${idea.id}" onclick="handleVote('${idea.id}', 'down')" 
-                                class="hover:bg-white/10 p-1 rounded-lg transition-colors ${localStorage.getItem(`idrisium_vote_${idea.id}`) === 'down' ? 'text-red-500' : 'text-platinum'}">
-                                <i class="fa-solid fa-chevron-down"></i>
+                            <button id="vote-down-${idea.id}" onclick="handleVote('${idea.id}', 'down')"
+                                class="hover:bg-white/10 p-1.5 rounded-lg transition-colors ${localStorage.getItem(`idrisium_vote_${idea.id}`) === 'down' ? 'text-red-500' : 'text-platinum'}"
+                                title="Dislike">
+                                <i class="fa-solid fa-thumbs-down"></i>
                             </button>
                         </div>
                     </div>
