@@ -745,7 +745,7 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM FORGE</h1>
+                            <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM IDEAS</h1>
                             <span id="eventPhaseChip"
                                 class="hidden ml-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold tracking-wide uppercase bg-neon/10 border-neon/60 text-neon">
                                 PHASE: Submissions
@@ -837,8 +837,8 @@
                             <select id="adminFilterSelect" onchange="changeAdminFilter()"
                                 class="neon-input px-3 py-2 rounded-lg text-[12px] bg-onyx cursor-pointer">
                                 <option value="all">All ideas</option>
-                                <option value="high-signal">High Signal (10+ votes)</option>
-                                <option value="low-signal">Low Signal (≤ 0 votes)</option>
+                                <option value="high-signal">High Signal (10+ score)</option>
+                                <option value="low-signal">Low Signal (≤ 0 score)</option>
                                 <option value="founder">Founder Picks</option>
                                 <option value="winners">Winners Only</option>
                             </select>
@@ -889,9 +889,9 @@
 
         <!-- How It Works -->
         <section id="howItWorks" class="glass-card rounded-3xl p-8 mb-10 text-left">
-            <h2 class="font-heading text-2xl font-bold text-starlight mb-3">How the Forge Works</h2>
+            <h2 class="font-heading text-2xl font-bold text-starlight mb-3">How IDRISIUM IDEAS Works</h2>
             <p class="text-platinum text-sm mb-6 max-w-2xl">
-                IDRISIUM FORGE is a limited-time event where the community forges the next generation of apps. Submit your ideas, vote on others, and help decide what gets built inside the ecosystem.
+                IDRISIUM IDEAS is a limited-time hub where your community drops app ideas. Like or dislike submissions and help decide what gets built inside the ecosystem.
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
@@ -967,7 +967,7 @@
                 class="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-neon/10 to-aurora/10 flex items-center justify-center">
                 <i class="fa-solid fa-user-lock text-neon text-4xl"></i>
             </div>
-            <h2 class="font-heading text-3xl font-bold text-starlight mb-3">Join the Forge</h2>
+            <h2 class="font-heading text-3xl font-bold text-starlight mb-3">Join IDRISIUM IDEAS</h2>
             <p class="text-platinum mb-8 max-w-md mx-auto">Sign in with Google to submit revolutionary ideas and vote
                 for the future of IDRISIUM.</p>
             <button onclick="signInWithGoogle()"
@@ -1077,7 +1077,7 @@
                         <i class="fa-solid fa-ranking-star text-neon"></i>
                         Top Forgers (Live)
                     </h3>
-                    <p class="text-[11px] text-platinum/70">Based on total votes received across ideas.</p>
+                    <p class="text-[11px] text-platinum/70">Based on total karma received across ideas.</p>
                 </div>
                 <div id="topForgersList" class="space-y-1"></div>
             </div>
@@ -1111,7 +1111,7 @@
                 <div class="flex items-center gap-3 w-full md:w-auto">
                     <select id="sortSelect" onchange="changeSorting()"
                         class="neon-input px-4 py-3 rounded-xl text-starlight bg-onyx cursor-pointer">
-                        <option value="votes">🔥 Most Votes</option>
+                        <option value="votes">🔥 Most Liked</option>
                         <option value="newest">🕐 Newest First</option>
                         <option value="oldest">📅 Oldest First</option>
                     </select>
@@ -1210,7 +1210,7 @@
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-neon to-teal flex items-center justify-center">
                     <i class="fa-solid fa-hammer text-black"></i>
                 </div>
-                <span class="font-heading text-xl font-bold gradient-text">IDRISIUM FORGE</span>
+                <span class="font-heading text-xl font-bold gradient-text">IDRISIUM IDEAS</span>
             </div>
             <p class="text-platinum text-sm mb-6">Intelligence from the Shadows</p>
             <div class="flex items-center justify-center gap-5 mb-6">
@@ -1286,7 +1286,7 @@
                 <div class="rank-progress-bg w-full">
                     <div id="rankProgress" class="rank-progress-fill" style="width: 0%"></div>
                 </div>
-                <p id="rankMsg" class="text-xs text-center mt-3 text-neon-dim">10 votes to next rank</p>
+                <p id="rankMsg" class="text-xs text-center mt-3 text-neon-dim">10 karma to next rank</p>
             </div>
 
             <!-- Badges Grid -->
@@ -1327,7 +1327,7 @@
                         </span>
                         <span id="modalIdeaScore" class="flex items-center gap-1">
                             <i class="fa-solid fa-fire-flame-curved text-neon"></i>
-                            <span>0 votes  0 comments</span>
+                            <span>0 likes · 0 comments</span>
                         </span>
                     </div>
                     <div class="flex items-center gap-2">
