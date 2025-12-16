@@ -470,62 +470,15 @@
                         Top Forgers (Live)
                     </h3>
                     <p class="text-[11px] text-platinum/70">Based on total karma received across ideas.</p>
-                </div>
-                <div id="topForgersList" class="space-y-1"></div>
-            </div>
-        </section>
 
-        <!-- Live Activity Feed -->
-        <section class="glass-card rounded-3xl p-6 mb-10">
-            <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
-                <h2 class="font-heading text-2xl font-bold text-starlight flex items-center gap-2">
-                    <i class="fa-solid fa-wave-square text-neon"></i>
-                    Live Forge Activity
-                </h2>
-                <p class="text-[11px] text-platinum/70 max-w-sm text-right md:text-left">
-                    See the latest ideas and comments being forged in real time.
-                </p>
-            </div>
-            <div id="activityFeed" class="space-y-1 max-h-64 overflow-y-auto pr-1">
-                <p class="text-center text-platinum py-8">Waiting for activity...</p>
-            </div>
-        </section>
-
-        <!-- Search & Filter Bar -->
-        <section class="glass-card rounded-2xl p-4 mb-6">
-            <div class="flex flex-col md:flex-row items-center gap-4">
-                <div class="relative flex-1 w-full">
-                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-platinum"></i>
-                    <input type="text" id="searchInput" placeholder="Search ideas..."
-                        class="neon-input w-full pl-12 pr-4 py-3 rounded-xl text-starlight placeholder-platinum/50"
-                        oninput="filterIdeas()">
-                </div>
-                <div class="flex items-center gap-3 w-full md:w-auto">
-                    <select id="sortSelect" onchange="changeSorting()"
-                        class="neon-input px-4 py-3 rounded-xl text-starlight bg-onyx cursor-pointer">
-                        <option value="votes">🔥 Most Liked</option>
-                        <option value="mostDiscussed">💬 Most Discussed</option>
-                        <option value="newest">🕐 Newest First</option>
-                        <option value="oldest">📅 Oldest First</option>
-                    </select>
-                    <button id="myIdeasToggle" onclick="toggleMyIdeas()"
-                        class="px-4 py-3 rounded-xl bg-white/5 text-platinum hover:bg-white/10 transition-all flex items-center gap-2 text-xs">
-                        <i class="fa-solid fa-user"></i>
-                        <span>My Ideas</span>
-                    </button>
-                    <button onclick="clearSearch()"
-                        class="px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all"
-                        title="Clear Search">
-                        <i class="fa-solid fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tab Navigation -->
-        <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
-            <div class="flex items-center gap-3">
-                <button onclick="switchTab('top')" id="tabTop"
+            <!-- Search & Filter Bar -->
+            <section class="glass-card rounded-2xl p-4 mb-6">
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <div class="relative flex-1 w-full">
+                        <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-platinum"></i>
+                        <input type="text" id="searchInput" placeholder="Search ideas..."
+                            class="neon-input w-full pl-12 pr-4 py-3 rounded-xl text-starlight placeholder-platinum/50"
+                            oninput="filterIdeas()">
                     class="tab-btn active px-6 py-3 rounded-xl font-heading font-semibold flex items-center gap-2">
                     <i class="fa-solid fa-fire"></i> Top 30
                 </button>
@@ -722,7 +675,8 @@
                     <img id="profileAvatar" src="" class="w-full h-full rounded-full object-cover">
                 </div>
                 <div id="profileRankBadge"
-                    class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-black border border-neon text-neon text-xs font-bold px-3 py-1 rounded-full uppercase whitespace-nowrap box-shadow-neon">
+                    class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-black border border-neon text-neon text-xs font-bold px-3 py-1 rounded-full uppercase whitespace-nowrap box-shadow-neon"
+                    title="Your current reputation tier based on total karma.">
                     Novice
                 </div>
             </div>
@@ -737,7 +691,7 @@
                     <p class="text-xs text-platinum">Forged</p>
                 </div>
                 <div class="p-3 rounded-xl bg-white/5">
-                    <p id="profileVoteCount" class="text-2xl font-bold text-neon">0</p>
+                    <p id="profileVoteCount" class="text-2xl font-bold text-neon" title="Total karma your ideas have accumulated.">0</p>
                     <p class="text-xs text-platinum">Karma</p>
                 </div>
                 <div class="p-3 rounded-xl bg-white/5">

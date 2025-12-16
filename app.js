@@ -979,6 +979,14 @@ window.toggleMyIdeas = function () {
     renderFilteredIdeas();
 };
 
+window.applyTagFilter = function (tag) {
+    const input = document.getElementById('searchInput');
+    const value = (tag || '').toString();
+    if (input) input.value = value;
+    searchQuery = value.toLowerCase().trim();
+    renderFilteredIdeas();
+};
+
 function renderFilteredIdeas() {
     const currentTab = document.getElementById('tabTop').classList.contains('active') ? 'top' : 'new';
     let ideas = currentTab === 'top' ? [...topIdeas] : [...newIdeas];
@@ -1011,7 +1019,26 @@ function renderFilteredIdeas() {
     }
 
     // Apply sorting
-    if (currentSorting === 'votes') {
+    if (currentSorting === 'signal') {
+        const now = Date.now();
+        ideas.sort((a, b) => {
+            const va = a?.votes || 0;
+            const vb = b?.votes || 0;
+            const ca = a?.commentCount || 0;
+            const cb = b?.commentCount || 0;
+
+            const ta = a?.timestamp?.toDate?.() || new Date(0);
+            const tb = b?.timestamp?.toDate?.() || new Date(0);
+            const ageHa = Math.max(0, (now - ta.getTime()) / (1000 * 60 * 60));
+            const ageHb = Math.max(0, (now - tb.getTime()) / (1000 * 60 * 60));
+            const recencyA = Math.max(0, 48 - ageHa) / 48;
+            const recencyB = Math.max(0, 48 - ageHb) / 48;
+
+            const scoreA = va * 3 + ca * 2 + recencyA * 5;
+            const scoreB = vb * 3 + cb * 2 + recencyB * 5;
+            return scoreB - scoreA;
+        });
+    } else if (currentSorting === 'votes') {
         ideas.sort((a, b) => (b.votes || 0) - (a.votes || 0));
     } else if (currentSorting === 'mostDiscussed') {
         ideas.sort((a, b) => {
@@ -1047,7 +1074,57 @@ function renderFilteredIdeas() {
     // Render
     const feed = currentTab === 'top' ? feedTop : feedNew;
     if (ideas.length === 0) {
-        feed.innerHTML = `<div class="text-center py-10"><i class="fa-solid fa-search text-4xl text-platinum mb-4"></i><p class="text-platinum">No ideas found</p></div>`;
+        const searchInput = document.getElementById('searchInput');
+        const rawSearch = searchInput ? searchInput.value.trim() : searchQuery;
+
+        let icon = 'fa-search';
+        let title = 'No ideas found';
+        let subtitle = '';
+
+        if (searchQuery) {
+            icon = 'fa-filter-circle-xmark';
+            title = 'No ideas match your filters';
+            subtitle = `Try adjusting your search or filters for "${rawSearch}".`;
+        } else if (showMyIdeasOnly && currentUser) {
+            icon = 'fa-user-astronaut';
+            title = 'You haven\'t forged any ideas here yet';
+            subtitle = 'Submit your first idea to see it in this view.';
+        } else if (isAdmin && adminFilter && adminFilter !== 'all') {
+            icon = 'fa-shield-halved';
+            if (adminFilter === 'high-signal') {
+                title = 'No high-signal ideas yet';
+                subtitle = 'Karma will highlight the strongest ideas here once the community engages.';
+            } else if (adminFilter === 'low-signal') {
+                title = 'No low-signal ideas in view';
+                subtitle = 'Most ideas here are generating decent signal from the community.';
+            } else if (adminFilter === 'founder') {
+                title = 'No Founder Picks yet';
+                subtitle = 'Use the star icon on cards to mark strategic Founder Picks.';
+            } else if (adminFilter === 'winners') {
+                title = 'No winner selected yet';
+                subtitle = 'Lock a winner from the admin tools once the Forge closes.';
+            } else {
+                title = 'No ideas under this admin filter';
+            }
+        } else if (currentTab === 'top') {
+            icon = 'fa-mountain-sun';
+            title = 'No ranked ideas yet';
+            subtitle = 'When the community starts forging and voting, the strongest ideas will surface here.';
+        } else if (currentTab === 'new') {
+            icon = 'fa-sparkles';
+            title = 'No new arrivals';
+            subtitle = 'Fresh ideas will appear here the moment they\'re forged.';
+        }
+
+        feed.innerHTML = `
+            <div class="text-center py-10 px-4">
+                <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center">
+                    <i class="fa-solid ${icon} text-2xl text-platinum"></i>
+                </div>
+                <p class="font-heading text-sm text-starlight mb-1">${title}</p>
+                ${subtitle ? `<p class="text-[11px] text-platinum/70 max-w-xs mx-auto">${subtitle}</p>` : ''}
+            </div>
+        `;
     } else {
         feed.innerHTML = ideas.map((idea, i) => renderCard(idea, i, currentTab === 'top')).join('');
     }
@@ -1375,8 +1452,8 @@ function renderCard(idea, index, isBadgeTop = false) {
     // Winner / Founder styling
     const winnerStyle = isWinner ? 'border: 3px solid #FFD700; box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);' : '';
     const founderStyle = !isWinner && isFounderPick ? 'border: 2px solid rgba(57,255,20,0.5); box-shadow: 0 0 25px rgba(57,255,20,0.4);' : '';
-    const winnerBadge = isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-gold/30 to-yellow-500/30 text-gold rounded-full animate-pulse"><i class="fa-solid fa-trophy mr-1"></i>WINNER</span>' : '';
-    const founderBadge = !isWinner && isFounderPick ? '<span class="px-2 py-1 text-xs font-semibold bg-neon/15 text-neon rounded-full border border-neon/40"><i class="fa-solid fa-star mr-1"></i>Founder Pick</span>' : '';
+    const winnerBadge = isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-gold/30 to-yellow-500/30 text-gold rounded-full animate-pulse" title="Community winner: highest karma when the Forge closed."><i class="fa-solid fa-trophy mr-1"></i>WINNER</span>' : '';
+    const founderBadge = !isWinner && isFounderPick ? '<span class="px-2 py-1 text-xs font-semibold bg-neon/15 text-neon rounded-full border border-neon/40" title="Hand-picked by the founder as a strategic idea."><i class="fa-solid fa-star mr-1"></i>Founder Pick</span>' : '';
 
     const founderToggleBtn = isAdmin ? `
         <button onclick="toggleFounderPick('${idea.id}', ${isFounderPick})" class="w-8 h-8 rounded-lg bg-neon/10 hover:bg-neon/30 text-neon flex items-center justify-center transition-all" title="${isFounderPick ? 'Remove Founder Pick' : 'Mark as Founder Pick'}">
@@ -1394,8 +1471,8 @@ function renderCard(idea, index, isBadgeTop = false) {
                         <div class="flex items-center gap-2 flex-wrap">
                             ${winnerBadge}
                             ${founderBadge}
-                            ${isBadgeTop && index === 0 && !isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-neon/20 to-teal/20 text-neon rounded-full"><i class="fa-solid fa-crown mr-1"></i>Top</span>' : ''}
-                            ${!isBadgeTop && !isWinner ? '<span class="px-2 py-1 text-xs font-semibold bg-aurora/20 text-aurora rounded-full"><i class="fa-solid fa-sparkles mr-1"></i>New</span>' : ''}
+                            ${isBadgeTop && index === 0 && !isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-neon/20 to-teal/20 text-neon rounded-full" title="Top-ranked idea in this feed."><i class="fa-solid fa-crown mr-1"></i>Top</span>' : ''}
+                            ${!isBadgeTop && !isWinner ? '<span class="px-2 py-1 text-xs font-semibold bg-aurora/20 text-aurora rounded-full" title="Recently forged idea in this event."><i class="fa-solid fa-sparkles mr-1"></i>New</span>' : ''}
                             <span class="text-xs text-platinum">${formatTime(idea.timestamp)}</span>
                         </div>
                         <div class="flex items-center gap-1">
@@ -1746,6 +1823,109 @@ function updateAdminStats() {
     }
 }
 
+function renderMostDiscussedCarousel() {
+    const container = document.getElementById('mostDiscussedCarousel');
+    if (!container) return;
+
+    const map = new Map();
+    (topIdeas || []).forEach(i => { if (i) map.set(i.id, i); });
+    (newIdeas || []).forEach(i => { if (i) map.set(i.id, i); });
+
+    const list = Array.from(map.values()).filter(Boolean);
+    if (list.length === 0) {
+        container.innerHTML = '<p class="text-xs text-platinum/70">No ideas have gathered comments yet. Start a discussion from the main feed.</p>';
+        return;
+    }
+
+    const now = Date.now();
+    const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+    const recent = list.filter(idea => {
+        const ts = idea.timestamp?.toDate?.() || null;
+        if (!ts) return true;
+        return (now - ts.getTime()) <= ONE_WEEK_MS;
+    });
+
+    if (recent.length === 0) {
+        container.innerHTML = '<p class="text-xs text-platinum/70">No heavily discussed ideas in the last 7 days yet.</p>';
+        return;
+    }
+
+    recent.sort((a, b) => {
+        const cb = b.commentCount || 0;
+        const ca = a.commentCount || 0;
+        if (cb !== ca) return cb - ca;
+        return (b.votes || 0) - (a.votes || 0);
+    });
+
+    const top = recent.slice(0, 10);
+
+    container.innerHTML = top.map(idea => {
+        const title = escapeHtml(idea.title || 'Untitled idea');
+        const comments = idea.commentCount || 0;
+        const votes = idea.votes || 0;
+        const when = formatTime(idea.timestamp);
+        return `
+            <div class="min-w-[220px] max-w-[260px] glass-card rounded-2xl p-4 flex-shrink-0 border border-white/5">
+                <p class="font-heading text-sm font-semibold text-starlight mb-1 line-clamp-2">${title}</p>
+                <p class="text-[11px] text-platinum/70 mb-3">${when}</p>
+                <div class="flex items-center justify-between text-[11px] text-platinum/80">
+                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-comments text-neon"></i>${comments} comments</span>
+                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-fire-flame-curved text-aurora"></i>${votes} karma</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderTrendingTags() {
+    const container = document.getElementById('trendingTags');
+    if (!container) return;
+
+    const map = new Map();
+    const all = [...(topIdeas || []), ...(newIdeas || [])];
+
+    all.forEach(idea => {
+        if (!idea) return;
+        const text = `${idea.title || ''} ${idea.description || ''}`;
+        const regex = /#([a-zA-Z0-9_]+)/g;
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            const key = match[1].toLowerCase();
+            if (!key) continue;
+            const stats = map.get(key) || { count: 0, votes: 0 };
+            stats.count += 1;
+            stats.votes += idea.votes || 0;
+            map.set(key, stats);
+        }
+    });
+
+    const entries = Array.from(map.entries())
+        .sort((a, b) => {
+            const sa = a[1].count * 2 + a[1].votes;
+            const sb = b[1].count * 2 + b[1].votes;
+            return sb - sa;
+        })
+        .slice(0, 8);
+
+    if (entries.length === 0) {
+        container.innerHTML = '';
+        container.classList.add('hidden');
+        return;
+    }
+
+    container.classList.remove('hidden');
+    container.innerHTML = entries.map(([tag, stats]) => {
+        const label = `#${tag}`;
+        return `
+            <button type="button" class="tag-chip" onclick="applyTagFilter('${label}')" title="${stats.count} ideas using ${label}">
+                <span class="tag-dot"></span>
+                <span>${label}</span>
+            </button>
+        `;
+    }).join('');
+}
+
 function renderLeaderboard() {
     const container = document.getElementById('topForgersList');
     if (!container) return;
@@ -1988,6 +2168,8 @@ function initListeners() {
         // Update leaderboard whenever top ideas change
         renderLeaderboard();
         updateAdminStats();
+        renderMostDiscussedCarousel();
+        renderTrendingTags();
     });
 
     const qNew = query(collection(db, 'ideas'), orderBy('timestamp', 'desc'), limit(10));
@@ -2022,6 +2204,8 @@ function initListeners() {
         // Update Live Activity Feed & Admin Stats
         renderActivityFeed();
         updateAdminStats();
+        renderMostDiscussedCarousel();
+        renderTrendingTags();
     });
 
     // Latest comments across all ideas for Activity Feed
