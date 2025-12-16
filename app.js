@@ -140,6 +140,123 @@ function updateIdeaPreview() {
             </div>
         </div>
     `;
+
+    updateDuplicateSuggestions(title, desc);
+}
+
+function updateDuplicateSuggestions(title, desc) {
+    const container = document.getElementById('duplicateSuggestions');
+    const listEl = document.getElementById('duplicateSuggestionsList');
+    if (!container || !listEl) return;
+
+    const combined = `${title || ''} ${desc || ''}`.toLowerCase().trim();
+    if (!combined || combined.length < 15) {
+        container.classList.add('hidden');
+        listEl.innerHTML = '';
+        return;
+    }
+
+    const clean = combined.replace(/[^a-z0-9#\s]/g, ' ');
+    const parts = clean.split(/\s+/).filter(Boolean);
+    const tokens = new Set();
+    for (const w of parts) {
+        if (w.length < 3) continue;
+        tokens.add(w);
+        if (tokens.size >= 24) break;
+    }
+
+    if (tokens.size < 3) {
+        container.classList.add('hidden');
+        listEl.innerHTML = '';
+        return;
+    }
+
+    const merged = new Map();
+    (topIdeas || []).forEach(i => { if (i && i.id) merged.set(i.id, i); });
+    (newIdeas || []).forEach(i => { if (i && i.id) merged.set(i.id, i); });
+
+    const all = Array.from(merged.values());
+    if (!all.length) {
+        container.classList.add('hidden');
+        listEl.innerHTML = '';
+        return;
+    }
+
+    const results = [];
+
+    all.forEach(idea => {
+        const baseText = `${idea.title || ''} ${idea.description || ''}`.toLowerCase();
+        const cleanIdea = baseText.replace(/[^a-z0-9#\s]/g, ' ');
+        const ideaParts = cleanIdea.split(/\s+/).filter(Boolean);
+        const ideaTokens = new Set();
+        ideaParts.forEach(w => {
+            if (w.length < 3) return;
+            ideaTokens.add(w);
+        });
+
+        if (!ideaTokens.size) return;
+
+        let overlap = 0;
+        tokens.forEach(t => {
+            if (ideaTokens.has(t)) overlap++;
+        });
+        if (!overlap) return;
+
+        const unionSize = tokens.size + ideaTokens.size - overlap;
+        const jaccard = unionSize > 0 ? overlap / unionSize : 0;
+
+        const inputTitle = (title || '').toLowerCase();
+        const ideaTitle = (idea.title || '').toLowerCase();
+        let titleBoost = 0;
+        if (inputTitle && ideaTitle) {
+            if (ideaTitle.includes(inputTitle) || inputTitle.includes(ideaTitle)) {
+                titleBoost = 0.6;
+            }
+        }
+
+        const score = overlap + jaccard + titleBoost;
+        if (score < 1.3) return;
+
+        results.push({ idea, score });
+    });
+
+    if (!results.length) {
+        container.classList.add('hidden');
+        listEl.innerHTML = '';
+        return;
+    }
+
+    results.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        const cb = (b.idea.commentCount || 0) - (a.idea.commentCount || 0);
+        if (cb) return cb;
+        return (b.idea.votes || 0) - (a.idea.votes || 0);
+    });
+
+    const topMatches = results.slice(0, 3);
+
+    listEl.innerHTML = topMatches.map(({ idea }) => {
+        const titleSafe = escapeHtml(idea.title || 'Untitled idea');
+        const snippet = escapeHtml((idea.description || '').slice(0, 140));
+        const when = formatTime(idea.timestamp);
+        const votes = idea.votes || 0;
+        const comments = idea.commentCount || 0;
+        return `
+            <button type="button" class="w-full text-left glass-card rounded-xl p-3 border border-white/5 hover:border-neon/40 transition-colors" onclick="jumpToIdea('${idea.id}')">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                    <p class="font-heading text-[13px] font-semibold text-starlight line-clamp-1">${titleSafe}</p>
+                    <span class="text-[10px] text-platinum/60 whitespace-nowrap">${when}</span>
+                </div>
+                <p class="text-[11px] text-platinum/80 mb-1 line-clamp-2">${snippet}</p>
+                <div class="flex items-center gap-3 text-[10px] text-platinum/70">
+                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-fire-flame-curved text-neon/80"></i>${votes} karma</span>
+                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-comment text-aurora/80"></i>${comments} comments</span>
+                </div>
+            </button>
+        `;
+    }).join('');
+
+    container.classList.remove('hidden');
 }
 
 function goToIdeaStep(step) {
@@ -1458,6 +1575,85 @@ function formatTime(ts) {
     return `${Math.floor(diff / 86400)}d ago`;
 }
 
+const FOLLOW_KEY = 'idrisium_followed_ideas';
+let followedIdeas = {};
+let followedLoaded = false;
+
+function ensureFollowLoaded() {
+    if (followedLoaded) return;
+    followedLoaded = true;
+    try {
+        const raw = localStorage.getItem(FOLLOW_KEY);
+        followedIdeas = raw ? JSON.parse(raw) || {} : {};
+        if (typeof followedIdeas !== 'object' || followedIdeas === null) {
+            followedIdeas = {};
+        }
+    } catch (e) {
+        followedIdeas = {};
+    }
+}
+
+function saveFollowedIdeas() {
+    try {
+        localStorage.setItem(FOLLOW_KEY, JSON.stringify(followedIdeas));
+    } catch (e) {
+        console.log('Follow storage failed', e);
+    }
+}
+
+function isIdeaFollowed(id) {
+    if (!id) return false;
+    ensureFollowLoaded();
+    const entry = followedIdeas[id];
+    return !!(entry && entry.followed);
+}
+
+function getLastSeenComments(id) {
+    if (!id) return 0;
+    ensureFollowLoaded();
+    const entry = followedIdeas[id];
+    return entry && typeof entry.lastSeenComments === 'number' ? entry.lastSeenComments : 0;
+}
+
+function markIdeaCommentsSeen(id, comments) {
+    if (!id) return;
+    ensureFollowLoaded();
+    const current = followedIdeas[id] || { followed: false, lastSeenComments: 0 };
+    const c = typeof comments === 'number' ? comments : 0;
+    current.lastSeenComments = Math.max(current.lastSeenComments || 0, c);
+    followedIdeas[id] = current;
+    saveFollowedIdeas();
+}
+
+window.toggleFollowIdea = function (id, currentComments) {
+    if (!id) return;
+    if (!currentUser) {
+        Swal.fire({ icon: 'info', title: 'Sign In Required', text: 'Sign in to follow ideas and track their activity.' });
+        return;
+    }
+
+    ensureFollowLoaded();
+    const existing = followedIdeas[id] || { followed: false, lastSeenComments: 0 };
+    const nowFollow = !existing.followed;
+    existing.followed = nowFollow;
+    if (nowFollow && typeof currentComments === 'number') {
+        existing.lastSeenComments = currentComments;
+    }
+    followedIdeas[id] = existing;
+    saveFollowedIdeas();
+
+    renderFilteredIdeas();
+
+    const msg = nowFollow ? 'You will see a badge when this idea gets new comments.' : 'You will no longer highlight new activity for this idea.';
+    Swal.fire({
+        icon: nowFollow ? 'success' : 'info',
+        title: nowFollow ? 'Following Idea' : 'Unfollowed Idea',
+        text: msg,
+        timer: 1800,
+        showConfirmButton: false
+    });
+};
+
 function renderCard(idea, index, isBadgeTop = false) {
     const voted = hasVoted(idea.id);
     const isOwner = currentUser && currentUser.uid === idea.uid;
@@ -1522,6 +1718,24 @@ function renderCard(idea, index, isBadgeTop = false) {
                         </div>`;
     }
 
+    const totalComments = idea.commentCount || 0;
+    const isFollowed = isIdeaFollowed(idea.id);
+    const lastSeenComments = getLastSeenComments(idea.id);
+    const hasNewActivity = isFollowed && totalComments > lastSeenComments;
+
+    const followBtn = currentUser ? `
+                        <button type="button" onclick="toggleFollowIdea('${idea.id}', ${totalComments})" class="px-2 py-1 rounded-full border text-[10px] ${isFollowed ? 'border-neon/60 text-neon bg-neon/10' : 'border-white/10 text-platinum/80 hover:border-neon/40'}">
+                            <i class="fa-solid ${isFollowed ? 'fa-bell' : 'fa-bell-slash'} mr-1"></i>${isFollowed ? 'Following' : 'Follow'}
+                        </button>
+                    ` : '';
+
+    const newActivityBadge = hasNewActivity ? `
+                        <span class="px-2 py-1 rounded-full bg-neon/15 text-[10px] text-neon flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-neon animate-pulse"></span>
+                            New activity
+                        </span>
+                    ` : '';
+
     let lowSignalClass = '';
     try {
         const votes = idea.votes || 0;
@@ -1566,6 +1780,8 @@ function renderCard(idea, index, isBadgeTop = false) {
                         </button>
                         ${isOwner ? '<span class="text-neon"><i class="fa-solid fa-check-circle mr-1"></i>Yours</span>' : ''}
                         ${isAdmin && !isOwner ? '<span class="text-gold"><i class="fa-solid fa-shield mr-1"></i>Admin View</span>' : ''}
+                        ${newActivityBadge}
+                        ${followBtn}
                     </div>
                     ${relatedHtml}
                 </div>
@@ -1665,6 +1881,8 @@ window.openComments = async function (ideaId, title, desc) {
             if (countEl) {
                 countEl.textContent = comments + (comments === 1 ? ' comment' : ' comments');
             }
+
+            markIdeaCommentsSeen(ideaId, comments);
         }
     } catch (e) {
         console.log('Idea meta load error', e);
