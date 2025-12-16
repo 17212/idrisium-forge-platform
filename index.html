@@ -483,7 +483,23 @@
                         <i class="fa-solid fa-ranking-star text-neon"></i>
                         Top Forgers (Live)
                     </h3>
-                    <p class="text-[11px] text-platinum/70">Based on total karma received across ideas.</p>
+                    <div class="flex items-center gap-2 text-[10px] text-platinum/70">
+                        <span class="hidden sm:inline">Based on total karma received across ideas.</span>
+                        <div class="inline-flex rounded-xl bg-black/40 p-0.5 border border-white/10">
+                            <button type="button" onclick="setLeaderboardRange('day')" data-leaderboard-range="day"
+                                class="px-2 py-1 rounded-lg bg-white/5 text-platinum/70 border border-white/10 text-[10px]">
+                                Today
+                            </button>
+                            <button type="button" onclick="setLeaderboardRange('week')" data-leaderboard-range="week"
+                                class="px-2 py-1 rounded-lg bg-white/5 text-platinum/70 border border-white/10 text-[10px]">
+                                This Week
+                            </button>
+                            <button type="button" onclick="setLeaderboardRange('all')" data-leaderboard-range="all"
+                                class="px-2 py-1 rounded-lg bg-neon/20 text-neon border border-neon/60 text-[10px]">
+                                All Time
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div id="topForgersList" class="mt-3 space-y-2 text-xs text-platinum/80">
                 </div>
@@ -590,6 +606,22 @@
                 </div>
                 <span class="text-[10px] text-platinum/60">Live</span>
             </div>
+            <div class="glass-card rounded-2xl p-3 text-[11px] flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-neon"></i>
+                    <div>
+                        <p class="text-[10px] text-platinum/60 uppercase tracking-wide">Daily Streak</p>
+                        <p class="text-[11px] text-platinum/80">
+                            <span id="railStreakCurrent" class="font-heading text-neon">0</span>
+                            <span class="text-[10px] text-platinum/60 ml-1">days</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-[9px] text-platinum/60 uppercase tracking-wide">Best</p>
+                    <p class="font-heading text-xs text-platinum/90"><span id="railStreakBest">0</span> d</p>
+                </div>
+            </div>
             <div class="glass-card rounded-2xl p-3 text-[11px] flex flex-col gap-1">
                 <div class="flex items-center justify-between gap-2">
                     <span class="text-[10px] text-platinum/70 uppercase tracking-wide">Event Status</span>
@@ -597,6 +629,9 @@
                 </div>
                 <p id="railStatus" class="text-[11px] text-platinum/80 leading-snug">
                     Live · Submissions &amp; Voting Open
+                </p>
+                <p id="railSprint" class="text-[10px] text-platinum/60 mt-1 hidden">
+                    Sprint · Alpha Forge Sprint
                 </p>
             </div>
             <div class="glass-card rounded-2xl p-3 text-[11px] flex flex-col gap-2">
@@ -703,7 +738,7 @@
             <p id="profileEmail" class="text-sm text-platinum mb-6">user@example.com</p>
 
             <!-- Stats -->
-            <div class="grid grid-cols-3 gap-4 w-full mb-6 text-center">
+            <div class="grid grid-cols-3 gap-4 w-full mb-3 text-center">
                 <div class="p-3 rounded-xl bg-white/5">
                     <p id="profileIdeaCount" class="text-2xl font-bold text-teal">0</p>
                     <p class="text-xs text-platinum">Forged</p>
@@ -717,10 +752,23 @@
                     <p class="text-xs text-platinum">Level</p>
                 </div>
             </div>
+            <div class="w-full mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileKarmaCreation" class="text-lg font-bold text-neon">0</p>
+                    <p class="text-[11px] text-platinum/80">Creation</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileKarmaComments" class="text-lg font-bold text-aurora">0</p>
+                    <p class="text-[11px] text-platinum/80">Comments</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileKarmaCommunity" class="text-lg font-bold text-teal">0</p>
+                    <p class="text-[11px] text-platinum/80">Community</p>
+                </div>
+            </div>
 
             <!-- Progress -->
-            <!-- Progress -->
-            <div class="w-full text-left mb-6">
+            <div class="w-full text-left mb-4">
                 <div class="flex justify-between text-xs text-platinum mb-2">
                     <span id="rankCurrent">Novice</span>
                     <span id="rankNext">Apprentice</span>
@@ -729,6 +777,17 @@
                     <div id="rankProgress" class="rank-progress-fill" style="width: 0%"></div>
                 </div>
                 <p id="rankMsg" class="text-xs text-center mt-3 text-neon-dim">10 karma to next rank</p>
+            </div>
+
+            <!-- Season Snapshot -->
+            <div class="w-full mb-6">
+                <h3 class="text-white font-bold text-sm mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-mountain-sun text-neon"></i>
+                    <span>Season Snapshot</span>
+                </h3>
+                <div id="profileSeasonSnapshot" class="text-[11px] text-platinum/80">
+                    <p class="text-[11px] text-platinum/60">Your seasonal record will appear here as you earn karma.</p>
+                </div>
             </div>
 
             <!-- Badges Grid -->

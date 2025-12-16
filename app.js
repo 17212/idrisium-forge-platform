@@ -60,6 +60,20 @@ let commentsUnsubscribe = null;
 let adminFilter = 'all';
 let currentEventStatusKey = null; // Track last event status phase for animations
 let relatedIndex = new Map();
+let leaderboardRange = 'all'; // 'day' | 'week' | 'all'
+
+const CURRENT_SPRINT_ID = 'alpha_sprint_1';
+const CURRENT_SPRINT_NAME = 'Alpha Forge Sprint';
+const SPRINT_STATE_KEY = 'idrisium_sprint_state_v1';
+let sprintState = null;
+
+const CURRENT_SEASON_ID = 'season_1';
+const CURRENT_SEASON_NAME = 'Season 1 – Genesis';
+const SEASON_SNAPSHOT_KEY = 'idrisium_season_snapshots_v1';
+let seasonSnapshots = null;
+
+const STREAK_KEY = 'idrisium_daily_streak_v1';
+let streakState = null;
 
 try {
     app = initializeApp(firebaseConfig);
@@ -643,6 +657,21 @@ function updateEventStatus() {
     const railStatus = document.getElementById('railStatus');
     if (railStatus) railStatus.textContent = statusText;
 
+    const railSprint = document.getElementById('railSprint');
+    if (railSprint) {
+        if (!forgeIsOpen) {
+            railSprint.classList.add('hidden');
+        } else {
+            const sprintLabel = getCurrentSprintLabel();
+            if (sprintLabel) {
+                railSprint.textContent = sprintLabel;
+                railSprint.classList.remove('hidden');
+            } else {
+                railSprint.classList.add('hidden');
+            }
+        }
+    }
+
     // Animate when status key changes
     if (currentEventStatusKey !== key) {
         currentEventStatusKey = key;
@@ -685,6 +714,164 @@ function updateEventStatus() {
     // Update tooltip content
     if (tooltipEl && tooltipHtml) {
         tooltipEl.innerHTML = tooltipHtml;
+    }
+}
+
+function getCurrentSprintWindow() {
+    if (!deadline) return null;
+    try {
+        const totalMs = EVENT_DURATION_DAYS * 24 * 60 * 60 * 1000;
+        const end = deadline.getTime();
+        const start = end - totalMs;
+        return { start, end };
+    } catch (e) {
+        return null;
+    }
+}
+
+function isWithinCurrentSprint(nowMs) {
+    const win = getCurrentSprintWindow();
+    if (!win) return false;
+    return nowMs >= win.start && nowMs <= win.end;
+}
+
+function getCurrentSprintLabel() {
+    try {
+        const win = getCurrentSprintWindow();
+        if (!win) return '';
+        const nowMs = Date.now();
+        if (nowMs < win.start || nowMs > win.end) return '';
+        const diff = win.end - nowMs;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        let timePart = '';
+        if (days > 0) {
+            timePart = `${days}d${hours > 0 ? ' ' + hours + 'h' : ''} left`;
+        } else if (hours > 0) {
+            timePart = `${hours}h left`;
+        } else {
+            timePart = 'Final hours';
+        }
+        return `Sprint · ${CURRENT_SPRINT_NAME} (${timePart})`;
+    } catch (e) {
+        return `Sprint · ${CURRENT_SPRINT_NAME}`;
+    }
+}
+
+function loadSprintState() {
+    if (sprintState) return sprintState;
+    try {
+        const raw = localStorage.getItem(SPRINT_STATE_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if (parsed && parsed.id === CURRENT_SPRINT_ID) {
+            sprintState = parsed;
+        } else {
+            sprintState = { id: CURRENT_SPRINT_ID, participated: false, unlockedAt: null };
+        }
+    } catch (e) {
+        sprintState = { id: CURRENT_SPRINT_ID, participated: false, unlockedAt: null };
+    }
+    return sprintState;
+}
+
+function saveSprintState() {
+    try {
+        if (sprintState) {
+            localStorage.setItem(SPRINT_STATE_KEY, JSON.stringify(sprintState));
+        }
+    } catch (e) {
+        // ignore
+    }
+}
+
+function markSprintParticipation() {
+    try {
+        if (!isWithinCurrentSprint(Date.now())) return;
+        const state = loadSprintState();
+        if (!state.participated) {
+            state.participated = true;
+            state.unlockedAt = Date.now();
+            sprintState = state;
+            saveSprintState();
+        }
+    } catch (e) {
+        console.log('Sprint participation failed', e);
+    }
+}
+
+function loadSeasonSnapshots() {
+    if (seasonSnapshots) return seasonSnapshots;
+    try {
+        const raw = localStorage.getItem(SEASON_SNAPSHOT_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if (parsed && typeof parsed === 'object') {
+            seasonSnapshots = parsed;
+        } else {
+            seasonSnapshots = {};
+        }
+    } catch (e) {
+        seasonSnapshots = {};
+    }
+    return seasonSnapshots;
+}
+
+function saveSeasonSnapshots() {
+    try {
+        const all = seasonSnapshots || {};
+        localStorage.setItem(SEASON_SNAPSHOT_KEY, JSON.stringify(all));
+    } catch (e) {
+        // ignore
+    }
+}
+
+function updateSeasonSnapshot(rank, karma) {
+    try {
+        const all = loadSeasonSnapshots();
+        const existing = all[CURRENT_SEASON_ID];
+        const bestKarma = typeof karma === 'number' ? karma : (Number(karma) || 0);
+        if (!existing || bestKarma > (existing.bestKarma || 0)) {
+            all[CURRENT_SEASON_ID] = {
+                id: CURRENT_SEASON_ID,
+                name: CURRENT_SEASON_NAME,
+                bestRank: rank,
+                bestKarma,
+                lastUpdated: Date.now()
+            };
+            seasonSnapshots = all;
+            saveSeasonSnapshots();
+        }
+    } catch (e) {
+        console.log('Season snapshot update failed', e);
+    }
+}
+
+function buildSeasonSnapshotsHtml() {
+    try {
+        const all = loadSeasonSnapshots();
+        const list = Object.values(all || {});
+        if (!list.length) {
+            return `<p class="text-[11px] text-platinum/60">Your seasonal record will appear here as you earn karma.</p>`;
+        }
+
+        list.sort((a, b) => (b.lastUpdated || 0) - (a.lastUpdated || 0));
+
+        return list.map(season => {
+            const isCurrent = season.id === CURRENT_SEASON_ID;
+            const date = season.lastUpdated ? new Date(season.lastUpdated) : null;
+            const when = date && date.toLocaleDateString ? date.toLocaleDateString() : '';
+            const badgeClass = isCurrent ? 'border border-neon/40 bg-white/5' : 'bg-white/5 border border-white/5';
+            return `
+                <div class="${badgeClass} rounded-xl px-3 py-2 mb-1 text-left">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[11px] ${isCurrent ? 'text-neon' : 'text-platinum/80'}">${season.name || CURRENT_SEASON_NAME}</span>
+                        ${isCurrent ? '<span class="text-[10px] text-neon/80 uppercase">Current</span>' : ''}
+                    </div>
+                    <p class="text-[10px] text-platinum/80 mt-1">Best Rank: <span class="text-neon">${season.bestRank || 'Novice'}</span> · Peak Karma: <span class="text-aurora">${season.bestKarma || 0}</span>${when ? ` · <span class="text-platinum/60">${when}</span>` : ''}</p>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        return `<p class="text-[11px] text-platinum/60">Season data unavailable.</p>`;
     }
 }
 
@@ -780,11 +967,13 @@ onAuthStateChanged(auth, user => {
     updateAuthUI(user);
     if (user) {
         checkUserSubmission(user.uid);
+        updateStreakUI();
     } else {
         const el = document.getElementById('headerKarmaValue');
         if (el) el.textContent = '0';
         const railKarmaEl = document.getElementById('railKarma');
         if (railKarmaEl) railKarmaEl.textContent = '0';
+        resetStreakUIOnSignOut();
     }
 });
 
@@ -1755,6 +1944,9 @@ window.submitIdea = async function (event) {
         // Refresh Stats & Countdown
         await checkUserSubmission(currentUser.uid);
 
+        bumpDailyStreak();
+        markSprintParticipation();
+
         Swal.fire({
             icon: 'success',
             title: '🎉 Idea Forged!',
@@ -1849,6 +2041,11 @@ window.handleVote = async function (id, type) {
 
         // REFRESH STATS
         if (currentUser) checkUserSubmission(currentUser.uid);
+
+        if (type === 'up') {
+            bumpDailyStreak();
+            markSprintParticipation();
+        }
     } catch (e) {
         console.error(e);
         Swal.fire({ icon: 'error', title: 'Vote Failed', text: e.message });
@@ -2256,6 +2453,8 @@ window.submitComment = async function () {
         });
 
         inputEl.value = '';
+        bumpDailyStreak();
+        markSprintParticipation();
     } catch (e) {
         console.error('Comment error', e);
         Swal.fire({ icon: 'error', title: 'Comment Failed', text: e.message });
@@ -2729,24 +2928,64 @@ function renderLeaderboard() {
 
     const userMap = new Map();
 
+    const now = new Date();
+    let cutoff = null;
+    if (leaderboardRange === 'day') {
+        cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    } else if (leaderboardRange === 'week') {
+        cutoff = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    }
+
     const addIdea = (idea) => {
         if (!idea || !idea.uid) return;
+        let tsDate = null;
+        if (idea.timestamp) {
+            try {
+                tsDate = idea.timestamp.toDate ? idea.timestamp.toDate() : (idea.timestamp instanceof Date ? idea.timestamp : new Date(idea.timestamp));
+            } catch (e) {
+                tsDate = null;
+            }
+        }
+
+        if (cutoff && tsDate && tsDate < cutoff) {
+            return;
+        }
+
         const key = idea.uid;
         const existing = userMap.get(key) || {
             uid: key,
             name: idea.author || 'Unknown Forger',
             votes: 0,
             ideas: 0,
+            lastActivityMs: 0,
         };
         existing.votes += idea.votes || 0;
         existing.ideas += 1;
+        if (tsDate) {
+            const ms = tsDate.getTime();
+            if (!existing.lastActivityMs || ms > existing.lastActivityMs) {
+                existing.lastActivityMs = ms;
+            }
+        }
         userMap.set(key, existing);
     };
 
     topIdeas.forEach(addIdea);
     newIdeas.forEach(addIdea);
 
-    const users = Array.from(userMap.values()).sort((a, b) => b.votes - a.votes).slice(0, 5);
+    const nowMs = now.getTime();
+    const usersRaw = Array.from(userMap.values());
+    usersRaw.forEach(u => {
+        const lastMs = u.lastActivityMs || nowMs;
+        const diffDays = Math.max(0, (nowMs - lastMs) / (1000 * 60 * 60 * 24));
+        let decay = 1;
+        if (diffDays > 90) decay = 0.4;
+        else if (diffDays > 60) decay = 0.6;
+        else if (diffDays > 30) decay = 0.8;
+        u.score = (u.votes || 0) * decay;
+    });
+
+    const users = usersRaw.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 5);
 
     if (users.length === 0) {
         container.innerHTML = '<p class="text-xs text-platinum/60">No karma yet. Forge and like ideas to climb the board.</p>';
@@ -2766,6 +3005,25 @@ function renderLeaderboard() {
         </div>
     `).join('');
 }
+
+window.setLeaderboardRange = function (range) {
+    leaderboardRange = range;
+
+    const buttons = document.querySelectorAll('[data-leaderboard-range]');
+    buttons.forEach(btn => {
+        const r = btn.getAttribute('data-leaderboard-range');
+        const isActive = r === range;
+        if (isActive) {
+            btn.classList.add('bg-neon/20', 'text-neon', 'border-neon/60');
+            btn.classList.remove('bg-white/5', 'text-platinum/70', 'border-white/10');
+        } else {
+            btn.classList.remove('bg-neon/20', 'text-neon', 'border-neon/60');
+            btn.classList.add('bg-white/5', 'text-platinum/70', 'border-white/10');
+        }
+    });
+
+    renderLeaderboard();
+};
 
 function renderActivityFeed() {
     const container = document.getElementById('activityFeed');
@@ -3036,6 +3294,105 @@ document.addEventListener('mousemove', e => {
     document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
 });
 
+function getTodayKey() {
+    const now = new Date();
+    return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+}
+
+function parseDateKey(key) {
+    if (!key || typeof key !== 'string') return null;
+    const parts = key.split('-');
+    if (parts.length !== 3) return null;
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    const d = parseInt(parts[2], 10);
+    if (!y || !m || !d) return null;
+    return new Date(y, m - 1, d);
+}
+
+function loadStreakState() {
+    if (streakState) return streakState;
+    let state = { lastActive: null, current: 0, best: 0 };
+    try {
+        const raw = localStorage.getItem(STREAK_KEY);
+        if (raw) {
+            const obj = JSON.parse(raw);
+            if (obj && typeof obj === 'object') {
+                state.lastActive = typeof obj.lastActive === 'string' ? obj.lastActive : null;
+                state.current = typeof obj.current === 'number' ? obj.current : 0;
+                state.best = typeof obj.best === 'number' ? obj.best : 0;
+            }
+        }
+    } catch (e) {
+        console.log('Streak load failed', e);
+    }
+    streakState = state;
+    return state;
+}
+
+function saveStreakState() {
+    try {
+        const state = streakState || { lastActive: null, current: 0, best: 0 };
+        localStorage.setItem(STREAK_KEY, JSON.stringify(state));
+    } catch (e) {
+        console.log('Streak save failed', e);
+    }
+}
+
+function updateStreakUI() {
+    const state = loadStreakState();
+    const currentEl = document.getElementById('railStreakCurrent');
+    const bestEl = document.getElementById('railStreakBest');
+    if (currentEl) currentEl.textContent = state.current || 0;
+    if (bestEl) bestEl.textContent = state.best || 0;
+}
+
+function resetStreakUIOnSignOut() {
+    const currentEl = document.getElementById('railStreakCurrent');
+    const bestEl = document.getElementById('railStreakBest');
+    if (currentEl) currentEl.textContent = '0';
+    if (bestEl) bestEl.textContent = '0';
+}
+
+function bumpDailyStreak() {
+    try {
+        const todayKey = getTodayKey();
+        const state = loadStreakState();
+
+        if (!state.lastActive) {
+            state.lastActive = todayKey;
+            state.current = 1;
+            state.best = Math.max(state.best || 0, state.current);
+        } else if (state.lastActive !== todayKey) {
+            const lastDate = parseDateKey(state.lastActive);
+            const todayDate = parseDateKey(todayKey);
+
+            if (lastDate && todayDate) {
+                const msPerDay = 24 * 60 * 60 * 1000;
+                const diffDays = Math.round((todayDate - lastDate) / msPerDay);
+                if (diffDays === 1) {
+                    state.current = (state.current || 0) + 1;
+                } else if (diffDays > 1) {
+                    state.current = 1;
+                }
+            } else {
+                state.current = 1;
+            }
+
+            state.lastActive = todayKey;
+            if (!state.best || state.current > state.best) {
+                state.best = state.current;
+            }
+        }
+
+        streakState = state;
+        saveStreakState();
+        updateStreakUI();
+    } catch (e) {
+        console.log('Streak update failed', e);
+    }
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // PROFILE & GAMIFICATION
 // ═══════════════════════════════════════════════════════════════════
@@ -3049,13 +3406,20 @@ window.openProfile = async function () {
     document.getElementById('profileEmail').textContent = currentUser.email;
     document.getElementById('profileIdeaCount').textContent = userSubmissionCount;
 
-    // Calculate Votes
+    // Calculate Votes (Idea Creation Karma)
     let totalVotesReceived = 0;
+    let creationKarma = 0;
+    let acceptedIdeasCount = 0; // ideas with at least 1 karma
+    let highSignalIdeasCount = 0; // ideas with 10+ karma
     const q = query(collection(db, 'ideas'), where('uid', '==', currentUser.uid));
     try {
         const snap = await getDocs(q);
         snap.forEach(docSnap => {
-            totalVotesReceived += (docSnap.data().votes || 0);
+            const votes = docSnap.data().votes || 0;
+            totalVotesReceived += votes;
+            creationKarma += votes;
+            if (votes >= 1) acceptedIdeasCount++;
+            if (votes >= 10) highSignalIdeasCount++;
         });
     } catch (e) { console.error(e); }
 
@@ -3092,6 +3456,17 @@ window.openProfile = async function () {
     if (rank === 'Legend') document.getElementById('rankMsg').textContent = 'Maximum Rank Achieved!';
     else document.getElementById('rankMsg').textContent = `${max - totalVotesReceived} more karma to reach ${nextRank}`;
 
+    // Seasonal Snapshot
+    try {
+        updateSeasonSnapshot(rank, totalVotesReceived);
+        const seasonEl = document.getElementById('profileSeasonSnapshot');
+        if (seasonEl) {
+            seasonEl.innerHTML = buildSeasonSnapshotsHtml();
+        }
+    } catch (e) {
+        console.log('Season snapshot render failed', e);
+    }
+
     // Render Badges
     const badgesEl = document.getElementById('profileBadges');
     let badgesHtml = '';
@@ -3123,6 +3498,127 @@ window.openProfile = async function () {
              <li><i class="fa-solid fa-medal text-yellow-400 mr-1"></i> 200 Karma: Legend Border (Comments)</li>
         </ul>
     </div>`;
+
+    // Karma Layers: Creation / Comments / Community
+    let commentKarma = 0;
+    const collabMap = new Map();
+    try {
+        const cq = query(collectionGroup(db, 'comments'), where('uid', '==', currentUser.uid));
+        const commSnap = await getDocs(cq);
+        for (const docSnap of commSnap.docs) {
+            const data = docSnap.data() || {};
+            const baseVotes = data.votes || 0;
+            let weightedVotes = baseVotes;
+
+            const parent = docSnap.ref.parent;
+            const ideaRef = parent && parent.parent ? parent.parent : null;
+            if (ideaRef) {
+                try {
+                    const ideaDoc = await getDoc(ideaRef);
+                    if (ideaDoc.exists()) {
+                        const ideaData = ideaDoc.data() || {};
+
+                        // Early Comment Multipliers (Idea 38)
+                        try {
+                            const ideaTs = ideaData.timestamp;
+                            const commentTs = data.timestamp;
+                            if (ideaTs && commentTs) {
+                                const ideaDate = ideaTs.toDate ? ideaTs.toDate() : new Date(ideaTs);
+                                const commentDate = commentTs.toDate ? commentTs.toDate() : new Date(commentTs);
+                                const diffHours = (commentDate - ideaDate) / (1000 * 60 * 60);
+                                let multiplier = 1;
+                                if (diffHours >= 0 && diffHours <= 1) {
+                                    multiplier = 2; // first hour
+                                } else if (diffHours > 1 && diffHours <= 24) {
+                                    multiplier = 1.5; // first day
+                                }
+                                weightedVotes = Math.round(baseVotes * multiplier);
+                            }
+                        } catch (e) {
+                            // fallback to baseVotes
+                            weightedVotes = baseVotes;
+                        }
+
+                        const ownerId = ideaData.uid || null;
+                        const ownerName = ideaData.author || 'Unknown Forger';
+                        if (ownerId && ownerId !== currentUser.uid) {
+                            const existing = collabMap.get(ownerId) || { uid: ownerId, name: ownerName, comments: 0 };
+                            existing.comments += 1;
+                            collabMap.set(ownerId, existing);
+                        }
+                    }
+                } catch (e) {
+                    // ignore per-idea failures
+                }
+            }
+
+            commentKarma += weightedVotes;
+        }
+    } catch (e) { console.error('Comment karma calc failed', e); }
+
+    let collabStrongestCount = 0;
+    let collabPartners = 0;
+    collabMap.forEach(entry => {
+        collabPartners += 1;
+        if (entry.comments > collabStrongestCount) {
+            collabStrongestCount = entry.comments;
+        }
+    });
+
+    let communityKarma = 0;
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!key || !key.startsWith('idrisium_vote_')) continue;
+            const val = localStorage.getItem(key);
+            if (val === 'up') communityKarma += 1;
+        }
+    } catch (e) {
+        console.log('Community karma calc failed', e);
+    }
+
+    const elCreation = document.getElementById('profileKarmaCreation');
+    const elComments = document.getElementById('profileKarmaComments');
+    const elCommunity = document.getElementById('profileKarmaCommunity');
+    if (elCreation) elCreation.textContent = creationKarma;
+    if (elComments) elComments.textContent = commentKarma;
+    if (elCommunity) elCommunity.textContent = communityKarma;
+
+    // Combo Badges (Idea 35) + Mentor (Idea 39) + Duo/Collab (Idea 37)
+    try {
+        if (acceptedIdeasCount >= 10) {
+            badgesHtml += `<div class="tooltip" title="Idea Machine: 10+ ideas that earned karma"><i class="fa-solid fa-gears text-neon drop-shadow-lg"></i></div>`;
+        }
+        if (highSignalIdeasCount >= 3) {
+            badgesHtml += `<div class="tooltip" title="Signal Cluster: 3+ high-karma ideas (10+ each)"><i class="fa-solid fa-sitemap text-aurora drop-shadow-lg"></i></div>`;
+        }
+        if (commentKarma >= 50 && communityKarma >= 50) {
+            badgesHtml += `<div class="tooltip" title="Network Node: Heavy commenter & voter in the Forge"><i class="fa-solid fa-circle-nodes text-teal drop-shadow-lg"></i></div>`;
+        }
+
+        if (commentKarma >= 30) {
+            badgesHtml += `<div class="tooltip" title="Mentor: comments that consistently attract high likes"><i class="fa-solid fa-chalkboard-user text-gold drop-shadow-lg"></i></div>`;
+        }
+
+        if (collabStrongestCount >= 5) {
+            badgesHtml += `<div class="tooltip" title="Duo Forge: Deep collaboration with another forger across many threads"><i class="fa-solid fa-user-friends text-neon drop-shadow-lg"></i></div>`;
+        }
+        if (collabPartners >= 3 && collabStrongestCount >= 3) {
+            badgesHtml += `<div class="tooltip" title="Collab Web: Active in discussions with many different forgers"><i class="fa-solid fa-users-line text-aurora drop-shadow-lg"></i></div>`;
+        }
+    } catch (e) {
+        // ignore
+    }
+
+    // Sprint Badge
+    try {
+        const s = loadSprintState();
+        if (s && s.id === CURRENT_SPRINT_ID && s.participated) {
+            badgesHtml += `<div class="tooltip" title="${CURRENT_SPRINT_NAME}: Participated in this limited-time sprint"><i class="fa-solid fa-flag-checkered text-neon drop-shadow-lg"></i></div>`;
+        }
+    } catch (e) {
+        // ignore
+    }
 
     // 5. Admin
     if (isAdmin) badgesHtml += `<div class="tooltip" title="System Architect"><i class="fa-solid fa-user-shield text-red-500 drop-shadow-lg"></i></div>`;
