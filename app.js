@@ -1522,8 +1522,23 @@ function renderCard(idea, index, isBadgeTop = false) {
                         </div>`;
     }
 
+    let lowSignalClass = '';
+    try {
+        const votes = idea.votes || 0;
+        const comments = idea.commentCount || 0;
+        const ts = idea.timestamp?.toDate?.() || null;
+        if (!isWinner && !isFounderPick && votes <= 0 && comments === 0 && ts) {
+            const ageDays = (Date.now() - ts.getTime()) / (1000 * 60 * 60 * 24);
+            if (ageDays >= 5) {
+                lowSignalClass = ' idea-low-signal';
+            }
+        }
+    } catch (e) {
+        console.log('Low-signal check failed', e);
+    }
+
     return `
-        <div id="idea-${idea.id}" class="glass-card rounded-2xl p-6" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s; ${winnerStyle} ${founderStyle}">
+        <div id="idea-${idea.id}" class="glass-card rounded-2xl p-6${lowSignalClass}" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s; ${winnerStyle} ${founderStyle}">
             <div class="flex items-start gap-4">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between mb-2">
@@ -1986,6 +2001,85 @@ function renderTrendingTags() {
     }).join('');
 }
 
+function renderSpotlight() {
+    const container = document.getElementById('spotlightContent');
+    if (!container) return;
+
+    const map = new Map();
+    (topIdeas || []).forEach(i => { if (i && i.id) map.set(i.id, i); });
+    (newIdeas || []).forEach(i => { if (i && i.id) map.set(i.id, i); });
+
+    const list = Array.from(map.values()).filter(Boolean);
+    if (!list.length) {
+        container.innerHTML = '<p class="text-xs text-platinum/70">No spotlight yet. Once ideas gain karma and comments, one will appear here.</p>';
+        return;
+    }
+
+    const now = Date.now();
+    const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+    const recent = list.filter(idea => {
+        const ts = idea.timestamp?.toDate?.() || null;
+        if (!ts) return true;
+        return (now - ts.getTime()) <= ONE_WEEK_MS;
+    });
+
+    const pool = recent.length ? recent : list;
+
+    const scored = pool.map(idea => {
+        const votes = idea.votes || 0;
+        const comments = idea.commentCount || 0;
+        const ts = idea.timestamp?.toDate?.() || new Date(0);
+        const ageHours = Math.max(0, (now - ts.getTime()) / (1000 * 60 * 60));
+        const recency = Math.max(0, 48 - ageHours) / 48;
+        const score = votes * 3 + comments * 2 + recency * 5;
+        return { idea, score };
+    });
+
+    scored.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        const cb = (b.idea.commentCount || 0) - (a.idea.commentCount || 0);
+        if (cb) return cb;
+        return (b.idea.votes || 0) - (a.idea.votes || 0);
+    });
+
+    const top = scored[0];
+    if (!top || top.score <= 0) {
+        container.innerHTML = '<p class="text-xs text-platinum/70">No high-signal spotlight yet. Keep forging and reacting to ideas.</p>';
+        return;
+    }
+
+    const idea = top.idea;
+    const title = escapeHtml(idea.title || 'Untitled idea');
+    const desc = escapeHtml((idea.description || '').slice(0, 220));
+    const author = escapeHtml(idea.author || 'Unknown Forger');
+    const votes = idea.votes || 0;
+    const comments = idea.commentCount || 0;
+    const when = formatTime(idea.timestamp);
+
+    container.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex-1 min-w-0">
+                <p class="text-[11px] text-platinum/70 uppercase tracking-wide mb-1">High-signal idea of the week</p>
+                <h3 class="font-heading text-lg font-bold text-starlight mb-1 line-clamp-2">${title}</h3>
+                <p class="text-xs text-platinum/80 mb-2 line-clamp-3">${desc}</p>
+                <div class="flex items-center gap-3 text-[11px] text-platinum/70 flex-wrap">
+                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-user text-neon/70"></i>${author}</span>
+                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-clock text-platinum/60"></i>${when}</span>
+                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-fire-flame-curved text-neon"></i>${votes} karma</span>
+                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-comment text-aurora"></i>${comments} comments</span>
+                </div>
+            </div>
+            <div class="flex flex-col items-end gap-2 min-w-[180px]">
+                <button type="button" class="neon-btn px-4 py-2 rounded-xl text-xs font-heading" onclick="jumpToIdea('${idea.id}')">
+                    <i class="fa-solid fa-location-arrow mr-1"></i>View in feed
+                </button>
+                <p class="text-[10px] text-platinum/60 max-w-[220px] text-right">Chosen automatically from this week&#39;s karma, comments, and recency.</p>
+            </div>
+        </div>
+    `;
+}
+
 function buildRelatedIdeasIndex() {
     relatedIndex = new Map();
 
@@ -2298,6 +2392,7 @@ function initListeners() {
         renderMostDiscussedCarousel();
         renderTrendingTags();
         buildRelatedIdeasIndex();
+        renderSpotlight();
     });
 
     const qNew = query(collection(db, 'ideas'), orderBy('timestamp', 'desc'), limit(10));
@@ -2335,6 +2430,7 @@ function initListeners() {
         renderMostDiscussedCarousel();
         renderTrendingTags();
         buildRelatedIdeasIndex();
+        renderSpotlight();
     });
 
     // Latest comments across all ideas for Activity Feed

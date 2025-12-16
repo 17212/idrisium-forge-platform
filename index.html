@@ -418,13 +418,19 @@
             </form>
         </section>
 
-        <!-- Stats -->
-        <section class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
-            <div class="glass-card rounded-2xl p-5 text-center">
-                <p id="statTopIdeas" class="font-heading text-3xl font-bold text-neon">0</p>
-                <p class="text-xs text-platinum mt-1">Top Ideas</p>
+        <!-- Weekly Spotlight -->
+        <section class="glass-card rounded-3xl p-6 mb-10">
+            <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
+                <h2 class="font-heading text-2xl font-bold text-starlight flex items-center gap-2">
+                    <i class="fa-solid fa-star-half-stroke text-neon"></i>
+                    Weekly Spotlight
+                </h2>
+                <p class="text-[11px] text-platinum/70 max-w-sm text-right md:text-left">
+                    A single high-signal idea chosen automatically from this week&#39;s karma and discussions.
+                </p>
             </div>
-            <div class="glass-card rounded-2xl p-5 text-center">
+            <div id="spotlightContent" class="mt-2">
+                <p class="text-xs text-platinum/70">Calculating spotlight from live karma and comments...</p>
                 <p id="statNewIdeas" class="font-heading text-3xl font-bold text-aurora">0</p>
                 <p class="text-xs text-platinum mt-1">New Ideas</p>
             </div>
