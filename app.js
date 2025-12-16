@@ -93,6 +93,105 @@ document.getElementById('ideaDescription').addEventListener('input', e => {
     document.getElementById('descCount').textContent = e.target.value.length;
 });
 
+// Idea submission wizard (multi-step)
+let currentIdeaStep = 1;
+const MAX_IDEA_STEP = 3;
+
+function updateIdeaPreview() {
+    const preview = document.getElementById('ideaPreview');
+    if (!preview) return;
+
+    const titleEl = document.getElementById('ideaTitle');
+    const descEl = document.getElementById('ideaDescription');
+    const authorEl = document.getElementById('authorName');
+
+    const title = (titleEl?.value || '').trim() || 'Your idea title';
+    const desc = (descEl?.value || '').trim() || 'Describe your idea in detail.';
+    const author = (authorEl?.value || '').trim() || 'Anonymous Forger';
+
+    preview.innerHTML = `
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between gap-3">
+                <h4 class="font-heading text-lg font-bold text-starlight line-clamp-2">${escapeHtml(title)}</h4>
+                <span class="text-[11px] px-2 py-1 rounded-full border border-neon/40 text-neon/90 uppercase tracking-wide">Preview</span>
+            </div>
+            <p class="text-sm text-platinum line-clamp-4">${escapeHtml(desc)}</p>
+            <div class="flex items-center justify-between text-xs text-platinum/70 mt-1">
+                <span><i class="fa-solid fa-user text-neon/70 mr-1"></i>${escapeHtml(author)}</span>
+                <span><i class="fa-solid fa-fire-flame-curved text-neon mr-1"></i>Potential karma magnet</span>
+            </div>
+        </div>
+    `;
+}
+
+function goToIdeaStep(step) {
+    const step1 = document.getElementById('wizardStep1');
+    const step2 = document.getElementById('wizardStep2');
+    const step3 = document.getElementById('wizardStep3');
+    if (!step1 || !step2 || !step3) {
+        currentIdeaStep = 1;
+        return;
+    }
+
+    currentIdeaStep = Math.min(Math.max(step, 1), MAX_IDEA_STEP);
+
+    const prevBtn = document.getElementById('prevStepBtn');
+    const nextBtn = document.getElementById('nextStepBtn');
+    const submitBtnLocal = document.getElementById('submitBtn');
+    const stepLabel = document.getElementById('wizardStepLabel');
+
+    step1.classList.toggle('hidden', currentIdeaStep !== 1);
+    step2.classList.toggle('hidden', currentIdeaStep !== 2);
+    step3.classList.toggle('hidden', currentIdeaStep !== 3);
+
+    if (prevBtn) prevBtn.classList.toggle('hidden', currentIdeaStep === 1);
+    if (nextBtn) nextBtn.classList.toggle('hidden', currentIdeaStep === MAX_IDEA_STEP);
+    if (submitBtnLocal) submitBtnLocal.classList.toggle('hidden', currentIdeaStep !== MAX_IDEA_STEP);
+
+    if (stepLabel) {
+        if (currentIdeaStep === 1) stepLabel.textContent = 'Step 1 of 3 · Basics';
+        else if (currentIdeaStep === 2) stepLabel.textContent = 'Step 2 of 3 · Details';
+        else stepLabel.textContent = 'Step 3 of 3 · Review & Submit';
+    }
+
+    if (currentIdeaStep === 3) {
+        updateIdeaPreview();
+    }
+}
+
+window.nextIdeaStep = function () {
+    const titleEl = document.getElementById('ideaTitle');
+    const authorEl = document.getElementById('authorName');
+    const descEl = document.getElementById('ideaDescription');
+
+    if (currentIdeaStep === 1) {
+        const title = (titleEl?.value || '').trim();
+        const author = (authorEl?.value || '').trim();
+        if (!title || !author) {
+            Swal.fire({ icon: 'error', title: 'Incomplete', text: 'Fill in the title and your display name before continuing.' });
+            return;
+        }
+    } else if (currentIdeaStep === 2) {
+        const desc = (descEl?.value || '').trim();
+        if (!desc) {
+            Swal.fire({ icon: 'error', title: 'Incomplete', text: 'Describe your idea before continuing.' });
+            return;
+        }
+    }
+
+    if (currentIdeaStep < MAX_IDEA_STEP) {
+        goToIdeaStep(currentIdeaStep + 1);
+        if (navigator.vibrate) navigator.vibrate(30);
+    }
+};
+
+window.prevIdeaStep = function () {
+    if (currentIdeaStep > 1) {
+        goToIdeaStep(currentIdeaStep - 1);
+        if (navigator.vibrate) navigator.vibrate(20);
+    }
+};
+
 // ═══════════════════════════════════════════════════════════════════
 // DOOMSDAY TIMER
 // ═══════════════════════════════════════════════════════════════════
@@ -980,6 +1079,12 @@ window.submitIdea = async function (event) {
         ideaForm.reset();
         document.getElementById('titleCount').textContent = '0';
         document.getElementById('descCount').textContent = '0';
+
+        // Reset wizard to first step
+        currentIdeaStep = 1;
+        if (typeof goToIdeaStep === 'function') {
+            goToIdeaStep(1);
+        }
 
         // Update UI based on remaining
         updateSubmissionUI();
