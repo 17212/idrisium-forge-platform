@@ -598,6 +598,35 @@
             <h3 class="font-heading text-2xl font-bold text-starlight mb-2">No Ideas Yet</h3>
             <p class="text-platinum">Be the first to forge the future!</p>
         </div>
+        <!-- Theme Switcher -->
+        <div id="themeSwitcher" class="fixed left-4 bottom-6 z-40 flex flex-col gap-2">
+            <div class="glass-card rounded-2xl px-3 py-2 flex items-center gap-2 text-[10px] text-platinum/80">
+                <i class="fa-solid fa-palette text-neon"></i>
+                <span class="hidden sm:inline">Theme</span>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button type="button" class="theme-chip" data-theme="stealth" onclick="changeTheme('stealth')"
+                    title="Stealth">
+                    <span class="theme-dot bg-[#39FF14]"></span>
+                    <span class="theme-label">Stealth</span>
+                </button>
+                <button type="button" class="theme-chip" data-theme="neo-cairo" onclick="changeTheme('neo-cairo')"
+                    title="Neo-Cairo">
+                    <span class="theme-dot bg-[#FFD700]"></span>
+                    <span class="theme-label">Neo-Cairo</span>
+                </button>
+                <button type="button" class="theme-chip" data-theme="minimal" onclick="changeTheme('minimal')"
+                    title="Minimal">
+                    <span class="theme-dot bg-[#9CA3AF]"></span>
+                    <span class="theme-label">Minimal</span>
+                </button>
+                <button type="button" class="theme-chip" data-theme="hacker" onclick="changeTheme('hacker')"
+                    title="Hacker Grid">
+                    <span class="theme-dot bg-[#10B981]"></span>
+                    <span class="theme-label">Hacker</span>
+                </button>
+            </div>
+        </div>
 
     </main>
 

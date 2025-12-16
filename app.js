@@ -210,6 +210,61 @@ window.prevIdeaStep = function () {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// THEME PRESETS
+// ═══════════════════════════════════════════════════════════════════
+const THEME_KEY = 'idrisium_theme';
+const THEME_CLASSES = ['theme-stealth', 'theme-neo-cairo', 'theme-minimal', 'theme-hacker'];
+
+function applyTheme(theme) {
+    const body = document.body;
+    if (!body) return;
+
+    THEME_CLASSES.forEach(cls => body.classList.remove(cls));
+
+    let className = 'theme-stealth';
+    if (theme === 'neo-cairo') className = 'theme-neo-cairo';
+    else if (theme === 'minimal') className = 'theme-minimal';
+    else if (theme === 'hacker') className = 'theme-hacker';
+
+    body.classList.add(className);
+
+    // Sync chips
+    const chips = document.querySelectorAll('.theme-chip');
+    chips.forEach(chip => {
+        const t = chip.getAttribute('data-theme');
+        if (t === theme) chip.classList.add('theme-chip-active');
+        else chip.classList.remove('theme-chip-active');
+    });
+}
+
+function initTheme() {
+    let stored = null;
+    try {
+        stored = localStorage.getItem(THEME_KEY);
+    } catch (e) {
+        console.warn('Theme storage unavailable', e);
+    }
+    const theme = stored || 'stealth';
+    applyTheme(theme);
+}
+
+window.changeTheme = function (theme) {
+    applyTheme(theme || 'stealth');
+    try {
+        localStorage.setItem(THEME_KEY, theme || 'stealth');
+    } catch (e) {
+        console.warn('Theme storage failed', e);
+    }
+    if (navigator.vibrate) navigator.vibrate(25);
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTheme);
+} else {
+    initTheme();
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // DOOMSDAY TIMER
 // ═══════════════════════════════════════════════════════════════════
 const DEADLINE_KEY = 'idrisium_forge_deadline';
