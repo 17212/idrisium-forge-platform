@@ -484,30 +484,23 @@
                         Top Forgers (Live)
                     </h3>
                     <p class="text-[11px] text-platinum/70">Based on total karma received across ideas.</p>
+                </div>
+                <div id="topForgersList" class="mt-3 space-y-2 text-xs text-platinum/80">
+                </div>
+            </section>
 
-            <!-- Search & Filter Bar -->
-            <section class="glass-card rounded-2xl p-4 mb-6">
-                <div class="flex flex-col md:flex-row items-center gap-4">
-                    <div class="relative flex-1 w-full">
-                        <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-platinum"></i>
-                        <input type="text" id="searchInput" placeholder="Search ideas..."
-                            class="neon-input w-full pl-12 pr-4 py-3 rounded-xl text-starlight placeholder-platinum/50"
-                            oninput="filterIdeas()">
-                    class="tab-btn active px-6 py-3 rounded-xl font-heading font-semibold flex items-center gap-2">
-                    <i class="fa-solid fa-fire"></i> Top 30
-                </button>
-                <button onclick="switchTab('new')" id="tabNew"
-                    class="tab-btn px-6 py-3 rounded-xl font-heading font-semibold flex items-center gap-2">
-                    <i class="fa-solid fa-clock"></i> New Arrivals
-                </button>
-            </div>
-            <p id="resultsCount" class="text-xs text-platinum"></p>
-        </div>
-
-        <!-- Ideas Feed: Top -->
-        <div id="feedTop" class="space-y-4">
-            <!-- Skeleton -->
-            <div class="skeleton-container">
+            <!-- Ideas Feed: Top -->
+            <div id="feedTop" class="space-y-4">
+                <!-- Skeleton -->
+                <div class="skeleton-container">
+                    <div class="glass-card rounded-2xl p-6 mb-4">
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <div class="skeleton h-6 w-3/4 mb-3"></div>
+                                <div class="skeleton h-4 w-full mb-2"></div>
+                                <div class="skeleton h-4 w-1/2"></div>
+                            </div>
+                            <div class="skeleton w-16 h-20 rounded-xl"></div>
                 <div class="glass-card rounded-2xl p-6 mb-4">
                     <div class="flex gap-4">
                         <div class="flex-1">

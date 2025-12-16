@@ -1046,6 +1046,15 @@ let searchDebounceTimeout = null;
 let showMyIdeasOnly = false;
 
 const FILTER_STATE_KEY = 'idrisium_filter_state_v1';
+const FEED_PAGE_SIZE = 10;
+let visibleTopCount = FEED_PAGE_SIZE;
+let visibleNewCount = FEED_PAGE_SIZE;
+let hasMoreTop = false;
+let hasMoreNew = false;
+let feedScrollListenerAttached = false;
+const RECENTLY_VIEWED_KEY = 'idrisium_recently_viewed_v1';
+const RECENTLY_VIEWED_LIMIT = 8;
+let recentlyViewed = [];
 
 function loadFilterState() {
     try {
@@ -1167,6 +1176,177 @@ window.applyTagFilter = function (tag) {
     renderFilteredIdeas();
 };
 
+function buildDaySeparatorLabel(dateObj) {
+    if (!(dateObj instanceof Date)) return 'Unknown Day';
+
+    const today = new Date();
+    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const targetMidnight = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+    const diffDays = Math.round((todayMidnight - targetMidnight) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays >= 2 && diffDays < 7) {
+        return dateObj.toLocaleDateString(undefined, { weekday: 'short' });
+    }
+
+    return dateObj.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function renderIdeasWithDaySeparators(ideas, isTopTab) {
+    if (!ideas || ideas.length === 0) return '';
+
+    let html = '';
+    let lastDayKey = '';
+    let index = 0;
+
+    ideas.forEach(idea => {
+        const rawTs = idea.timestamp;
+        const d = rawTs?.toDate?.() || null;
+        const dayKey = d ? `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}` : 'unknown';
+
+        if (dayKey !== lastDayKey) {
+            const label = buildDaySeparatorLabel(d || new Date(0));
+            html += `
+                <div class="flex items-center gap-2 mt-6 mb-3 text-[11px] text-platinum/60 uppercase tracking-wide">
+                    <div class="h-px flex-1 bg-white/10"></div>
+                    <span>${label}</span>
+                    <div class="h-px flex-1 bg-white/10"></div>
+                </div>
+            `;
+            lastDayKey = dayKey;
+        }
+
+        html += renderCard(idea, index, isTopTab);
+        index += 1;
+    });
+
+    return html;
+}
+
+function ensureFeedInfiniteScrollListener() {
+    if (feedScrollListenerAttached) return;
+    feedScrollListenerAttached = true;
+
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+        const docHeight = document.documentElement.scrollHeight || 0;
+
+        if (docHeight - (scrollY + viewportHeight) > 320) return;
+
+        const tabTopEl = document.getElementById('tabTop');
+        if (!tabTopEl) return;
+
+        const currentTab = tabTopEl.classList.contains('active') ? 'top' : 'new';
+
+        if (currentTab === 'top') {
+            if (!hasMoreTop) return;
+            const total = (topIdeas || []).length;
+            visibleTopCount = Math.min(visibleTopCount + FEED_PAGE_SIZE, total);
+        } else {
+            if (!hasMoreNew) return;
+            const total = (newIdeas || []).length;
+            visibleNewCount = Math.min(visibleNewCount + FEED_PAGE_SIZE, total);
+        }
+
+        renderFilteredIdeas();
+    });
+}
+
+function findIdeaById(ideaId) {
+    if (!ideaId) return null;
+    const all = [...(topIdeas || []), ...(newIdeas || [])];
+    return all.find(i => i && i.id === ideaId) || null;
+}
+
+function loadRecentlyViewedFromStorage() {
+    try {
+        const raw = localStorage.getItem(RECENTLY_VIEWED_KEY);
+        if (!raw) {
+            recentlyViewed = [];
+            return;
+        }
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr)) {
+            recentlyViewed = [];
+            return;
+        }
+        recentlyViewed = arr.filter(e => e && e.id).slice(0, RECENTLY_VIEWED_LIMIT);
+    } catch (e) {
+        console.log('Recently viewed load failed', e);
+        recentlyViewed = [];
+    }
+    renderRecentlyViewed();
+}
+
+function saveRecentlyViewedToStorage() {
+    try {
+        const payload = (recentlyViewed || []).filter(e => e && e.id).slice(0, RECENTLY_VIEWED_LIMIT);
+        localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(payload));
+    } catch (e) {
+        console.log('Recently viewed save failed', e);
+    }
+}
+
+function trackRecentlyViewed(ideaId) {
+    if (!ideaId) return;
+
+    const idea = findIdeaById(ideaId);
+    const nowIso = new Date().toISOString();
+
+    const entry = {
+        id: ideaId,
+        title: idea?.title || 'Untitled idea',
+        author: idea?.author || 'Unknown Forger',
+        lastViewedAt: nowIso,
+    };
+
+    const list = Array.isArray(recentlyViewed) ? recentlyViewed : [];
+    recentlyViewed = list.filter(e => e && e.id !== ideaId);
+    recentlyViewed.unshift(entry);
+    if (recentlyViewed.length > RECENTLY_VIEWED_LIMIT) {
+        recentlyViewed = recentlyViewed.slice(0, RECENTLY_VIEWED_LIMIT);
+    }
+
+    saveRecentlyViewedToStorage();
+    renderRecentlyViewed();
+}
+
+function renderRecentlyViewed() {
+    const section = document.getElementById('recentlyViewedSection');
+    const listEl = document.getElementById('recentlyViewedList');
+    if (!section || !listEl) return;
+
+    const items = (recentlyViewed || []).filter(e => e && e.id);
+    if (!items.length) {
+        section.classList.add('hidden');
+        listEl.innerHTML = '';
+        return;
+    }
+
+    section.classList.remove('hidden');
+
+    const html = items.slice(0, RECENTLY_VIEWED_LIMIT).map(entry => {
+        const idea = findIdeaById(entry.id) || {};
+        const title = escapeHtml(idea.title || entry.title || 'Untitled idea');
+        const author = escapeHtml(idea.author || entry.author || 'Unknown Forger');
+        const whenSource = entry.lastViewedAt || idea.timestamp || new Date();
+        const when = formatTime(whenSource);
+        return `
+            <button type="button" class="min-w-[180px] max-w-[220px] glass-card rounded-xl p-3 text-left border border-white/5 hover:border-neon/40 transition-colors flex flex-col gap-1" onclick="jumpToIdea('${entry.id}')">
+                <p class="font-heading text-[13px] font-semibold text-starlight line-clamp-1">${title}</p>
+                <div class="flex items-center justify-between text-[10px] text-platinum/60 gap-2 mt-1">
+                    <span class="truncate"><i class="fa-solid fa-user text-neon/70 mr-1"></i>${author}</span>
+                    <span class="whitespace-nowrap">${when}</span>
+                </div>
+            </button>
+        `;
+    }).join('');
+
+    listEl.innerHTML = html;
+}
+
 function renderFilteredIdeas() {
     const currentTab = document.getElementById('tabTop').classList.contains('active') ? 'top' : 'new';
     let ideas = currentTab === 'top' ? [...topIdeas] : [...newIdeas];
@@ -1268,6 +1448,14 @@ function renderFilteredIdeas() {
     // Render
     const feed = currentTab === 'top' ? feedTop : feedNew;
     if (ideas.length === 0) {
+        if (currentTab === 'top') {
+            hasMoreTop = false;
+            visibleTopCount = FEED_PAGE_SIZE;
+        } else {
+            hasMoreNew = false;
+            visibleNewCount = FEED_PAGE_SIZE;
+        }
+
         const searchInput = document.getElementById('searchInput');
         const rawSearch = searchInput ? searchInput.value.trim() : searchQuery;
 
@@ -1320,7 +1508,35 @@ function renderFilteredIdeas() {
             </div>
         `;
     } else {
-        feed.innerHTML = ideas.map((idea, i) => renderCard(idea, i, currentTab === 'top')).join('');
+        const isTopTab = currentTab === 'top';
+        const pageSize = FEED_PAGE_SIZE;
+        const currentVisible = isTopTab ? visibleTopCount : visibleNewCount;
+        const safeVisible = !currentVisible || currentVisible < pageSize ? pageSize : currentVisible;
+        const maxVisible = Math.min(safeVisible, ideas.length);
+        const hasMore = ideas.length > maxVisible;
+
+        if (isTopTab) {
+            visibleTopCount = maxVisible;
+            hasMoreTop = hasMore;
+        } else {
+            visibleNewCount = maxVisible;
+            hasMoreNew = hasMore;
+        }
+
+        const visibleIdeas = ideas.slice(0, maxVisible);
+        let html = renderIdeasWithDaySeparators(visibleIdeas, isTopTab);
+
+        if (hasMore) {
+            html += `
+                <div class="py-4 text-center text-[11px] text-platinum/60">
+                    <i class="fa-solid fa-infinity text-neon mr-1"></i>
+                    <span>Scroll to load older ideas...</span>
+                </div>
+            `;
+        }
+
+        feed.innerHTML = html;
+        ensureFeedInfiniteScrollListener();
     }
 }
 
@@ -1449,6 +1665,8 @@ window.jumpToWinner = function () {
 
 window.jumpToIdea = function (ideaId) {
     if (!ideaId) return;
+
+    try { trackRecentlyViewed(ideaId); } catch (e) { console.log('trackRecentlyViewed failed', e); }
 
     const scrollAndHighlight = () => {
         const el = document.getElementById('idea-' + ideaId);
@@ -1917,6 +2135,7 @@ function renderCommentsList() {
 }
 
 window.openComments = async function (ideaId, title, desc) {
+    try { trackRecentlyViewed(ideaId); } catch (e) { console.log('trackRecentlyViewed failed', e); }
     currentIdeaId = ideaId;
 
     const modal = document.getElementById('commentsModal');
@@ -2735,12 +2954,14 @@ function initListeners() {
         const railTop = document.getElementById('railTopCount');
         if (railTop) railTop.textContent = topIdeas.length;
 
-        if (topIdeas.length === 0) {
-            feedTop.innerHTML = '';
-            emptyState.classList.remove('hidden');
-        } else {
-            emptyState.classList.add('hidden');
-            feedTop.innerHTML = topIdeas.map((idea, i) => renderCard(idea, i, true)).join('');
+        if (emptyState) {
+            const hasAnyIdeas = (topIdeas && topIdeas.length > 0) || (newIdeas && newIdeas.length > 0);
+            const noFilters = !searchQuery && !showMyIdeasOnly && (!isAdmin || adminFilter === 'all');
+            if (!hasAnyIdeas && noFilters) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
         }
 
         // Update leaderboard whenever top ideas change
@@ -2751,9 +2972,11 @@ function initListeners() {
         renderActivityHeatmap();
         buildRelatedIdeasIndex();
         renderSpotlight();
+        renderFilteredIdeas();
+        renderRecentlyViewed();
     });
 
-    const qNew = query(collection(db, 'ideas'), orderBy('timestamp', 'desc'), limit(10));
+    const qNew = query(collection(db, 'ideas'), orderBy('timestamp', 'desc'), limit(30));
     onSnapshot(qNew, async snap => {
         newIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         document.getElementById('statNewIdeas').textContent = newIdeas.length;
@@ -2776,12 +2999,6 @@ function initListeners() {
             if (railTotal) railTotal.textContent = fallbackTotal;
         }
 
-        if (newIdeas.length === 0) {
-            feedNew.innerHTML = '<p class="text-center text-platinum py-10">No new ideas yet.</p>';
-        } else {
-            feedNew.innerHTML = newIdeas.map((idea, i) => renderCard(idea, i, false)).join('');
-        }
-
         // Update Live Activity Feed & Admin Stats
         renderActivityFeed();
         updateAdminStats();
@@ -2790,6 +3007,7 @@ function initListeners() {
         renderActivityHeatmap();
         buildRelatedIdeasIndex();
         renderSpotlight();
+        renderFilteredIdeas();
     });
 
     // Latest comments across all ideas for Activity Feed
@@ -2807,6 +3025,7 @@ function initListeners() {
 }
 
 loadFilterState();
+loadRecentlyViewedFromStorage();
 if (db) initListeners();
 
 // ═══════════════════════════════════════════════════════════════════
