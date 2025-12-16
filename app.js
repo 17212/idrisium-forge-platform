@@ -1045,6 +1045,62 @@ let searchQuery = '';
 let searchDebounceTimeout = null;
 let showMyIdeasOnly = false;
 
+const FILTER_STATE_KEY = 'idrisium_filter_state_v1';
+
+function loadFilterState() {
+    try {
+        const raw = localStorage.getItem(FILTER_STATE_KEY);
+        if (!raw) return;
+        const state = JSON.parse(raw);
+        if (!state || typeof state !== 'object') return;
+
+        if (typeof state.searchQuery === 'string') {
+            searchQuery = state.searchQuery;
+            const input = document.getElementById('searchInput');
+            if (input) input.value = state.searchQuery;
+        }
+
+        if (typeof state.currentSorting === 'string') {
+            currentSorting = state.currentSorting;
+            const sel = document.getElementById('sortSelect');
+            if (sel) sel.value = currentSorting;
+        }
+
+        if (typeof state.showMyIdeasOnly === 'boolean') {
+            showMyIdeasOnly = state.showMyIdeasOnly;
+            const btn = document.getElementById('myIdeasToggle');
+            if (btn) {
+                btn.classList.toggle('bg-neon/20', showMyIdeasOnly);
+                btn.classList.toggle('text-neon', showMyIdeasOnly);
+                btn.classList.toggle('border', showMyIdeasOnly);
+                btn.classList.toggle('border-neon/40', showMyIdeasOnly);
+            }
+        }
+
+        if (typeof state.adminFilter === 'string') {
+            adminFilter = state.adminFilter;
+            const sel = document.getElementById('adminFilterSelect');
+            if (sel) sel.value = adminFilter;
+        }
+    } catch (e) {
+        console.log('Filter state load failed', e);
+    }
+}
+
+function saveFilterState() {
+    try {
+        const state = {
+            searchQuery,
+            currentSorting,
+            showMyIdeasOnly,
+            adminFilter,
+        };
+        localStorage.setItem(FILTER_STATE_KEY, JSON.stringify(state));
+    } catch (e) {
+        console.log('Filter state save failed', e);
+    }
+}
+
 window.filterIdeas = function () {
     const input = document.getElementById('searchInput');
     if (!input) return;
@@ -1053,8 +1109,9 @@ window.filterIdeas = function () {
     if (searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
     searchDebounceTimeout = setTimeout(() => {
         searchQuery = value;
+        saveFilterState();
         renderFilteredIdeas();
-    }, 250);
+    }, 200);
 };
 
 window.clearSearch = function () {
@@ -1062,11 +1119,13 @@ window.clearSearch = function () {
     if (input) input.value = '';
     searchQuery = '';
     if (searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
+    saveFilterState();
     renderFilteredIdeas();
 };
 
 window.changeSorting = function () {
     currentSorting = document.getElementById('sortSelect').value;
+    saveFilterState();
     renderFilteredIdeas();
 };
 
@@ -1078,6 +1137,7 @@ window.toggleMyIdeas = function () {
             btn.classList.remove('bg-neon/20', 'text-neon', 'border', 'border-neon/40');
         }
         showMyIdeasOnly = false;
+        saveFilterState();
         return Swal.fire({
             icon: 'warning',
             title: 'Sign In Required',
@@ -1094,6 +1154,7 @@ window.toggleMyIdeas = function () {
         btn.classList.toggle('border-neon/40', showMyIdeasOnly);
     }
 
+    saveFilterState();
     renderFilteredIdeas();
 };
 
@@ -1102,6 +1163,7 @@ window.applyTagFilter = function (tag) {
     const value = (tag || '').toString();
     if (input) input.value = value;
     searchQuery = value.toLowerCase().trim();
+    saveFilterState();
     renderFilteredIdeas();
 };
 
@@ -1152,8 +1214,22 @@ function renderFilteredIdeas() {
             const recencyA = Math.max(0, 48 - ageHa) / 48;
             const recencyB = Math.max(0, 48 - ageHb) / 48;
 
-            const scoreA = va * 3 + ca * 2 + recencyA * 5;
-            const scoreB = vb * 3 + cb * 2 + recencyB * 5;
+            const ageDaysA = ageHa / 24;
+            const ageDaysB = ageHb / 24;
+
+            let revivalBoostA = 0;
+            let revivalBoostB = 0;
+
+            if (ageDaysA >= 3 && ca >= 3) {
+                revivalBoostA = ca * 2;
+            }
+
+            if (ageDaysB >= 3 && cb >= 3) {
+                revivalBoostB = cb * 2;
+            }
+
+            const scoreA = va * 3 + ca * 2 + recencyA * 5 + revivalBoostA;
+            const scoreB = vb * 3 + cb * 2 + recencyB * 5 + revivalBoostB;
             return scoreB - scoreA;
         });
     } else if (currentSorting === 'votes') {
@@ -1252,6 +1328,7 @@ window.changeAdminFilter = function () {
     const select = document.getElementById('adminFilterSelect');
     if (!select) return;
     adminFilter = select.value || 'all';
+    saveFilterState();
     renderFilteredIdeas();
 };
 
@@ -2171,6 +2248,68 @@ function renderMostDiscussedCarousel() {
     }).join('');
 }
 
+function renderActivityHeatmap() {
+    const container = document.getElementById('activityHeatmap');
+    if (!container) return;
+
+    const days = EVENT_DURATION_DAYS || 7;
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+    const now = new Date();
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+    const buckets = new Array(days).fill(0);
+    const labels = new Array(days).fill('');
+
+    for (let i = 0; i < days; i++) {
+        const dayTime = todayMidnight - (days - 1 - i) * MS_PER_DAY;
+        const d = new Date(dayTime);
+        labels[i] = d.toLocaleDateString(undefined, { weekday: 'short' });
+    }
+
+    const merged = new Map();
+    (topIdeas || []).forEach(i => { if (i && i.id) merged.set(i.id, i); });
+    (newIdeas || []).forEach(i => { if (i && i.id) merged.set(i.id, i); });
+
+    const all = Array.from(merged.values());
+
+    all.forEach(idea => {
+        const ts = idea.timestamp?.toDate?.() || null;
+        if (!ts) return;
+        const ideaMidnight = new Date(ts.getFullYear(), ts.getMonth(), ts.getDate()).getTime();
+        const diffDays = Math.round((todayMidnight - ideaMidnight) / MS_PER_DAY);
+        if (diffDays < 0 || diffDays >= days) return;
+        const idx = days - 1 - diffDays;
+        if (idx >= 0 && idx < buckets.length) {
+            buckets[idx] += 1;
+        }
+    });
+
+    const max = buckets.reduce((m, v) => v > m ? v : m, 0);
+
+    if (!max) {
+        container.innerHTML = '<p class="text-[10px] text-platinum/60">No activity yet. Forged ideas will light up this bar.</p>';
+        return;
+    }
+
+    container.innerHTML = buckets.map((count, idx) => {
+        const label = labels[idx] || '';
+        let level = 0;
+        if (count > 0) {
+            const ratio = max > 0 ? count / max : 0;
+            level = 1 + Math.min(3, Math.floor(ratio * 3));
+        }
+        const title = `${label} · ${count} idea${count === 1 ? '' : 's'} forged`;
+        const dayInitial = label ? label.charAt(0) : '';
+        return `
+            <div class="heatmap-day" title="${title}">
+                <div class="heatmap-cell heatmap-level-${level}"></div>
+                <span class="text-[9px] text-platinum/60">${dayInitial}</span>
+            </div>
+        `;
+    }).join('');
+}
+
 function renderTrendingTags() {
     const container = document.getElementById('trendingTags');
     if (!container) return;
@@ -2609,6 +2748,7 @@ function initListeners() {
         updateAdminStats();
         renderMostDiscussedCarousel();
         renderTrendingTags();
+        renderActivityHeatmap();
         buildRelatedIdeasIndex();
         renderSpotlight();
     });
@@ -2647,6 +2787,7 @@ function initListeners() {
         updateAdminStats();
         renderMostDiscussedCarousel();
         renderTrendingTags();
+        renderActivityHeatmap();
         buildRelatedIdeasIndex();
         renderSpotlight();
     });
@@ -2665,6 +2806,7 @@ function initListeners() {
     }
 }
 
+loadFilterState();
 if (db) initListeners();
 
 // ═══════════════════════════════════════════════════════════════════
