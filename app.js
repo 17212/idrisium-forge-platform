@@ -59,6 +59,7 @@ let activityEvents = []; // Combined activity events (ideas + comments)
 let commentsUnsubscribe = null;
 let adminFilter = 'all';
 let currentEventStatusKey = null; // Track last event status phase for animations
+let relatedIndex = new Map();
 
 try {
     app = initializeApp(firebaseConfig);
@@ -1252,6 +1253,36 @@ window.jumpToWinner = function () {
     }
 };
 
+window.jumpToIdea = function (ideaId) {
+    if (!ideaId) return;
+
+    const scrollAndHighlight = () => {
+        const el = document.getElementById('idea-' + ideaId);
+        if (!el) return false;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('winner-jump-highlight');
+        setTimeout(() => {
+            el.classList.remove('winner-jump-highlight');
+        }, 1700);
+        return true;
+    };
+
+    if (scrollAndHighlight()) return;
+
+    if (typeof window.switchTab === 'function') {
+        window.switchTab('top');
+        setTimeout(() => {
+            if (scrollAndHighlight()) return;
+            window.switchTab('new');
+            setTimeout(() => {
+                if (!scrollAndHighlight()) {
+                    Swal.fire({ icon: 'info', title: 'Idea Not Visible', text: 'The related idea is not in the current feed window.' });
+                }
+            }, 300);
+        }, 300);
+    }
+};
+
 // ═══════════════════════════════════════════════════════════════════
 // SHARE IDEA
 // ═══════════════════════════════════════════════════════════════════
@@ -1463,6 +1494,34 @@ function renderCard(idea, index, isBadgeTop = false) {
 
     const inlineEditAttrs = isOwner ? ` ondblclick="editIdea('${idea.id}', '${escapedTitle}', '${escapedDesc}')"` : '';
 
+    const related = relatedIndex && relatedIndex.get(idea.id) ? relatedIndex.get(idea.id) : [];
+    let relatedHtml = '';
+    if (Array.isArray(related) && related.length) {
+        const items = related.slice(0, 3).map(rel => {
+            const rTitle = escapeHtml(rel.title || 'Untitled idea');
+            const rComments = rel.commentCount || 0;
+            const rVotes = rel.votes || 0;
+            return `
+                            <button type="button" class="text-[11px] text-platinum/80 hover:text-neon flex items-center gap-2 text-left" onclick="jumpToIdea('${rel.id}')">
+                                <span class="w-1.5 h-1.5 rounded-full bg-neon/70"></span>
+                                <span class="flex-1 truncate">${rTitle}</span>
+                                <span class="hidden sm:inline-flex items-center gap-1 text-[10px] text-platinum/60 whitespace-nowrap">
+                                    <i class="fa-solid fa-comment text-aurora/80"></i>${rComments}
+                                    <i class="fa-solid fa-fire-flame-curved text-neon/80 ml-1"></i>${rVotes}
+                                </span>
+                            </button>
+            `;
+        }).join('');
+
+        relatedHtml = `
+                        <div class="mt-4 pt-3 border-t border-white/5">
+                            <p class="text-[11px] text-platinum/60 uppercase tracking-wide mb-1">Related ideas</p>
+                            <div class="flex flex-col gap-1">
+                                ${items}
+                            </div>
+                        </div>`;
+    }
+
     return `
         <div id="idea-${idea.id}" class="glass-card rounded-2xl p-6" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s; ${winnerStyle} ${founderStyle}">
             <div class="flex items-start gap-4">
@@ -1493,6 +1552,7 @@ function renderCard(idea, index, isBadgeTop = false) {
                         ${isOwner ? '<span class="text-neon"><i class="fa-solid fa-check-circle mr-1"></i>Yours</span>' : ''}
                         ${isAdmin && !isOwner ? '<span class="text-gold"><i class="fa-solid fa-shield mr-1"></i>Admin View</span>' : ''}
                     </div>
+                    ${relatedHtml}
                 </div>
                 <div class="flex flex-col items-center gap-1 bg-white/5 rounded-xl p-1 min-w-[56px]">
                     <button id="vote-up-${idea.id}" onclick="handleVote('${idea.id}', 'up')"
@@ -1926,6 +1986,73 @@ function renderTrendingTags() {
     }).join('');
 }
 
+function buildRelatedIdeasIndex() {
+    relatedIndex = new Map();
+
+    const merged = new Map();
+    (topIdeas || []).forEach(i => { if (i && i.id) merged.set(i.id, i); });
+    (newIdeas || []).forEach(i => { if (i && i.id) merged.set(i.id, i); });
+
+    const all = Array.from(merged.values());
+    if (all.length < 2) return;
+
+    const tokenized = all.map(idea => {
+        const rawText = `${idea.title || ''} ${idea.description || ''}`.toLowerCase();
+        const clean = rawText.replace(/[^a-z0-9#\s]/g, ' ');
+        const rawTokens = clean.split(/\s+/).filter(Boolean);
+
+        const tokens = new Set();
+        rawTokens.forEach(w => {
+            if (w.length < 3) return;
+            tokens.add(w);
+        });
+
+        return { idea, tokens };
+    });
+
+    for (let i = 0; i < tokenized.length; i++) {
+        const { idea: ideaA, tokens: tokensA } = tokenized[i];
+        const scores = [];
+
+        for (let j = 0; j < tokenized.length; j++) {
+            if (i === j) continue;
+            const { idea: ideaB, tokens: tokensB } = tokenized[j];
+
+            let overlap = 0;
+            tokensB.forEach(t => {
+                if (tokensA.has(t)) overlap++;
+            });
+            if (!overlap) continue;
+
+            const unionSize = tokensA.size + tokensB.size - overlap;
+            const jaccard = unionSize > 0 ? overlap / unionSize : 0;
+            const voteBoost = (ideaB.votes || 0) > 0 ? 0.1 : 0;
+            const score = overlap + jaccard + voteBoost;
+
+            if (score <= 0.2) continue;
+
+            scores.push({
+                id: ideaB.id,
+                title: ideaB.title,
+                votes: ideaB.votes || 0,
+                commentCount: ideaB.commentCount || 0,
+                score
+            });
+        }
+
+        scores.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            if ((b.commentCount || 0) !== (a.commentCount || 0)) return (b.commentCount || 0) - (a.commentCount || 0);
+            return (b.votes || 0) - (a.votes || 0);
+        });
+
+        const topRelated = scores.slice(0, 3);
+        if (topRelated.length) {
+            relatedIndex.set(ideaA.id, topRelated);
+        }
+    }
+}
+
 function renderLeaderboard() {
     const container = document.getElementById('topForgersList');
     if (!container) return;
@@ -1952,7 +2079,7 @@ function renderLeaderboard() {
     const users = Array.from(userMap.values()).sort((a, b) => b.votes - a.votes).slice(0, 5);
 
     if (users.length === 0) {
-        container.innerHTML = '<p class="text-xs text-platinum/60">No reputation yet. Forge and vote on ideas to climb the board.</p>';
+        container.innerHTML = '<p class="text-xs text-platinum/60">No karma yet. Forge and like ideas to climb the board.</p>';
         return;
     }
 
@@ -2170,6 +2297,7 @@ function initListeners() {
         updateAdminStats();
         renderMostDiscussedCarousel();
         renderTrendingTags();
+        buildRelatedIdeasIndex();
     });
 
     const qNew = query(collection(db, 'ideas'), orderBy('timestamp', 'desc'), limit(10));
@@ -2206,6 +2334,7 @@ function initListeners() {
         updateAdminStats();
         renderMostDiscussedCarousel();
         renderTrendingTags();
+        buildRelatedIdeasIndex();
     });
 
     // Latest comments across all ideas for Activity Feed
