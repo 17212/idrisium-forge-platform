@@ -172,7 +172,7 @@ function updateEventStatus() {
 
         tooltipHtml =
             '<div class="font-semibold text-[10px] text-red-400 mb-1">Forge Closed</div>' +
-            '<div class="text-[10px] text-platinum/80">No new submissions or votes are accepted. The outcome is being processed.</div>';
+            '<div class="text-[10px] text-platinum/80">No new submissions or likes are accepted. The outcome is being processed.</div>';
         if (closeLabel) {
             tooltipHtml +=
                 '<div class="mt-1 text-[10px] text-platinum/60">Closed at <span class="text-neon">' +
@@ -659,6 +659,7 @@ function validateText(text) {
 let currentSorting = 'votes';
 let searchQuery = '';
 let searchDebounceTimeout = null;
+let showMyIdeasOnly = false;
 
 window.filterIdeas = function () {
     const input = document.getElementById('searchInput');
@@ -682,6 +683,33 @@ window.clearSearch = function () {
 
 window.changeSorting = function () {
     currentSorting = document.getElementById('sortSelect').value;
+    renderFilteredIdeas();
+};
+
+window.toggleMyIdeas = function () {
+    const btn = document.getElementById('myIdeasToggle');
+
+    if (!currentUser) {
+        if (btn) {
+            btn.classList.remove('bg-neon/20', 'text-neon', 'border', 'border-neon/40');
+        }
+        showMyIdeasOnly = false;
+        return Swal.fire({
+            icon: 'warning',
+            title: 'Sign In Required',
+            text: 'Sign in to see only your ideas.'
+        });
+    }
+
+    showMyIdeasOnly = !showMyIdeasOnly;
+
+    if (btn) {
+        btn.classList.toggle('bg-neon/20', showMyIdeasOnly);
+        btn.classList.toggle('text-neon', showMyIdeasOnly);
+        btn.classList.toggle('border', showMyIdeasOnly);
+        btn.classList.toggle('border-neon/40', showMyIdeasOnly);
+    }
+
     renderFilteredIdeas();
 };
 
@@ -710,6 +738,10 @@ function renderFilteredIdeas() {
             if (adminFilter === 'winners') return globalWinnerId && idea.id === globalWinnerId;
             return true;
         });
+    }
+
+    if (showMyIdeasOnly && currentUser) {
+        ideas = ideas.filter(idea => idea && idea.uid === currentUser.uid);
     }
 
     // Apply sorting
@@ -1193,7 +1225,7 @@ window.openComments = async function (ideaId, title, desc) {
 
             if (authorSpan) authorSpan.textContent = authorName;
             if (metaSpan) metaSpan.textContent = when;
-            if (scoreSpan) scoreSpan.textContent = votes + ' votes  ' + comments + ' comments';
+            if (scoreSpan) scoreSpan.textContent = votes + ' likes · ' + comments + ' comments';
 
             if (countEl) {
                 countEl.textContent = comments + (comments === 1 ? ' comment' : ' comments');
@@ -1371,7 +1403,7 @@ window.exportIdeasCSV = function () {
         return Swal.fire({ icon: 'info', title: 'No Ideas', text: 'No ideas to export.' });
     }
 
-    const headers = ['Title', 'Description', 'Author', 'Votes', 'Date'];
+    const headers = ['Title', 'Description', 'Author', 'Likes', 'Date'];
     const rows = allIdeas.map(idea => {
         const date = idea.timestamp?.toDate?.() ? idea.timestamp.toDate().toISOString() : 'N/A';
         return [
