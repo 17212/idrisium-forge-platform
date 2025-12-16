@@ -88,14 +88,29 @@ const timerSection = document.getElementById('timerSection');
 // Char counters
 document.getElementById('ideaTitle').addEventListener('input', e => {
     document.getElementById('titleCount').textContent = e.target.value.length;
+    updateIdeaPreview();
 });
 document.getElementById('ideaDescription').addEventListener('input', e => {
     document.getElementById('descCount').textContent = e.target.value.length;
+    updateIdeaPreview();
 });
 
 // Idea submission wizard (multi-step)
 let currentIdeaStep = 1;
 const MAX_IDEA_STEP = 3;
+
+function renderMarkdown(text) {
+    const safe = escapeHtml(text || '');
+    let html = safe;
+
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1<\/strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1<\/em>');
+    html = html.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-white\/5 text-[11px]">$1<\/code>');
+    html = html.replace(/\n\n+/g, '<\/p><p>');
+    html = html.replace(/\n/g, '<br>');
+
+    return `<p>${html}<\/p>`;
+}
 
 function updateIdeaPreview() {
     const preview = document.getElementById('ideaPreview');
@@ -115,7 +130,9 @@ function updateIdeaPreview() {
                 <h4 class="font-heading text-lg font-bold text-starlight line-clamp-2">${escapeHtml(title)}</h4>
                 <span class="text-[11px] px-2 py-1 rounded-full border border-neon/40 text-neon/90 uppercase tracking-wide">Preview</span>
             </div>
-            <p class="text-sm text-platinum line-clamp-4">${escapeHtml(desc)}</p>
+            <div class="text-sm text-platinum line-clamp-4 markdown-preview">
+                ${renderMarkdown(desc)}
+            </div>
             <div class="flex items-center justify-between text-xs text-platinum/70 mt-1">
                 <span><i class="fa-solid fa-user text-neon/70 mr-1"></i>${escapeHtml(author)}</span>
                 <span><i class="fa-solid fa-fire-flame-curved text-neon mr-1"></i>Potential karma magnet</span>
@@ -1236,7 +1253,9 @@ function renderCard(idea, index, isBadgeTop = false) {
                         </div>
                     </div>
                     <h4 class="font-heading text-lg font-bold text-starlight mb-2 line-clamp-2">${escapeHtml(idea.title)}</h4>
-                    <p class="text-sm text-platinum line-clamp-3 mb-3">${escapeHtml(idea.description)}</p>
+                    <div class="text-sm text-platinum line-clamp-3 mb-3 markdown-preview">
+                        ${renderMarkdown(idea.description || '')}
+                    </div>
                     <div class="flex items-center gap-3 text-xs text-platinum mt-3">
                         <span><i class="fa-solid fa-user text-neon/60 mr-1"></i>${escapeHtml(idea.author)}</span>
                         <button onclick="openComments('${idea.id}', '${escapedTitle}', '${escapedDesc}')" class="hover:text-neon transition-colors flex items-center gap-1">
