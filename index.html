@@ -598,6 +598,48 @@
             <h3 class="font-heading text-2xl font-bold text-starlight mb-2">No Ideas Yet</h3>
             <p class="text-platinum">Be the first to forge the future!</p>
         </div>
+        <!-- Info Rail (Desktop) -->
+        <aside id="infoRail" class="hidden xl:block fixed right-6 top-32 z-40 w-64 space-y-3">
+            <div class="glass-card rounded-2xl p-3 text-[11px] text-platinum/80">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="uppercase tracking-wide text-[10px] text-platinum/70">Forge Snapshot</span>
+                    <i class="fa-solid fa-circle-nodes text-neon text-xs"></i>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mt-1">
+                    <div class="text-center">
+                        <p id="railTopCount" class="font-heading text-base text-neon">0</p>
+                        <p class="text-[10px] text-platinum/70">Top</p>
+                    </div>
+                    <div class="text-center">
+                        <p id="railNewCount" class="font-heading text-base text-aurora">0</p>
+                        <p class="text-[10px] text-platinum/70">New</p>
+                    </div>
+                    <div class="text-center">
+                        <p id="railTotalCount" class="font-heading text-base text-teal">0</p>
+                        <p class="text-[10px] text-platinum/70">Total</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-3 text-[11px] flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-fire-flame-curved text-neon"></i>
+                    <div>
+                        <p class="text-[10px] text-platinum/60 uppercase tracking-wide">Your Karma</p>
+                        <p id="railKarma" class="font-heading text-base text-neon">0</p>
+                    </div>
+                </div>
+                <span class="text-[10px] text-platinum/60">Live</span>
+            </div>
+            <div class="glass-card rounded-2xl p-3 text-[11px] flex flex-col gap-1">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-[10px] text-platinum/70 uppercase tracking-wide">Event Status</span>
+                    <span id="railPhase" class="px-2 py-0.5 rounded-full border border-neon/40 text-[9px] text-neon uppercase tracking-wide">Active</span>
+                </div>
+                <p id="railStatus" class="text-[11px] text-platinum/80 leading-snug">
+                    Live · Submissions &amp; Voting Open
+                </p>
+            </div>
+        </aside>
         <!-- Theme Switcher -->
         <div id="themeSwitcher" class="fixed left-4 bottom-6 z-40 flex flex-col gap-2">
             <div class="glass-card rounded-2xl px-3 py-2 flex items-center gap-2 text-[10px] text-platinum/80">

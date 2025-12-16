@@ -522,6 +522,9 @@ function updateEventStatus() {
     // Apply status text
     el.textContent = statusText;
 
+    const railStatus = document.getElementById('railStatus');
+    if (railStatus) railStatus.textContent = statusText;
+
     // Animate when status key changes
     if (currentEventStatusKey !== key) {
         currentEventStatusKey = key;
@@ -530,23 +533,34 @@ function updateEventStatus() {
         el.classList.add('event-status-pulse');
     }
 
-    // Update phase chip badge
-    if (phaseChip) {
+    // Update phase chip badge + rail phase
+    const railPhase = document.getElementById('railPhase');
+    if (phaseChip || railPhase) {
         const colorClasses = [
             'bg-neon/10', 'border-neon/60', 'text-neon',
             'bg-aurora/10', 'border-aurora/60', 'text-aurora',
             'bg-gold/10', 'border-gold/60', 'text-gold'
         ];
-        phaseChip.classList.remove(...colorClasses);
+        if (phaseChip) phaseChip.classList.remove(...colorClasses);
+        if (railPhase) railPhase.classList.remove(...colorClasses);
 
         if (phaseLabel) {
-            phaseChip.textContent = 'PHASE: ' + phaseLabel;
-            phaseChip.classList.remove('hidden');
-            if (phaseColors && phaseColors.length) {
-                phaseChip.classList.add(...phaseColors);
+            if (phaseChip) {
+                phaseChip.textContent = 'PHASE: ' + phaseLabel;
+                phaseChip.classList.remove('hidden');
+                if (phaseColors && phaseColors.length) {
+                    phaseChip.classList.add(...phaseColors);
+                }
+            }
+            if (railPhase) {
+                railPhase.textContent = phaseLabel;
+                if (phaseColors && phaseColors.length) {
+                    railPhase.classList.add(...phaseColors);
+                }
             }
         } else {
-            phaseChip.classList.add('hidden');
+            if (phaseChip) phaseChip.classList.add('hidden');
+            if (railPhase) railPhase.textContent = 'INACTIVE';
         }
     }
 
@@ -651,6 +665,8 @@ onAuthStateChanged(auth, user => {
     } else {
         const el = document.getElementById('headerKarmaValue');
         if (el) el.textContent = '0';
+        const railKarmaEl = document.getElementById('railKarma');
+        if (railKarmaEl) railKarmaEl.textContent = '0';
     }
 });
 
@@ -837,6 +853,8 @@ async function checkUserSubmission(uid) {
     if (submitLimitMsg) submitLimitMsg.textContent = `Daily limit: ${dynamicMax} Ideas`;
 
     document.getElementById('headerKarmaValue').textContent = karmaSum;
+    const railKarmaEl = document.getElementById('railKarma');
+    if (railKarmaEl) railKarmaEl.textContent = karmaSum;
 
     // Header quick-access buttons (Chat / Inbox) gated by karma & admin
     const chatHeaderBtn = document.getElementById('chatHeaderBtn');
@@ -1954,6 +1972,8 @@ function initListeners() {
     onSnapshot(qTop, snap => {
         topIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         document.getElementById('statTopIdeas').textContent = topIdeas.length;
+        const railTop = document.getElementById('railTopCount');
+        if (railTop) railTop.textContent = topIdeas.length;
 
         if (topIdeas.length === 0) {
             feedTop.innerHTML = '';
@@ -1972,15 +1992,23 @@ function initListeners() {
     onSnapshot(qNew, async snap => {
         newIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         document.getElementById('statNewIdeas').textContent = newIdeas.length;
+        const railNew = document.getElementById('railNewCount');
+        if (railNew) railNew.textContent = newIdeas.length;
 
         // Update Total Ideas Count
         try {
             const snapshot = await getCountFromServer(collection(db, 'ideas'));
-            document.getElementById('statTotalIdeas').textContent = snapshot.data().count;
+            const total = snapshot.data().count;
+            document.getElementById('statTotalIdeas').textContent = total;
+            const railTotal = document.getElementById('railTotalCount');
+            if (railTotal) railTotal.textContent = total;
         } catch (e) {
             console.error('Count error:', e);
             // Fallback to local count
-            document.getElementById('statTotalIdeas').textContent = topIdeas.length || newIdeas.length;
+            const fallbackTotal = topIdeas.length || newIdeas.length;
+            document.getElementById('statTotalIdeas').textContent = fallbackTotal;
+            const railTotal = document.getElementById('railTotalCount');
+            if (railTotal) railTotal.textContent = fallbackTotal;
         }
 
         if (newIdeas.length === 0) {
