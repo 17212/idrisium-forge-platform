@@ -264,6 +264,83 @@ if (document.readyState === 'loading') {
     initTheme();
 }
 
+let keyboardFocusIndex = -1;
+let lastKeyPressed = null;
+let lastKeyTime = 0;
+
+function getCurrentFeedCards() {
+    const container = currentTab === 'top' ? feedTop : feedNew;
+    if (!container) return [];
+    return Array.from(container.querySelectorAll('div[id^="idea-"]'));
+}
+
+function moveKeyboardFocus(delta) {
+    const cards = getCurrentFeedCards();
+    if (!cards.length) return;
+
+    if (keyboardFocusIndex < 0 || keyboardFocusIndex >= cards.length) {
+        keyboardFocusIndex = delta > 0 ? 0 : cards.length - 1;
+    } else {
+        keyboardFocusIndex = Math.min(Math.max(keyboardFocusIndex + delta, 0), cards.length - 1);
+    }
+
+    cards.forEach(card => card.classList.remove('idea-keyboard-focus'));
+    const target = cards[keyboardFocusIndex];
+    if (target) {
+        target.classList.add('idea-keyboard-focus');
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function handleGlobalKeydown(e) {
+    const tag = (e.target.tagName || '').toLowerCase();
+    const isEditable = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
+
+    if (!isEditable && e.key === '/') {
+        const search = document.getElementById('searchInput');
+        if (search) {
+            e.preventDefault();
+            search.focus();
+        }
+        return;
+    }
+
+    if (isEditable) return;
+
+    if (e.key === 'j' || e.key === 'J') {
+        e.preventDefault();
+        moveKeyboardFocus(1);
+        if (navigator.vibrate) navigator.vibrate(15);
+        return;
+    }
+    if (e.key === 'k' || e.key === 'K') {
+        e.preventDefault();
+        moveKeyboardFocus(-1);
+        if (navigator.vibrate) navigator.vibrate(15);
+        return;
+    }
+
+    const now = Date.now();
+    if (e.key === 'g' || e.key === 'G') {
+        lastKeyPressed = 'g';
+        lastKeyTime = now;
+        return;
+    }
+    if ((e.key === 't' || e.key === 'T') && lastKeyPressed === 'g' && now - lastKeyTime < 800) {
+        lastKeyPressed = null;
+        lastKeyTime = 0;
+        e.preventDefault();
+        if (typeof window.switchTab === 'function') window.switchTab('top');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (navigator.vibrate) navigator.vibrate(20);
+        return;
+    }
+
+    lastKeyPressed = null;
+}
+
+document.addEventListener('keydown', handleGlobalKeydown);
+
 // ═══════════════════════════════════════════════════════════════════
 // DOOMSDAY TIMER
 // ═══════════════════════════════════════════════════════════════════
