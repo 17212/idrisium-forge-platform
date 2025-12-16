@@ -747,6 +747,13 @@ function renderFilteredIdeas() {
     // Apply sorting
     if (currentSorting === 'votes') {
         ideas.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+    } else if (currentSorting === 'mostDiscussed') {
+        ideas.sort((a, b) => {
+            const cb = b.commentCount || 0;
+            const ca = a.commentCount || 0;
+            if (cb !== ca) return cb - ca;
+            return (b.votes || 0) - (a.votes || 0);
+        });
     } else if (currentSorting === 'newest') {
         ideas.sort((a, b) => {
             const ta = a.timestamp?.toDate?.() || new Date(0);
