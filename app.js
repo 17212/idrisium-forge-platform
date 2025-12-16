@@ -1384,6 +1384,8 @@ function renderCard(idea, index, isBadgeTop = false) {
         </button>
     ` : '';
 
+    const inlineEditAttrs = isOwner ? ` ondblclick="editIdea('${idea.id}', '${escapedTitle}', '${escapedDesc}')"` : '';
+
     return `
         <div id="idea-${idea.id}" class="glass-card rounded-2xl p-6" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s; ${winnerStyle} ${founderStyle}">
             <div class="flex items-start gap-4">
@@ -1402,8 +1404,8 @@ function renderCard(idea, index, isBadgeTop = false) {
                             ${deleteBtn}
                         </div>
                     </div>
-                    <h4 class="font-heading text-lg font-bold text-starlight mb-2 line-clamp-2">${escapeHtml(idea.title)}</h4>
-                    <div class="text-sm text-platinum line-clamp-3 mb-3 markdown-preview">
+                    <h4 class="font-heading text-lg font-bold text-starlight mb-2 line-clamp-2"${inlineEditAttrs}>${escapeHtml(idea.title)}</h4>
+                    <div class="text-sm text-platinum line-clamp-3 mb-3 markdown-preview"${inlineEditAttrs}>
                         ${renderMarkdown(idea.description || '')}
                     </div>
                     <div class="flex items-center gap-3 text-xs text-platinum mt-3">
