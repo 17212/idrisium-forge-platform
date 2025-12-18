@@ -98,6 +98,74 @@ body.theme-hacker .neon-btn {
     white-space: nowrap;
 }
 
+/* Layout helpers */
+.hero-section {
+    background: radial-gradient(circle at 20% 20%, rgba(57, 255, 20, 0.08), transparent 35%),
+        radial-gradient(circle at 80% 0%, rgba(0, 217, 255, 0.08), transparent 35%),
+        rgba(10, 10, 10, 0.75);
+    border: 1px solid rgba(57, 255, 20, 0.15);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+.stat-tile {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(57, 255, 20, 0.12);
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.badge-soft {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(57, 255, 20, 0.25);
+    background: rgba(57, 255, 20, 0.06);
+    color: #9ef29f;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.badge-live {
+    border-color: rgba(255, 0, 51, 0.4);
+    color: #ff6b81;
+    background: rgba(255, 0, 51, 0.08);
+}
+
+.pressable {
+    transition: transform 0.12s ease, box-shadow 0.15s ease;
+}
+
+.pressable:active {
+    transform: scale(0.98);
+}
+
+.ghost-btn {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #EDEDED;
+    background: rgba(255, 255, 255, 0.04);
+    transition: all 0.2s ease;
+}
+
+.ghost-btn:hover {
+    border-color: rgba(57, 255, 20, 0.35);
+    color: #39FF14;
+    box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+}
+
+.input-shell {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(57, 255, 20, 0.15);
+    background: rgba(0, 0, 0, 0.5);
+}
+
 /* Trending Tag Chips */
 .tag-chip {
     display: inline-flex;

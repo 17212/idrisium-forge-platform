@@ -210,131 +210,149 @@
     </header>
 
     <!-- Main -->
-    <main class="max-w-4xl mx-auto px-6 pt-32 pb-24 relative z-10">
+    <main class="max-w-6xl mx-auto px-6 pt-32 pb-24 relative z-10">
 
-        <!-- Doomsday Timer -->
-        <section id="timerSection" class="glass-card rounded-3xl p-8 mb-10 text-center">
-            <p class="text-sm text-aurora font-semibold tracking-widest uppercase mb-2">
-                <i class="fa-solid fa-clock mr-2"></i>Event Ends In
-            </p>
-            <div id="countdown" class="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
-                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
-                    <span id="days" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
-                    <p class="text-xs text-platinum mt-1">DAYS</p>
-                </div>
-                <span class="text-3xl text-neon font-bold">:</span>
-                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
-                    <span id="hours" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
-                    <p class="text-xs text-platinum mt-1">HOURS</p>
-                </div>
-                <span class="text-3xl text-neon font-bold">:</span>
-                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
-                    <span id="minutes" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
-                    <p class="text-xs text-platinum mt-1">MINS</p>
-                </div>
-                <span class="text-3xl text-neon font-bold">:</span>
-                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
-                    <span id="seconds" class="font-heading text-3xl sm:text-5xl font-bold text-aurora">00</span>
-                    <p class="text-xs text-platinum mt-1">SECS</p>
-                </div>
-            </div>
-            <!-- Forge Closed Banner (Hidden) -->
-            <div id="forgeClosed" class="hidden forge-closed rounded-2xl p-6 mt-6">
-                <h3 class="font-heading text-2xl font-bold text-red-400">
-                    <i class="fa-solid fa-lock mr-2"></i>FORGE CLOSED
-                </h3>
-                <p class="text-red-300 mt-2">The submission period has ended. Thank you for participating!</p>
-            </div>
-        </section>
-
-        <!-- How It Works -->
-        <section id="howItWorks" class="glass-card rounded-3xl p-8 mb-10 text-left">
-            <h2 class="font-heading text-2xl font-bold text-starlight mb-3">How IDRISIUM IDEAS Works</h2>
-            <p class="text-platinum text-sm mb-6 max-w-2xl">
-                IDRISIUM IDEAS is a limited-time hub where your community drops app ideas. Like or dislike submissions and help decide what gets built inside the ecosystem.
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
-                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
-                        <i class="fa-solid fa-user-plus"></i>
-                    </div>
-                    <div>
-                        <p class="font-heading text-sm text-starlight">1. Join the Forge</p>
-                        <p class="text-xs text-platinum mt-1">Sign in with Google to unlock submissions, karma, and your personal reputation profile.</p>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
-                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
-                        <i class="fa-solid fa-lightbulb"></i>
-                    </div>
-                    <div>
-                        <p class="font-heading text-sm text-starlight">2. Forge Your Ideas</p>
-                        <p class="text-xs text-platinum mt-1">Share your most ambitious app or product ideas. Describe the problem, who it’s for, and why it matters.</p>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
-                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
-                    </div>
-                    <div>
-                        <p class="font-heading text-sm text-starlight">3. Like and Discuss</p>
-                        <p class="text-xs text-platinum mt-1">Explore the feed, like the strongest concepts, and use comments to refine and challenge each idea while building karma.</p>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
-                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
-                        <i class="fa-solid fa-trophy"></i>
-                    </div>
-                    <div>
-                        <p class="font-heading text-sm text-starlight">4. Watch the Winner Emerge</p>
-                        <p class="text-xs text-platinum mt-1">When the countdown hits zero, the highest-signal ideas help define what gets built next inside IDRISIUM.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Event Timeline -->
-        <section id="eventTimeline" class="glass-card rounded-3xl p-8 mb-10">
-            <h2 class="font-heading text-2xl font-bold text-starlight mb-4 text-left">Event Timeline</h2>
+        <!-- Hero + Timer -->
+        <section class="hero-section rounded-3xl p-8 mb-10 grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8">
             <div class="flex flex-col gap-5">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-neon"></span>
-                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 1 · Submissions Open</p>
-                    </div>
-                    <p class="text-xs text-platinum max-w-md">Use the Forge form below to send in your strongest ideas before the timer runs out.</p>
+                <div class="flex items-center gap-2">
+                    <span class="badge-soft"><i class="fa-solid fa-shield-halved mr-2"></i>IDRISIUM FORGE</span>
+                    <span class="badge-soft badge-live"><i class="fa-solid fa-bolt mr-1"></i>Live Event</span>
                 </div>
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-aurora"></span>
-                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 2 · Community Karma</p>
-                    </div>
-                    <p class="text-xs text-platinum max-w-md">The community likes and comments on ideas, building karma and signal around what deserves to exist.</p>
+                <div>
+                    <h1 class="font-heading text-4xl lg:text-5xl font-extrabold text-starlight leading-tight tracking-tight">
+                        اصنع الفكرة التالية لـ <span class="gradient-text">IDRISIUM</span>
+                    </h1>
+                    <p class="text-platinum text-sm sm:text-base mt-3 max-w-2xl leading-relaxed">
+                        منصة قاتمة بسيطة: قدّم فكرتك، صوّت، وارتقِ بسمعتك في مجتمع الـ CyberForge. كل تفاعل يبني كَرمَتك ويقربك من خط الإنتاج.
+                    </p>
                 </div>
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-gold"></span>
-                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 3 · Forge Outcome</p>
-                    </div>
-                    <p class="text-xs text-platinum max-w-md">When the Forge closes, top-ranked ideas and signals inform what IDRISIUM builds next.</p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="#submitSection"
+                        class="neon-btn px-6 py-3 rounded-xl font-heading text-sm flex items-center gap-2 pressable">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> ابدأ الإرسال
+                    </a>
+                    <button onclick="signInWithGoogle()"
+                        class="ghost-btn px-6 py-3 rounded-xl text-sm flex items-center gap-2 pressable">
+                        <i class="fa-solid fa-user-lock"></i> تسجيل الدخول السريع
+                    </button>
                 </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div class="stat-tile">
+                        <p class="text-[11px] text-platinum/70 uppercase tracking-wide">Pulse</p>
+                        <p class="text-2xl font-heading text-neon">Live</p>
+                        <p class="text-[11px] text-platinum/60">تفاعل لحظي</p>
+                    </div>
+                    <div class="stat-tile">
+                        <p class="text-[11px] text-platinum/70 uppercase tracking-wide">Reputation</p>
+                        <p class="text-2xl font-heading text-aurora">Karma</p>
+                        <p class="text-[11px] text-platinum/60">ارتقِ بالسمعة</p>
+                    </div>
+                    <div class="stat-tile hidden sm:block">
+                        <p class="text-[11px] text-platinum/70 uppercase tracking-wide">Security</p>
+                        <p class="text-2xl font-heading text-gold"><i class="fa-solid fa-lock-keyhole"></i></p>
+                        <p class="text-[11px] text-platinum/60">صفر تتبّع</p>
+                    </div>
+                </div>
+            </div>
+
+            <section id="timerSection" class="glass-card rounded-3xl p-6 lg:p-8 h-full">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm text-aurora font-semibold tracking-widest uppercase">
+                        <i class="fa-solid fa-clock mr-2"></i>Event Ends In
+                    </p>
+                    <span class="badge-soft"><i class="fa-solid fa-microchip mr-1"></i>Phase Control</span>
+                </div>
+                <div id="countdown" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="timer-digit rounded-2xl px-4 py-3 text-center">
+                        <span id="days" class="font-heading text-3xl sm:text-4xl font-bold text-neon block">00</span>
+                        <p class="text-[11px] text-platinum mt-1">DAYS</p>
+                    </div>
+                    <div class="timer-digit rounded-2xl px-4 py-3 text-center">
+                        <span id="hours" class="font-heading text-3xl sm:text-4xl font-bold text-neon block">00</span>
+                        <p class="text-[11px] text-platinum mt-1">HOURS</p>
+                    </div>
+                    <div class="timer-digit rounded-2xl px-4 py-3 text-center">
+                        <span id="minutes" class="font-heading text-3xl sm:text-4xl font-bold text-neon block">00</span>
+                        <p class="text-[11px] text-platinum mt-1">MINS</p>
+                    </div>
+                    <div class="timer-digit rounded-2xl px-4 py-3 text-center">
+                        <span id="seconds" class="font-heading text-3xl sm:text-4xl font-bold text-aurora block">00</span>
+                        <p class="text-[11px] text-platinum mt-1">SECS</p>
+                    </div>
+                </div>
+                <div id="forgeClosed" class="hidden forge-closed rounded-2xl p-4 mt-5">
+                    <h3 class="font-heading text-xl font-bold text-red-400 flex items-center gap-2">
+                        <i class="fa-solid fa-lock"></i> FORGE CLOSED
+                    </h3>
+                    <p class="text-red-300 mt-1 text-sm">The submission period has ended. Thank you for participating!</p>
+                </div>
+            </section>
+        </section>
+
+        <!-- Control Dock -->
+        <section class="glass-card rounded-3xl p-5 mb-8 flex flex-col gap-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <button id="tabTop" onclick="switchTab('top')" class="tab-btn active pressable">
+                        <i class="fa-solid fa-mountain-sun mr-2"></i>Top Ideas
+                    </button>
+                    <button id="tabNew" onclick="switchTab('new')" class="tab-btn pressable">
+                        <i class="fa-solid fa-sparkles mr-2"></i>New Ideas
+                    </button>
+                </div>
+                <div class="text-[12px] text-platinum/70" id="resultsCount">0 ideas</div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                <div class="input-shell">
+                    <i class="fa-solid fa-magnifying-glass text-neon"></i>
+                    <input id="searchInput" type="text" placeholder="ابحث بالعنوان أو الوصف"
+                        class="neon-input flex-1 px-3 py-3 rounded-xl bg-transparent"
+                        oninput="filterIdeas()" />
+                    <button type="button" class="chip ghost" onclick="clearSearch()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="input-shell">
+                    <i class="fa-solid fa-arrow-up-wide-short text-aurora"></i>
+                    <select id="sortSelect" onchange="changeSorting()"
+                        class="neon-input flex-1 px-3 py-3 rounded-xl bg-transparent cursor-pointer">
+                        <option value="votes">Top Karma</option>
+                        <option value="signal">Smart Signal</option>
+                        <option value="mostDiscussed">Most Discussed</option>
+                        <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="myIdeasToggle" type="button" onclick="toggleMyIdeas()"
+                        class="chip pressable w-full justify-center">
+                        <i class="fa-solid fa-user-astronaut mr-2"></i> أفكاري فقط
+                    </button>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[11px] text-platinum/60 uppercase tracking-wide">Trending tags</span>
+                <button class="chip pressable" onclick="applyTagFilter('ai')"><span class="tag-dot"></span>AI</button>
+                <button class="chip pressable" onclick="applyTagFilter('fintech')"><span class="tag-dot"></span>Fintech</button>
+                <button class="chip pressable" onclick="applyTagFilter('productivity')"><span class="tag-dot"></span>Productivity</button>
+                <button class="chip pressable" onclick="applyTagFilter('community')"><span class="tag-dot"></span>Community</button>
             </div>
         </section>
 
         <!-- Login Prompt -->
-        <section id="loginPrompt" class="glass-card rounded-3xl p-10 mb-10 text-center hidden">
+        <section id="loginPrompt" class="glass-card rounded-3xl p-8 mb-8 text-center hidden">
             <div
                 class="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-neon/10 to-aurora/10 flex items-center justify-center">
                 <i class="fa-solid fa-user-lock text-neon text-4xl"></i>
             </div>
             <h2 class="font-heading text-3xl font-bold text-starlight mb-3">Join IDRISIUM IDEAS</h2>
-            <p class="text-platinum mb-8 max-w-md mx-auto">Sign in with Google to submit revolutionary ideas and send your karma
-                into the future of IDRISIUM.</p>
+            <p class="text-platinum mb-8 max-w-md mx-auto">Sign in مع Google لبدء التقديم والتصويت في ثوانٍ.</p>
             <button onclick="signInWithGoogle()"
-                class="google-btn px-8 py-4 rounded-2xl text-lg font-semibold flex items-center gap-3 mx-auto">
+                class="google-btn px-8 py-4 rounded-2xl text-lg font-semibold flex items-center gap-3 mx-auto pressable">
                 <svg width="24" height="24" viewBox="0 0 48 48">
                     <path fill="#FFC107"
-                        d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                        d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
                     <path fill="#FF3D00"
                         d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
                     <path fill="#4CAF50"
@@ -347,8 +365,8 @@
         </section>
 
         <!-- Submit Form -->
-        <section id="submitSection" class="glass-card rounded-3xl p-8 mb-10 hidden">
-            <div class="flex items-center justify-between mb-6">
+        <section id="submitSection" class="glass-card rounded-3xl p-8 mb-8 hidden">
+            <div class="flex items-center justify-between mb-6 gap-3 flex-wrap">
                 <h3 class="font-heading text-xl font-bold text-starlight flex items-center gap-3">
                     <i class="fa-solid fa-wand-magic-sparkles text-neon"></i> Forge Your Idea
                 </h3>
@@ -407,18 +425,18 @@
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-4 border-t border-white/5">
                     <div class="flex items-center gap-3">
                         <button type="button" id="prevStepBtn" onclick="prevIdeaStep()"
-                            class="px-5 py-3 rounded-xl bg-white/5 text-platinum hover:bg-white/10 transition-all text-sm hidden">
+                            class="px-5 py-3 rounded-xl bg-white/5 text-platinum hover:bg-white/10 transition-all text-sm hidden pressable">
                             <i class="fa-solid fa-arrow-left mr-2"></i>
                             Previous
                         </button>
                         <button type="button" id="nextStepBtn" onclick="nextIdeaStep()"
-                            class="px-5 py-3 rounded-xl bg-neon/10 text-neon hover:bg-neon/20 transition-all text-sm flex items-center gap-2">
+                            class="px-5 py-3 rounded-xl bg-neon/10 text-neon hover:bg-neon/20 transition-all text-sm flex items-center gap-2 pressable">
                             <span>Next</span>
                             <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </div>
                     <button type="submit" id="submitBtn"
-                        class="neon-btn px-8 py-3 rounded-xl font-heading text-base flex items-center justify-center gap-3 w-full md:w-auto hidden">
+                        class="neon-btn px-8 py-3 rounded-xl font-heading text-base flex items-center justify-center gap-3 w-full md:w-auto hidden pressable">
                         <i class="fa-solid fa-bolt"></i>
                         <span>Submit to the Forge</span>
                     </button>
@@ -426,8 +444,169 @@
             </form>
         </section>
 
+        <!-- Feed Shell -->
+        <section class="glass-card rounded-3xl p-6 mb-8">
+            <div class="flex items-center justify-between gap-2 flex-wrap mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="badge-soft"><i class="fa-solid fa-feed mr-1"></i>Live Feed</span>
+                    <span class="badge-soft"><i class="fa-solid fa-language mr-1"></i>EN / AR</span>
+                </div>
+                <span class="text-[11px] text-platinum/60">Scroll لتحميل المزيد تلقائياً</span>
+            </div>
+
+            <!-- Ideas Feed: Top -->
+            <div id="feedTop" class="space-y-4">
+                <!-- Skeleton -->
+                <div class="skeleton-container">
+                    <div class="glass-card rounded-2xl p-6 mb-4">
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <div class="skeleton h-6 w-3/4 mb-3"></div>
+                                <div class="skeleton h-4 w-full mb-2"></div>
+                                <div class="skeleton h-4 w-1/2"></div>
+                            </div>
+                            <div class="skeleton w-16 h-20 rounded-xl"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 mb-4">
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <div class="skeleton h-6 w-3/4 mb-3"></div>
+                                <div class="skeleton h-4 w-full mb-2"></div>
+                                <div class="skeleton h-4 w-1/2"></div>
+                            </div>
+                            <div class="skeleton w-16 h-20 rounded-xl"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 mb-4">
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <div class="skeleton h-6 w-1/2 mb-3"></div>
+                                <div class="skeleton h-4 w-full mb-2"></div>
+                                <div class="skeleton h-4 w-2/3"></div>
+                            </div>
+                            <div class="skeleton w-16 h-20 rounded-xl"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ideas Feed: New (Hidden) -->
+            <div id="feedNew" class="space-y-4 hidden">
+                <div class="skeleton-container">
+                    <div class="glass-card rounded-2xl p-6 mb-4">
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <div class="skeleton h-6 w-2/3 mb-3"></div>
+                                <div class="skeleton h-4 w-full mb-2"></div>
+                            </div>
+                            <div class="skeleton w-16 h-20 rounded-xl"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-12">
+                <div
+                    class="w-28 h-28 mx-auto mb-6 rounded-full bg-gradient-to-br from-neon/10 to-aurora/10 flex items-center justify-center">
+                    <i class="fa-solid fa-rocket text-neon text-5xl"></i>
+                </div>
+                <h3 class="font-heading text-2xl font-bold text-starlight mb-2">No Ideas Yet</h3>
+                <p class="text-platinum">Be the first to forge the future!</p>
+            </div>
+        </section>
+
+        <!-- Recently Viewed -->
+        <section id="recentlyViewedSection" class="glass-card rounded-3xl p-5 mb-8 hidden">
+            <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
+                <h3 class="font-heading text-lg font-bold text-starlight flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-neon"></i> Recently Viewed
+                </h3>
+                <span class="text-[11px] text-platinum/60">يُحفظ محلياً · بلا تتبّع</span>
+            </div>
+            <div id="recentlyViewedList" class="flex gap-3 overflow-x-auto pb-1"></div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="howItWorks" class="glass-card rounded-3xl p-8 mb-8 text-left">
+            <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+                <h2 class="font-heading text-2xl font-bold text-starlight">How IDRISIUM IDEAS Works</h2>
+                <span class="badge-soft"><i class="fa-solid fa-sitemap mr-2"></i>3 خطوات</span>
+            </div>
+            <p class="text-platinum text-sm mb-6 max-w-2xl">
+                IDRISIUM IDEAS هو هَبّ مظلم للحشد: قدّم أفكار التطبيقات، صوّت، ناقش، ودع الكارما تحدد ما سيُبنى.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
+                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <p class="font-heading text-sm text-starlight">1. انضم</p>
+                        <p class="text-xs text-platinum mt-1">تسجيل دخول سريع، دون تتبع، لفتح الكارما.</p>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
+                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <p class="font-heading text-sm text-starlight">2. صُغ الفكرة</p>
+                        <p class="text-xs text-platinum mt-1">اشرح المشكلة، الفئة المستهدفة، والأثر المتوقع.</p>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
+                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
+                        <i class="fa-solid fa-fire-flame-curved"></i>
+                    </div>
+                    <div>
+                        <p class="font-heading text-sm text-starlight">3. صوّت وناقش</p>
+                        <p class="text-xs text-platinum mt-1">البقاء للأعلى كارما ونقاشاً.</p>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
+                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <p class="font-heading text-sm text-starlight">4. شاهد الفائز</p>
+                        <p class="text-xs text-platinum mt-1">عند صفر الوقت، يحدد الكارما ما سيُبنى داخل IDRISIUM.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Event Timeline -->
+        <section id="eventTimeline" class="glass-card rounded-3xl p-8 mb-8">
+            <h2 class="font-heading text-2xl font-bold text-starlight mb-4 text-left">Event Timeline</h2>
+            <div class="flex flex-col gap-5">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-neon"></span>
+                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 1 · Submissions Open</p>
+                    </div>
+                    <p class="text-xs text-platinum max-w-md">Use the Forge form below to send in your strongest ideas before the timer runs out.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-aurora"></span>
+                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 2 · Community Karma</p>
+                    </div>
+                    <p class="text-xs text-platinum max-w-md">The community likes and comments on ideas, building karma and signal around what deserves to exist.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-gold"></span>
+                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 3 · Forge Outcome</p>
+                    </div>
+                    <p class="text-xs text-platinum max-w-md">When the Forge closes, top-ranked ideas and signals inform what IDRISIUM builds next.</p>
+                </div>
+            </div>
+        </section>
+
         <!-- Weekly Spotlight -->
-        <section class="glass-card rounded-3xl p-6 mb-10">
+        <section class="glass-card rounded-3xl p-6 mb-8">
             <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
                 <h2 class="font-heading text-2xl font-bold text-starlight flex items-center gap-2">
                     <i class="fa-solid fa-star-half-stroke text-neon"></i>
@@ -503,77 +682,8 @@
                 </div>
                 <div id="topForgersList" class="mt-3 space-y-2 text-xs text-platinum/80">
                 </div>
-            </section>
+        </section>
 
-            <!-- Ideas Feed: Top -->
-            <div id="feedTop" class="space-y-4">
-                <!-- Skeleton -->
-                <div class="skeleton-container">
-                    <div class="glass-card rounded-2xl p-6 mb-4">
-                        <div class="flex gap-4">
-                            <div class="flex-1">
-                                <div class="skeleton h-6 w-3/4 mb-3"></div>
-                                <div class="skeleton h-4 w-full mb-2"></div>
-                                <div class="skeleton h-4 w-1/2"></div>
-                            </div>
-                            <div class="skeleton w-16 h-20 rounded-xl"></div>
-                <div class="glass-card rounded-2xl p-6 mb-4">
-                    <div class="flex gap-4">
-                        <div class="flex-1">
-                            <div class="skeleton h-6 w-3/4 mb-3"></div>
-                            <div class="skeleton h-4 w-full mb-2"></div>
-                            <div class="skeleton h-4 w-1/2"></div>
-                        </div>
-                        <div class="skeleton w-16 h-20 rounded-xl"></div>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-6 mb-4">
-                    <div class="flex gap-4">
-                        <div class="flex-1">
-                            <div class="skeleton h-6 w-1/2 mb-3"></div>
-                            <div class="skeleton h-4 w-full mb-2"></div>
-                            <div class="skeleton h-4 w-2/3"></div>
-                        </div>
-                        <div class="skeleton w-16 h-20 rounded-xl"></div>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-6">
-                    <div class="flex gap-4">
-                        <div class="flex-1">
-                            <div class="skeleton h-6 w-2/3 mb-3"></div>
-                            <div class="skeleton h-4 w-full mb-2"></div>
-                            <div class="skeleton h-4 w-1/3"></div>
-                        </div>
-                        <div class="skeleton w-16 h-20 rounded-xl"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ideas Feed: New (Hidden) -->
-        <div id="feedNew" class="space-y-4 hidden">
-            <div class="skeleton-container">
-                <div class="glass-card rounded-2xl p-6 mb-4">
-                    <div class="flex gap-4">
-                        <div class="flex-1">
-                            <div class="skeleton h-6 w-2/3 mb-3"></div>
-                            <div class="skeleton h-4 w-full mb-2"></div>
-                        </div>
-                        <div class="skeleton w-16 h-20 rounded-xl"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden text-center py-16">
-            <div
-                class="w-28 h-28 mx-auto mb-6 rounded-full bg-gradient-to-br from-neon/10 to-aurora/10 flex items-center justify-center">
-                <i class="fa-solid fa-rocket text-neon text-5xl"></i>
-            </div>
-            <h3 class="font-heading text-2xl font-bold text-starlight mb-2">No Ideas Yet</h3>
-            <p class="text-platinum">Be the first to forge the future!</p>
-        </div>
         <!-- Info Rail (Desktop) -->
         <aside id="infoRail" class="hidden xl:block fixed right-6 top-32 z-40 w-64 space-y-3">
             <div class="glass-card rounded-2xl p-3 text-[11px] text-platinum/80">
