@@ -94,120 +94,88 @@
 
     <!-- Header + Admin Tools (merged) -->
     <header
-        class="fixed top-0 left-0 w-full z-50 bg-black/20 backdrop-blur-md border-b border-white/5 transition-all duration-300"
+        class="fixed top-0 left-0 w-full z-50 bg-black/30 backdrop-blur-md border-b border-white/5 transition-all duration-300"
         id="mainHeader">
-        <div class="max-w-7xl mx-auto px-6 py-3 flex flex-col gap-3">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <div
-                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon to-teal flex items-center justify-center pulse-glow overflow-hidden">
-                        <img src="ideas.png" alt="IDRISIUM IDEAS" class="w-9 h-9 object-contain rounded-xl shadow-[0_0_25px_rgba(57,255,20,0.8)]">
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM IDEAS</h1>
-                            <span id="eventPhaseChip"
-                                class="hidden ml-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold tracking-wide uppercase bg-neon/10 border-neon/60 text-neon">
-                                PHASE: Submissions
-                            </span>
-                        </div>
-                        <p class="text-xs text-platinum font-body">Limited-Time Ideas Event</p>
-                        <div class="event-status-wrapper mt-0.5">
-                            <p id="eventStatusText"
-                                class="text-[10px] text-neon font-body uppercase tracking-wide cursor-help">
-                                Live · Submissions &amp; Karma Open
-                            </p>
-                            <div id="eventStatusTooltip" class="event-tooltip">
-                                <div class="font-semibold text-[10px] text-neon mb-1">Live · Submissions &amp; Karma Open</div>
-                                <div class="text-[10px] text-platinum/80">Forge window is active. Submit ideas, like and comment in real time to build karma.</div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon to-teal flex items-center justify-center pulse-glow overflow-hidden">
+                    <img src="ideas.png" alt="IDRISIUM IDEAS" class="w-9 h-9 object-contain rounded-xl shadow-[0_0_25px_rgba(57,255,20,0.8)]">
                 </div>
-                <!-- Admin Controls (Header) -->
-                <div id="adminHeaderControls" class="hidden flex items-center gap-2">
-                    <button onclick="toggleTimer()" id="toggleTimerBtn"
-                        class="px-3 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
-                        <i class="fa-solid fa-clock"></i> <span id="toggleTimerText">Hide Timer</span>
-                    </button>
-                    <button onclick="resetTimer()"
-                        class="px-3 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
-                        <i class="fa-solid fa-rotate"></i> Reset
-                    </button>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM IDEAS</h1>
+                        <span id="eventPhaseChip"
+                            class="hidden ml-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold tracking-wide uppercase bg-neon/10 border-neon/60 text-neon">
+                            PHASE: Submissions
+                        </span>
+                    </div>
+                    <p class="text-xs text-platinum font-body">Limited-Time Ideas Event</p>
                 </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <div id="adminHeaderControls" class="hidden"></div>
+                <button id="adminDrawerToggle" class="hidden neon-btn px-3 py-2 rounded-xl text-sm pressable" onclick="toggleAdminDrawer()">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
                 <div id="authSection" class="flex items-center gap-4">
                     <!-- Auth UI will be injected here -->
                 </div>
             </div>
+        </div>
+    </header>
 
-            <!-- Inline Admin Panel (visible only for admins) -->
-            <div id="adminPanel" class="hidden">
-                <div class="glass-card rounded-xl p-4 border-gold/30 bg-gold/5">
-                    <div class="flex items-center justify-between flex-wrap gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
-                                <i class="fa-solid fa-crown text-gold"></i>
-                            </div>
-                            <div>
-                                <p class="font-heading font-bold text-gold">God Mode Activated</p>
-                                <p class="text-xs text-platinum">You have full admin privileges</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <button onclick="pickRandomIdea()"
-                                class="px-4 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
-                                <i class="fa-solid fa-dice mr-1"></i> Pick Random
-                            </button>
-                            <button onclick="clearWinner()"
-                                class="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
-                                <i class="fa-solid fa-trophy mr-1"></i> Clear Winner
-                            </button>
-                            <button onclick="jumpToWinner()"
-                                class="px-4 py-2 rounded-lg bg-neon/10 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
-                                <i class="fa-solid fa-location-arrow mr-1"></i> Jump to Winner
-                            </button>
-                            <button onclick="exportIdeasCSV()"
-                                class="px-4 py-2 rounded-lg bg-neon/20 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
-                                <i class="fa-solid fa-file-export mr-1"></i> Export CSV
-                            </button>
-                        </div>
+    <!-- Admin Drawer -->
+    <div id="adminDrawer" class="drawer-overlay hidden" onclick="if(event.target === this) toggleAdminDrawer(false)">
+        <div class="drawer-panel glass-card">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
+                        <i class="fa-solid fa-crown text-gold"></i>
+                    </span>
+                    <div>
+                        <p class="font-heading font-bold text-gold">God Mode</p>
+                        <p class="text-[11px] text-platinum/80">لوحة تحكم المشرف</p>
                     </div>
-                    <div class="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <div class="flex flex-wrap gap-2 text-xs">
-                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
-                                <i class="fa-solid fa-layer-group text-neon"></i>
-                                <span id="adminStatTotalIdeas">0 total ideas</span>
-                            </span>
-                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
-                                <i class="fa-solid fa-star text-gold"></i>
-                                <span id="adminStatFounderPicks">0 founder picks</span>
-                            </span>
-                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
-                                <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
-                                <span id="adminStatLowSignal">0 low-signal ideas</span>
-                            </span>
-                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
-                                <i class="fa-solid fa-trophy text-gold"></i>
-                                <span id="adminStatWinner">No winner yet</span>
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <label for="adminFilterSelect"
-                                class="text-[11px] text-platinum/80 uppercase tracking-wide">Admin Filter</label>
-                            <select id="adminFilterSelect" onchange="changeAdminFilter()"
-                                class="neon-input px-3 py-2 rounded-lg text-[12px] bg-onyx cursor-pointer">
-                                <option value="all">All ideas</option>
-                                <option value="high-signal">High Signal (10+ score)</option>
-                                <option value="low-signal">Low Signal (≤ 0 score)</option>
-                                <option value="founder">Founder Picks</option>
-                                <option value="winners">Winners Only</option>
-                            </select>
-                        </div>
-                    </div>
+                </div>
+                <button onclick="toggleAdminDrawer(false)" class="ghost-btn px-3 py-2 rounded-lg text-xs pressable">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="adminPanel" class="space-y-3 hidden">
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <span class="stat-chip"><i class="fa-solid fa-layer-group text-neon"></i><span id="adminStatTotalIdeas">0 total ideas</span></span>
+                    <span class="stat-chip"><i class="fa-solid fa-star text-gold"></i><span id="adminStatFounderPicks">0 founder picks</span></span>
+                    <span class="stat-chip"><i class="fa-solid fa-triangle-exclamation text-red-400"></i><span id="adminStatLowSignal">0 low-signal ideas</span></span>
+                    <span class="stat-chip"><i class="fa-solid fa-trophy text-gold"></i><span id="adminStatWinner">No winner yet</span></span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="pickRandomIdea()" class="neon-btn px-3 py-2 rounded-lg text-xs font-semibold pressable">
+                        <i class="fa-solid fa-dice mr-1"></i> Random
+                    </button>
+                    <button onclick="exportIdeasCSV()" class="ghost-btn px-3 py-2 rounded-lg text-xs font-semibold pressable">
+                        <i class="fa-solid fa-file-export mr-1"></i> Export CSV
+                    </button>
+                    <button onclick="jumpToWinner()" class="ghost-btn px-3 py-2 rounded-lg text-xs font-semibold pressable">
+                        <i class="fa-solid fa-location-arrow mr-1"></i> Jump Winner
+                    </button>
+                    <button onclick="clearWinner()" class="ghost-btn px-3 py-2 rounded-lg text-xs font-semibold pressable text-red-400 border-red-400/40">
+                        <i class="fa-solid fa-trophy mr-1"></i> Clear Winner
+                    </button>
+                </div>
+                <div class="flex items-center gap-2 text-[11px] text-platinum/80">
+                    <label for="adminFilterSelect" class="uppercase tracking-wide">Admin Filter</label>
+                    <select id="adminFilterSelect" onchange="changeAdminFilter()" class="neon-input px-3 py-2 rounded-lg text-[12px] bg-onyx cursor-pointer flex-1">
+                        <option value="all">All ideas</option>
+                        <option value="high-signal">High Signal (10+ score)</option>
+                        <option value="low-signal">Low Signal (≤ 0 score)</option>
+                        <option value="founder">Founder Picks</option>
+                        <option value="winners">Winners Only</option>
+                    </select>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
 
     <!-- Main -->
     <main class="max-w-6xl mx-auto px-6 pt-32 pb-24 relative z-10">
