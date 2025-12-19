@@ -1,0 +1,11 @@
+idrisium-forge-firebase-adminsdk-fbsvc-78f02386a3.json
+*.pem
+*.key
+*.p12
+*.der
+*.crt
+*.cer
+*.pfx
+*.env
+*.env.local
+*.env.*.local
