@@ -1,699 +1,943 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IDRISIUM IDEAS · صندوق الأفكار</title>
-  <link rel="icon" href="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000'/%3E%3Cpath d='M12 52L32 12l20 40H44l-4-8H24l-4 8z' fill='%2339FF14'/%3E%3C/svg%3E">
-  <style>
-    :root {
-      --bg:#000;
-      --surface:rgba(255,255,255,0.05);
-      --surface-2:rgba(255,255,255,0.08);
-      --border:rgba(255,255,255,0.12);
-      --text:#ededed;
-      --muted:#a0a0a0;
-      --neon:#39FF14;
-      --teal:#00d9ff;
-      --danger:#ff4d4f;
-      --radius:18px;
-      --shadow:0 18px 48px rgba(0,0,0,0.55);
-      font-family:"Inter","Cairo",system-ui,-apple-system,"Segoe UI",sans-serif;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="IDRISIUM IDEAS - A cinematic hub where the IDRISIUM community drops app ideas and decides what gets built.">
+    <meta name="author" content="IDRIS GHAMID">
+    <meta name="theme-color" content="#000000">
+    <title>IDRISIUM IDEAS | Community App Ideas Hub</title>
+    <link rel="icon" type="image/png" href="ideas.png">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="IDRISIUM IDEAS - Community App Ideas Hub">
+    <meta property="og:description"
+        content="Drop app ideas, like or dislike submissions, and help choose what IDRISIUM builds next.">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="IDRISIUM IDEAS - Community App Ideas Hub">
+    <meta name="twitter:description"
+        content="A dark-mode ideas arena where the community submits, likes, and dislikes app ideas for IDRISIUM.">
+
+    <!-- Structured Data: Event -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      "name": "IDRISIUM IDEAS - App Ideas Crowdsourcing Event",
+      "description": "A cinematic online arena where the community submits, likes, and dislikes app ideas to shape the IDRISIUM ecosystem.",
+      "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
+      "eventStatus": "https://schema.org/EventScheduled",
+      "organizer": {
+        "@type": "Organization",
+        "name": "IDRISIUM Corp",
+        "url": "http://idrisium.linkpc.net/"
+      }
     }
-    * { box-sizing:border-box; }
-    body {
-      margin:0;
-      min-height:100vh;
-      background:var(--bg);
-      color:var(--text);
-      display:block;
-      padding:32px 16px 48px;
-    }
-    .page {
-      width:100%;
-      max-width:1400px;
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-      margin:0 auto;
-    }
-    .layout {
-      display:grid;
-      grid-template-columns: minmax(0,1.7fr) minmax(340px,0.9fr);
-      gap:18px;
-      width:100%;
-    }
-    .card {
-      background:var(--surface);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:20px;
-      backdrop-filter:blur(6px);
-    }
-    h1,h2 { margin:0; font-family:"Orbitron","Inter","Cairo",sans-serif; letter-spacing:0.4px; }
-    h1 { font-size:26px; }
-    h2 { font-size:20px; }
-    p { margin:0; color:var(--muted); }
-    .stack { display:flex; flex-direction:column; gap:12px; }
-    label { display:block; font-size:14px; margin-bottom:6px; color:var(--muted); }
-    input, textarea, select {
-      width:100%;
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.14);
-      color:var(--text);
-      border-radius:14px;
-      padding:12px 14px;
-      font-size:14px;
-      outline:none;
-      direction:rtl;
-      text-align:right;
-      transition:border-color 0.2s ease, box-shadow 0.2s ease;
-      appearance:none;
-    }
-    input:focus, textarea:focus {
-      border-color:var(--neon);
-      box-shadow:0 0 0 3px rgba(57,255,20,0.16);
-    }
-    textarea { min-height:130px; resize:vertical; }
-    .btn {
-      width:100%;
-      background:var(--neon);
-      color:#000;
-      border:none;
-      border-radius:12px;
-      padding:12px 14px;
-      font-weight:700;
-      font-size:14px;
-      cursor:pointer;
-      transition:transform 0.12s ease, filter 0.12s ease;
-    }
-    .btn:hover { filter:brightness(0.95); }
-    .btn:active { transform:scale(0.99); }
-    .ideas { display:flex; flex-direction:column; gap:10px; margin-top:12px; }
-    .idea {
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,0.1);
-      background:rgba(255,255,255,0.03);
-      padding:14px 16px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    .idea h3 { margin:0 0 6px; font-size:15px; color:var(--text); }
-    .idea p { margin:0; color:var(--muted); line-height:1.5; }
-    .empty { color:var(--muted); text-align:center; padding:10px 0; }
-    .idea-meta {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      font-size:12px;
-      color:var(--muted);
-    }
-    .pill {
-      padding:6px 10px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,0.05);
-      color:var(--text);
-      font-size:12px;
-    }
-    .idea-actions {
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-    .btn-secondary {
-      background:rgba(255,255,255,0.08);
-      color:var(--text);
-      border:1px solid var(--border);
-    }
-    .btn-danger {
-      background:rgba(255,77,79,0.14);
-      color:#ffb3b4;
-      border:1px solid rgba(255,77,79,0.4);
-    }
-    .stats-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-      gap:10px;
-      margin-top:12px;
-    }
-    .stat {
-      padding:12px 14px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background:rgba(255,255,255,0.03);
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      color:var(--text);
-    }
-    .stat .value { font-size:20px; font-weight:800; }
-    .footer {
-      margin-top:24px;
-      padding:18px;
-      background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      text-align:center;
-      grid-column:1 / -1;
-      color:var(--text);
-      box-shadow:var(--shadow);
-    }
-    .footer .links { display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin-top:10px; color:var(--muted); }
-    .footer a { color:var(--text); text-decoration:none; }
-    .avatar {
-      width:32px; height:32px; border-radius:50%; display:grid; place-items:center;
-      background:linear-gradient(135deg,rgba(57,255,20,0.5),rgba(0,217,255,0.4));
-      color:#000; font-weight:800; border:1px solid var(--border);
-    }
-    .idea-header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    .idea-owner { display:flex; align-items:center; gap:8px; }
-    .badge { padding:4px 8px; border-radius:10px; background:rgba(57,255,20,0.15); color:var(--text); border:1px solid var(--border); font-size:11px;}
-    header {
-      width:100%;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:18px 20px;
-      border-radius:var(--radius);
-      border:1px solid var(--border);
-      background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
-      box-shadow:var(--shadow);
-      gap:12px;
-    }
-    .side {
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-      position:sticky;
-      top:16px;
-      align-self:start;
-      min-width:0;
-    }
-    .brand { display:flex; align-items:center; gap:12px; }
-    .logo {
-      width:44px; height:44px; border-radius:12px; display:grid; place-items:center;
-      background:linear-gradient(135deg,rgba(57,255,20,0.15),rgba(0,217,255,0.15));
-      border:1px solid var(--border); color:var(--text); font-weight:900; font-size:18px;
-    }
-    .actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-    .chip {
-      padding:8px 12px; border-radius:12px; border:1px solid var(--border);
-      background:rgba(255,255,255,0.04); color:var(--text); font-size:13px;
-    }
-    .auth-btn {
-      background:var(--neon); color:#000; border:none; border-radius:12px;
-      padding:10px 14px; font-weight:800; cursor:pointer; transition:transform 0.12s ease, filter 0.12s ease;
-    }
-    .ghost-btn {
-      background:transparent; color:var(--text); border:1px solid var(--border);
-      border-radius:12px; padding:10px 14px; cursor:pointer; transition:transform 0.12s ease, border-color 0.12s ease;
-    }
-    .auth-btn:hover, .ghost-btn:hover { filter:brightness(0.95); }
-    .auth-btn:active, .ghost-btn:active { transform:scale(0.98); }
-    .two-col { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
-    .toolbar {
-      display:grid;
-      grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
-      gap:10px;
-      margin-top:12px;
-    }
-    .toolbar .pill-toggle {
-      display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;
-      padding:10px 12px; border-radius:12px; border:1px solid var(--border);
-      background:rgba(255,255,255,0.04); color:var(--text); font-weight:700;
-      transition:border-color 0.12s ease, background 0.12s ease;
-    }
-    .toolbar .pill-toggle.active {
-      border-color:var(--neon);
-      background:rgba(57,255,20,0.12);
-      color:var(--text);
-    }
-    .toolbar input {
-      width:100%; border-radius:12px; border:1px solid var(--border);
-      padding:10px 12px; background:rgba(255,255,255,0.05); color:var(--text);
-    }
-    .toolbar select {
-      width:100%; border-radius:12px; border:1px solid var(--border);
-      padding:10px 12px; background:rgba(255,255,255,0.05); color:var(--text);
-    }
-    @media (max-width:640px) {
-      body { padding:20px 12px; }
-      .card { padding:16px; }
-      h1 { font-size:22px; }
-      .layout { grid-template-columns:1fr; }
-      header { flex-direction:column; align-items:flex-start; }
-      .side { position:static; }
-    }
-  </style>
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Core Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Removed Vanilla Tilt for Static Stability -->
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        void: '#000000',
+                        abyss: '#050505',
+                        neon: '#39FF14',
+                        'neon-dim': 'rgba(57, 255, 20, 0.1)',
+                        'neon-glow': 'rgba(57, 255, 20, 0.3)',
+                        aurora: '#00D9FF',
+                        'aurora-dim': 'rgba(0, 217, 255, 0.1)',
+                        teal: '#14F4C9',
+                        onyx: '#0a0a0a',
+                        platinum: '#888888',
+                        starlight: '#EDEDED',
+                        gold: '#FFD700'
+                    },
+                    fontFamily: {
+                        heading: ['IDRISIUMfont', 'Inter', 'Cairo', 'sans-serif'],
+                        body: ['IDRISIUMfont', 'Inter', 'Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
 </head>
+
 <body>
-  <main class="page">
-    <header>
-      <div class="brand">
-        <div class="logo">I</div>
-        <div>
-          <h1 style="font-size:22px;">IDRISIUM IDEAS</h1>
-          <p style="margin-top:4px;">"Mafish 2alb.. Fi bas Talaga" • Offline-first</p>
+    <!-- Aurora Background -->
+    <div class="aurora-bg">
+        <div class="aurora-orb aurora-orb-1"></div>
+        <div class="aurora-orb aurora-orb-2"></div>
+        <div class="aurora-orb aurora-orb-3"></div>
+    </div>
+
+    <!-- Header + Admin Tools (merged) -->
+    <header
+        class="fixed top-0 left-0 w-full z-50 bg-black/20 backdrop-blur-md border-b border-white/5 transition-all duration-300"
+        id="mainHeader">
+        <div class="max-w-7xl mx-auto px-6 py-3 flex flex-col gap-3">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon to-teal flex items-center justify-center pulse-glow overflow-hidden">
+                        <img src="ideas.png" alt="IDRISIUM IDEAS" class="w-9 h-9 object-contain rounded-xl shadow-[0_0_25px_rgba(57,255,20,0.8)]">
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM IDEAS</h1>
+                            <span id="eventPhaseChip"
+                                class="hidden ml-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold tracking-wide uppercase bg-neon/10 border-neon/60 text-neon">
+                                PHASE: Submissions
+                            </span>
+                        </div>
+                        <p class="text-xs text-platinum font-body">Limited-Time Ideas Event</p>
+                        <div class="event-status-wrapper mt-0.5">
+                            <p id="eventStatusText"
+                                class="text-[10px] text-neon font-body uppercase tracking-wide cursor-help">
+                                Live · Submissions &amp; Karma Open
+                            </p>
+                            <div id="eventStatusTooltip" class="event-tooltip">
+                                <div class="font-semibold text-[10px] text-neon mb-1">Live · Submissions &amp; Karma Open</div>
+                                <div class="text-[10px] text-platinum/80">Forge window is active. Submit ideas, like and comment in real time to build karma.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Admin Controls (Header) -->
+                <div id="adminHeaderControls" class="hidden flex items-center gap-2">
+                    <button onclick="toggleTimer()" id="toggleTimerBtn"
+                        class="px-3 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
+                        <i class="fa-solid fa-clock"></i> <span id="toggleTimerText">Hide Timer</span>
+                    </button>
+                    <button onclick="resetTimer()"
+                        class="px-3 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
+                        <i class="fa-solid fa-rotate"></i> Reset
+                    </button>
+                </div>
+                <div id="authSection" class="flex items-center gap-4">
+                    <!-- Auth UI will be injected here -->
+                </div>
+            </div>
+
+            <!-- Inline Admin Panel (visible only for admins) -->
+            <div id="adminPanel" class="hidden">
+                <div class="glass-card rounded-xl p-4 border-gold/30 bg-gold/5">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
+                                <i class="fa-solid fa-crown text-gold"></i>
+                            </div>
+                            <div>
+                                <p class="font-heading font-bold text-gold">God Mode Activated</p>
+                                <p class="text-xs text-platinum">You have full admin privileges</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="pickRandomIdea()"
+                                class="px-4 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
+                                <i class="fa-solid fa-dice mr-1"></i> Pick Random
+                            </button>
+                            <button onclick="clearWinner()"
+                                class="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
+                                <i class="fa-solid fa-trophy mr-1"></i> Clear Winner
+                            </button>
+                            <button onclick="jumpToWinner()"
+                                class="px-4 py-2 rounded-lg bg-neon/10 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
+                                <i class="fa-solid fa-location-arrow mr-1"></i> Jump to Winner
+                            </button>
+                            <button onclick="exportIdeasCSV()"
+                                class="px-4 py-2 rounded-lg bg-neon/20 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
+                                <i class="fa-solid fa-file-export mr-1"></i> Export CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-neon"></i>
+                                <span id="adminStatTotalIdeas">0 total ideas</span>
+                            </span>
+                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-star text-gold"></i>
+                                <span id="adminStatFounderPicks">0 founder picks</span>
+                            </span>
+                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
+                                <span id="adminStatLowSignal">0 low-signal ideas</span>
+                            </span>
+                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-gold"></i>
+                                <span id="adminStatWinner">No winner yet</span>
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label for="adminFilterSelect"
+                                class="text-[11px] text-platinum/80 uppercase tracking-wide">Admin Filter</label>
+                            <select id="adminFilterSelect" onchange="changeAdminFilter()"
+                                class="neon-input px-3 py-2 rounded-lg text-[12px] bg-onyx cursor-pointer">
+                                <option value="all">All ideas</option>
+                                <option value="high-signal">High Signal (10+ score)</option>
+                                <option value="low-signal">Low Signal (≤ 0 score)</option>
+                                <option value="founder">Founder Picks</option>
+                                <option value="winners">Winners Only</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="actions">
-        <span id="authStatus" class="chip">غير مسجّل</span>
-        <button id="loginBtn" class="auth-btn">تسجيل دخول بجوجل</button>
-        <button id="logoutBtn" class="ghost-btn" style="display:none;">تسجيل خروج</button>
-      </div>
     </header>
 
-    <div class="layout">
-      <div class="stack">
-        <section class="card">
-          <div class="stack">
-            <div>
-              <h2>اكتب فكرتك</h2>
-              <p>املأ التفاصيل لتظهر فكرتك بشكل احترافي. يتطلب تسجيل دخول.</p>
+    <!-- Main -->
+    <main class="max-w-4xl mx-auto px-6 pt-32 pb-24 relative z-10">
+
+        <!-- Doomsday Timer -->
+        <section id="timerSection" class="glass-card rounded-3xl p-8 mb-10 text-center">
+            <p class="text-sm text-aurora font-semibold tracking-widest uppercase mb-2">
+                <i class="fa-solid fa-clock mr-2"></i>Event Ends In
+            </p>
+            <div id="countdown" class="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
+                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
+                    <span id="days" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
+                    <p class="text-xs text-platinum mt-1">DAYS</p>
+                </div>
+                <span class="text-3xl text-neon font-bold">:</span>
+                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
+                    <span id="hours" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
+                    <p class="text-xs text-platinum mt-1">HOURS</p>
+                </div>
+                <span class="text-3xl text-neon font-bold">:</span>
+                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
+                    <span id="minutes" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
+                    <p class="text-xs text-platinum mt-1">MINS</p>
+                </div>
+                <span class="text-3xl text-neon font-bold">:</span>
+                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
+                    <span id="seconds" class="font-heading text-3xl sm:text-5xl font-bold text-aurora">00</span>
+                    <p class="text-xs text-platinum mt-1">SECS</p>
+                </div>
             </div>
-            <form id="ideaForm" class="stack" novalidate>
-              <div class="two-col">
-                <div>
-                  <label for="ideaTitle">عنوان الفكرة</label>
-                  <input id="ideaTitle" name="ideaTitle" type="text" placeholder="مثال: مساعد شخصي يعتمد على الخصوصية">
+            <!-- Forge Closed Banner (Hidden) -->
+            <div id="forgeClosed" class="hidden forge-closed rounded-2xl p-6 mt-6">
+                <h3 class="font-heading text-2xl font-bold text-red-400">
+                    <i class="fa-solid fa-lock mr-2"></i>FORGE CLOSED
+                </h3>
+                <p class="text-red-300 mt-2">The submission period has ended. Thank you for participating!</p>
+            </div>
+        </section>
+
+        <!-- How It Works -->
+        <section id="howItWorks" class="glass-card rounded-3xl p-8 mb-10 text-left">
+            <h2 class="font-heading text-2xl font-bold text-starlight mb-3">How IDRISIUM IDEAS Works</h2>
+            <p class="text-platinum text-sm mb-6 max-w-2xl">
+                IDRISIUM IDEAS is a limited-time hub where your community drops app ideas. Like or dislike submissions and help decide what gets built inside the ecosystem.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
+                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <p class="font-heading text-sm text-starlight">1. Join the Forge</p>
+                        <p class="text-xs text-platinum mt-1">Sign in with Google to unlock submissions, karma, and your personal reputation profile.</p>
+                    </div>
                 </div>
-                <div>
-                  <label for="ideaCategory">المجال</label>
-                  <select id="ideaCategory" name="ideaCategory">
-                    <option value="">اختر المجال</option>
-                    <option value="AI">ذكاء اصطناعي</option>
-                    <option value="Fintech">خدمات مالية</option>
-                    <option value="Productivity">إنتاجية</option>
-                    <option value="Community">مجتمع</option>
-                    <option value="Gaming">ألعاب</option>
-                    <option value="Other">أخرى</option>
-                  </select>
+                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
+                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <p class="font-heading text-sm text-starlight">2. Forge Your Ideas</p>
+                        <p class="text-xs text-platinum mt-1">Share your most ambitious app or product ideas. Describe the problem, who it’s for, and why it matters.</p>
+                    </div>
                 </div>
-              </div>
-              <div>
-                <label for="ideaDescription">وصف الفكرة</label>
-                <textarea id="ideaDescription" name="ideaDescription" placeholder="صف التجربة، الجمهور، السيناريو، الأثر والتميز."></textarea>
-              </div>
-              <div class="two-col">
-                <div>
-                  <label for="ideaImpact">قوة الأثر</label>
-                  <select id="ideaImpact" name="ideaImpact">
-                    <option value="متوسط">متوسط</option>
-                    <option value="عالي">عالي</option>
-                    <option value="مرتفع جداً">مرتفع جداً</option>
-                  </select>
+                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
+                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
+                        <i class="fa-solid fa-fire-flame-curved"></i>
+                    </div>
+                    <div>
+                        <p class="font-heading text-sm text-starlight">3. Like and Discuss</p>
+                        <p class="text-xs text-platinum mt-1">Explore the feed, like the strongest concepts, and use comments to refine and challenge each idea while building karma.</p>
+                    </div>
                 </div>
-                <div>
-                  <label for="ideaEffort">الجهد التقني</label>
-                  <select id="ideaEffort" name="ideaEffort">
-                    <option value="منخفض">منخفض</option>
-                    <option value="متوسط">متوسط</option>
-                    <option value="مرتفع">مرتفع</option>
-                  </select>
+                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
+                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <p class="font-heading text-sm text-starlight">4. Watch the Winner Emerge</p>
+                        <p class="text-xs text-platinum mt-1">When the countdown hits zero, the highest-signal ideas help define what gets built next inside IDRISIUM.</p>
+                    </div>
                 </div>
-              </div>
-              <div>
-                <label for="ideaTags">كلمات مفتاحية (مفصولة بفاصلة)</label>
-                <input id="ideaTags" name="ideaTags" type="text" placeholder="مثال: offline, privacy, focus">
-              </div>
-              <div>
-                <label for="ideaNotes">ملاحظات إضافية</label>
-                <textarea id="ideaNotes" name="ideaNotes" placeholder="ملخص تنفيذي، مخاطر، احتياجات موارد."></textarea>
-              </div>
-              <div class="two-col">
-                <button id="addIdeaBtn" type="submit" class="btn">إضافة الفكرة</button>
-                <button id="cancelEditBtn" type="button" class="btn btn-secondary" style="display:none;">إلغاء التعديل</button>
-              </div>
-              <p id="formStatus" style="color:var(--muted); font-size:13px;"></p>
+            </div>
+        </section>
+
+        <!-- Event Timeline -->
+        <section id="eventTimeline" class="glass-card rounded-3xl p-8 mb-10">
+            <h2 class="font-heading text-2xl font-bold text-starlight mb-4 text-left">Event Timeline</h2>
+            <div class="flex flex-col gap-5">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-neon"></span>
+                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 1 · Submissions Open</p>
+                    </div>
+                    <p class="text-xs text-platinum max-w-md">Use the Forge form below to send in your strongest ideas before the timer runs out.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-aurora"></span>
+                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 2 · Community Karma</p>
+                    </div>
+                    <p class="text-xs text-platinum max-w-md">The community likes and comments on ideas, building karma and signal around what deserves to exist.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-gold"></span>
+                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 3 · Forge Outcome</p>
+                    </div>
+                    <p class="text-xs text-platinum max-w-md">When the Forge closes, top-ranked ideas and signals inform what IDRISIUM builds next.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Login Prompt -->
+        <section id="loginPrompt" class="glass-card rounded-3xl p-10 mb-10 text-center hidden">
+            <div
+                class="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-neon/10 to-aurora/10 flex items-center justify-center">
+                <i class="fa-solid fa-user-lock text-neon text-4xl"></i>
+            </div>
+            <h2 class="font-heading text-3xl font-bold text-starlight mb-3">Join IDRISIUM IDEAS</h2>
+            <p class="text-platinum mb-8 max-w-md mx-auto">Sign in with Google to submit revolutionary ideas and send your karma
+                into the future of IDRISIUM.</p>
+            <button onclick="signInWithGoogle()"
+                class="google-btn px-8 py-4 rounded-2xl text-lg font-semibold flex items-center gap-3 mx-auto">
+                <svg width="24" height="24" viewBox="0 0 48 48">
+                    <path fill="#FFC107"
+                        d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                    <path fill="#FF3D00"
+                        d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                    <path fill="#4CAF50"
+                        d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                    <path fill="#1976D2"
+                        d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+                </svg>
+                Sign in with Google
+            </button>
+        </section>
+
+        <!-- Submit Form -->
+        <section id="submitSection" class="glass-card rounded-3xl p-8 mb-10 hidden">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-heading text-xl font-bold text-starlight flex items-center gap-3">
+                    <i class="fa-solid fa-wand-magic-sparkles text-neon"></i> Forge Your Idea
+                </h3>
+                <div class="flex flex-col items-end gap-1 text-xs text-platinum">
+                    <span id="wizardStepLabel">Step 1 of 3 · Basics</span>
+                    <span id="submissionStatus"></span>
+                </div>
+            </div>
+            <form id="ideaForm" onsubmit="submitIdea(event)" class="space-y-5">
+                <div id="wizardStep1" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm text-platinum mb-2">Idea Title <span
+                                    class="text-neon">*</span></label>
+                            <input type="text" id="ideaTitle" required maxlength="200"
+                                placeholder="Your revolutionary idea..."
+                                class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body">
+                            <p class="text-xs text-platinum mt-1 text-right"><span id="titleCount">0</span>/200</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-platinum mb-2">Your Display Name <span
+                                    class="text-neon">*</span></label>
+                            <input type="text" id="authorName" required maxlength="50" placeholder="Anonymous Forger"
+                                class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body">
+                        </div>
+                    </div>
+                </div>
+                <div id="wizardStep2" class="space-y-3 hidden">
+                    <div>
+                        <label class="block text-sm text-platinum mb-2">Description <span class="text-neon">*</span></label>
+                        <textarea id="ideaDescription" required rows="4" maxlength="1000"
+                            placeholder="Describe your idea in detail. What problem does it solve? Who is it for?"
+                            class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body resize-none"></textarea>
+                        <p class="text-xs text-platinum mt-1 text-right"><span id="descCount">0</span>/1000</p>
+                    </div>
+                    <p class="text-xs text-platinum/70">
+                        Use this space to describe the problem, your proposed solution, and the impact if it succeeds.
+                    </p>
+                    <div id="duplicateSuggestions" class="mt-3 hidden">
+                        <div class="glass-card rounded-2xl p-3 border border-neon/20 bg-black/40">
+                            <p class="text-[11px] text-platinum/70 mb-2">
+                                We found ideas that may be similar to what you are writing. Consider reading them to avoid duplicates or to refine your angle.
+                            </p>
+                            <div id="duplicateSuggestionsList" class="space-y-2 text-xs"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="wizardStep3" class="space-y-3 hidden">
+                    <p class="text-sm text-platinum/80">
+                        Review your idea preview below. Make sure the title, description, and impact are clear before you submit.
+                    </p>
+                    <div id="ideaPreview" class="glass-card rounded-2xl p-5 border border-neon/20 bg-black/40">
+                        <p class="text-xs text-platinum/60">Your idea preview will appear here.</p>
+                    </div>
+                </div>
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-4 border-t border-white/5">
+                    <div class="flex items-center gap-3">
+                        <button type="button" id="prevStepBtn" onclick="prevIdeaStep()"
+                            class="px-5 py-3 rounded-xl bg-white/5 text-platinum hover:bg-white/10 transition-all text-sm hidden">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>
+                            Previous
+                        </button>
+                        <button type="button" id="nextStepBtn" onclick="nextIdeaStep()"
+                            class="px-5 py-3 rounded-xl bg-neon/10 text-neon hover:bg-neon/20 transition-all text-sm flex items-center gap-2">
+                            <span>Next</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <button type="submit" id="submitBtn"
+                        class="neon-btn px-8 py-3 rounded-xl font-heading text-base flex items-center justify-center gap-3 w-full md:w-auto hidden">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Submit to the Forge</span>
+                    </button>
+                </div>
             </form>
-          </div>
         </section>
 
-        <section class="card">
-          <div class="idea-header">
-            <h2>الأفكار</h2>
-            <div class="idea-actions">
-              <span class="pill" id="filterInfo">عرض: الكل</span>
+        <!-- Weekly Spotlight -->
+        <section class="glass-card rounded-3xl p-6 mb-10">
+            <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
+                <h2 class="font-heading text-2xl font-bold text-starlight flex items-center gap-2">
+                    <i class="fa-solid fa-star-half-stroke text-neon"></i>
+                    Weekly Spotlight
+                </h2>
+                <p class="text-[11px] text-platinum/70 max-w-sm text-right md:text-left">
+                    A single high-signal idea chosen automatically from this week&#39;s karma and discussions.
+                </p>
             </div>
-          </div>
-          <div class="toolbar">
-            <input id="searchIdeas" type="search" placeholder="ابحث في العناوين والوصف والوسوم">
-            <select id="filterCategory">
-              <option value="">كل المجالات</option>
-              <option value="AI">ذكاء اصطناعي</option>
-              <option value="Fintech">خدمات مالية</option>
-              <option value="Productivity">إنتاجية</option>
-              <option value="Community">مجتمع</option>
-              <option value="Gaming">ألعاب</option>
-              <option value="Other">أخرى</option>
-            </select>
-            <button type="button" id="filterMine" class="pill-toggle">أفكاري فقط</button>
-          </div>
-          <div id="ideasList" class="ideas" aria-live="polite"></div>
-          <p id="emptyState" class="empty">لا توجد أفكار بعد.</p>
+            <div id="spotlightContent" class="mt-2">
+                <p class="text-xs text-platinum/70">Calculating spotlight from live karma and comments...</p>
+                <p id="statNewIdeas" class="font-heading text-3xl font-bold text-aurora">0</p>
+                <p class="text-xs text-platinum mt-1">New Ideas</p>
+            </div>
+            <div class="glass-card rounded-2xl p-5 text-center">
+                <p id="statTotalIdeas" class="font-heading text-3xl font-bold text-teal">0</p>
+                <p class="text-xs text-platinum mt-1">Total Ideas</p>
+            </div>
         </section>
-      </div>
 
-      <div class="stack">
-        <div class="card" style="background:var(--surface-2);">
-          <h3 style="margin-bottom:8px;">إحصائيات مباشرة</h3>
-          <div class="stats-grid">
-            <div class="stat"><span class="label">إجمالي الأفكار</span><span id="statTotal" class="value">0</span></div>
-            <div class="stat"><span class="label">أفكاري</span><span id="statMine" class="value">0</span></div>
-            <div class="stat"><span class="label">متوسط الأثر</span><span id="statImpact" class="value">-</span></div>
-            <div class="stat"><span class="label">أكثر مجال</span><span id="statTopCat" class="value">-</span></div>
-            <div class="stat"><span class="label">آخر تحديث</span><span id="statUpdated" class="value">—</span></div>
-          </div>
-        </div>
-        <div class="card" style="background:var(--surface-2);">
-          <h3 style="margin-bottom:8px;">تنبيهات</h3>
-          <ul style="padding-inline-start:18px; color:var(--muted); line-height:1.6; margin:0;">
-            <li>لا يمكن الإضافة بدون تسجيل دخول.</li>
-            <li>يمكنك تعديل/حذف فكرتك لاحقاً.</li>
-            <li>الأدمن (Idris) يمكنه الحذف عند الحاجة.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer">
-      <div style="font-weight:800; font-size:18px;">IDRISIUM Corp.</div>
-      <div style="margin-top:6px;">"Mafish 2alb.. Fi bas Talaga" — Offline-First • Privacy-Centric • High-Performance</div>
-      <div style="margin-top:10px; font-size:13px;">Founder & Lead Developer: Idris Ghamid (18)</div>
-      <div class="links">
-        <a href="http://idrisium.linkpc.net/" target="_blank">Website</a>
-        <a href="https://github.com/IDRISIUM" target="_blank">GitHub</a>
-        <a href="https://tiktok.com/@idris.ghamid" target="_blank">TikTok</a>
-        <a href="https://instagram.com/idris.ghamid" target="_blank">Instagram</a>
-        <a href="https://t.me/IDRV72" target="_blank">Telegram</a>
-        <a href="mailto:idris.ghamid@gmail.com">Email</a>
-      </div>
-      <div style="margin-top:10px; font-size:12px; color:var(--muted);">© IDRISIUM Corp. Built with focus and respect for users' data.</div>
-    </div>
-  </main>
-
-  <script>
-    const STORAGE_KEY = 'idrisium_ideas_v2';
-    const USER_KEY = 'idrisium_user_v1';
-    const ADMIN_EMAIL = 'idris.ghamid@gmail.com';
-    const GOOGLE_CLIENT_ID = ''; // ضع Client ID هنا عند توفره
-
-    let ideas = [];
-    let currentUser = null;
-    let editId = null;
-    const filters = { query:'', category:'', mine:false };
-
-    const listEl = document.getElementById('ideasList');
-    const emptyState = document.getElementById('emptyState');
-    const titleInput = document.getElementById('ideaTitle');
-    const descInput = document.getElementById('ideaDescription');
-    const statTotal = document.getElementById('statTotal');
-    const statMine = document.getElementById('statMine');
-    const statImpact = document.getElementById('statImpact');
-    const statTopCat = document.getElementById('statTopCat');
-    const statUpdated = document.getElementById('statUpdated');
-    const searchInput = document.getElementById('searchIdeas');
-    const filterCategory = document.getElementById('filterCategory');
-    const filterMineBtn = document.getElementById('filterMine');
-
-    function saveIdeas() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(ideas));
-    }
-    function loadIdeas() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        ideas = raw ? JSON.parse(raw) : [];
-      } catch { ideas = []; }
-    }
-    function saveUser(user) {
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
-    }
-    function loadUser() {
-      try {
-        const raw = localStorage.getItem(USER_KEY);
-        currentUser = raw ? JSON.parse(raw) : null;
-      } catch { currentUser = null; }
-    }
-
-    function fmtDate(ts) {
-      const d = new Date(ts);
-      return d.toLocaleString('ar-EG', { hour12:false });
-    }
-
-    function avatarFor(name) {
-      return name ? name.trim()[0]?.toUpperCase() || '?' : '?';
-    }
-
-    function updateAuthUI() {
-      if (currentUser) {
-        authStatus.textContent = `${currentUser.name} (${currentUser.email})`;
-        loginBtn.style.display = 'none';
-        logoutBtn.style.display = 'inline-block';
-        filterMineBtn.disabled = false;
-      } else {
-        authStatus.textContent = 'غير مسجّل';
-        loginBtn.style.display = 'inline-block';
-        logoutBtn.style.display = 'none';
-        filters.mine = false;
-        filterMineBtn.classList.remove('active');
-        filterMineBtn.disabled = true;
-      }
-    }
-
-    function updateStats() {
-      statTotal.textContent = ideas.length;
-      const mine = ideas.filter(i => currentUser && i.owner.email === currentUser.email).length;
-      statMine.textContent = mine;
-
-      if (ideas.length === 0) {
-        statImpact.textContent = '-';
-        statTopCat.textContent = '-';
-        statUpdated.textContent = '—';
-        return;
-      }
-      const impactScore = { 'متوسط':1, 'عالي':2, 'مرتفع جداً':3 };
-      const avg = ideas.reduce((s,i)=>s+(impactScore[i.impact]||1),0)/ideas.length;
-      const label = avg>=2.5?'🔥 قوي':avg>=1.5?'✨ جيد':'متوسط';
-      statImpact.textContent = label;
-      const catCount = ideas.reduce((map,i)=>{
-        map[i.category||'غير محدد']=(map[i.category||'غير محدد']||0)+1; return map;
-      },{});
-      const topCat = Object.entries(catCount).sort((a,b)=>b[1]-a[1])[0];
-      statTopCat.textContent = topCat ? `${topCat[0]} (${topCat[1]})` : '-';
-      const lastUpdated = ideas.reduce((max,i)=>Math.max(max,new Date(i.updatedAt||i.createdAt).getTime()),0);
-      statUpdated.textContent = fmtDate(lastUpdated);
-    }
-
-    function describeFilters() {
-      const parts = [];
-      if (filters.category) parts.push(`مجال: ${filters.category}`);
-      if (filters.mine) parts.push('أفكاري فقط');
-      if (filters.query) parts.push('بحث نشط');
-      return parts.length ? parts.join(' • ') : 'عرض: الكل';
-    }
-
-    function filteredIdeas() {
-      const q = filters.query;
-      const cat = filters.category;
-      return [...ideas]
-        .sort((a,b)=> new Date(b.updatedAt) - new Date(a.updatedAt))
-        .filter(i => {
-          if (filters.mine && (!currentUser || i.owner.email !== currentUser.email)) return false;
-          if (cat && i.category !== cat) return false;
-          if (!q) return true;
-          const hay = `${i.title} ${i.description} ${i.tags.join(' ')}`.toLowerCase();
-          return hay.includes(q);
-        });
-    }
-
-    function updateEmptyState(visibleCount) {
-      const hasItems = visibleCount > 0;
-      if (emptyState) {
-        emptyState.style.display = hasItems ? 'none' : 'block';
-        emptyState.textContent = filters.query || filters.category || filters.mine
-          ? 'لا نتائج مطابقة للبحث/التصفية.'
-          : 'لا توجد أفكار بعد.';
-      }
-      document.getElementById('filterInfo').textContent = describeFilters();
-    }
-
-    function resetForm() {
-      form.reset();
-      editId = null;
-      cancelEditBtn.style.display = 'none';
-      formStatus.textContent = '';
-      document.getElementById('addIdeaBtn').textContent = 'إضافة الفكرة';
-    }
-
-    function renderIdeas() {
-      listEl.innerHTML = '';
-      const visible = filteredIdeas();
-      visible.forEach(idea => {
-        const card = document.createElement('article');
-        card.className = 'idea';
-        const mine = currentUser && idea.owner.email === currentUser.email;
-        const isAdmin = currentUser && currentUser.email === ADMIN_EMAIL;
-        card.innerHTML = `
-          <div class="idea-header">
-            <div class="idea-owner">
-              <div class="avatar">${avatarFor(idea.owner.name)}</div>
-              <div>
-                <div style="color:var(--text); font-weight:700;">${idea.title}</div>
-                <div style="font-size:12px; color:var(--muted);">${idea.owner.name} • ${fmtDate(idea.updatedAt)}</div>
-              </div>
+        <!-- Forge Reputation -->
+        <section class="glass-card rounded-3xl p-6 mb-10">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div class="max-w-md">
+                    <h2 class="font-heading text-2xl font-bold text-starlight mb-2">Forge Reputation</h2>
+                    <p class="text-sm text-platinum">
+                        Every vote your ideas and comments earn becomes karma. Karma unlocks higher ranks, unique badges,
+                        and a direct encrypted line to the founder at higher tiers.
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-platinum">
+                    <div class="glass-card rounded-2xl p-3">
+                        <p class="font-heading text-sm text-starlight">Novice</p>
+                        <p class="text-[11px] text-platinum/80 mt-1">0+ karma · exploring the forge.</p>
+                    </div>
+                    <div class="glass-card rounded-2xl p-3">
+                        <p class="font-heading text-sm text-starlight">Apprentice</p>
+                        <p class="text-[11px] text-platinum/80 mt-1">10+ karma · consistent signal, trusted voice.</p>
+                    </div>
+                    <div class="glass-card rounded-2xl p-3 border border-neon/40">
+                        <p class="font-heading text-sm text-neon">Artisan</p>
+                        <p class="text-[11px] text-platinum/80 mt-1">50+ karma · unlocks Founder Direct Line access.</p>
+                    </div>
+                    <div class="glass-card rounded-2xl p-3">
+                        <p class="font-heading text-sm text-starlight">Master</p>
+                        <p class="text-[11px] text-platinum/80 mt-1">200+ karma · heavy influence on what gets built.</p>
+                    </div>
+                </div>
             </div>
-            <div class="badge">${idea.category || 'غير محدد'}</div>
-          </div>
-          <p>${idea.description}</p>
-          <div class="idea-meta">
-            <span class="pill">الأثر: ${idea.impact}</span>
-            <span class="pill">الجهد: ${idea.effort}</span>
-            ${idea.tags.length ? `<span class="pill">وسوم: ${idea.tags.join(', ')}</span>` : ''}
-          </div>
-          ${idea.notes ? `<p style="color:var(--text); font-size:13px; background:rgba(255,255,255,0.03); padding:10px; border-radius:12px; border:1px solid var(--border);">ملاحظات: ${idea.notes}</p>` : ''}
-          <div class="idea-actions">
-            ${mine ? `<button class="btn btn-secondary" data-action="edit" data-id="${idea.id}">تعديل</button>` : ''}
-            ${(mine || isAdmin) ? `<button class="btn btn-danger" data-action="delete" data-id="${idea.id}">حذف</button>` : ''}
-          </div>
-        `;
-        listEl.appendChild(card);
-      });
-      updateEmptyState(visible.length);
-      updateStats();
-    }
+            <div class="mt-5 pt-4 border-t border-white/5">
+                <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                    <h3 class="font-heading text-sm font-semibold text-starlight flex items-center gap-2">
+                        <i class="fa-solid fa-ranking-star text-neon"></i>
+                        Top Forgers (Live)
+                    </h3>
+                    <div class="flex items-center gap-2 text-[10px] text-platinum/70">
+                        <span class="hidden sm:inline">Based on total karma received across ideas.</span>
+                        <div class="inline-flex rounded-xl bg-black/40 p-0.5 border border-white/10">
+                            <button type="button" onclick="setLeaderboardRange('day')" data-leaderboard-range="day"
+                                class="px-2 py-1 rounded-lg bg-white/5 text-platinum/70 border border-white/10 text-[10px]">
+                                Today
+                            </button>
+                            <button type="button" onclick="setLeaderboardRange('week')" data-leaderboard-range="week"
+                                class="px-2 py-1 rounded-lg bg-white/5 text-platinum/70 border border-white/10 text-[10px]">
+                                This Week
+                            </button>
+                            <button type="button" onclick="setLeaderboardRange('all')" data-leaderboard-range="all"
+                                class="px-2 py-1 rounded-lg bg-neon/20 text-neon border border-neon/60 text-[10px]">
+                                All Time
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="topForgersList" class="mt-3 space-y-2 text-xs text-platinum/80">
+                </div>
+            </section>
 
-    function requireAuth() {
-      if (currentUser) return true;
-      formStatus.textContent = 'يجب تسجيل الدخول بجوجل قبل الإضافة.';
-      return false;
-    }
+            <!-- Ideas Feed: Top -->
+            <div id="feedTop" class="space-y-4">
+                <!-- Skeleton -->
+                <div class="skeleton-container">
+                    <div class="glass-card rounded-2xl p-6 mb-4">
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <div class="skeleton h-6 w-3/4 mb-3"></div>
+                                <div class="skeleton h-4 w-full mb-2"></div>
+                                <div class="skeleton h-4 w-1/2"></div>
+                            </div>
+                            <div class="skeleton w-16 h-20 rounded-xl"></div>
+                <div class="glass-card rounded-2xl p-6 mb-4">
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <div class="skeleton h-6 w-3/4 mb-3"></div>
+                            <div class="skeleton h-4 w-full mb-2"></div>
+                            <div class="skeleton h-4 w-1/2"></div>
+                        </div>
+                        <div class="skeleton w-16 h-20 rounded-xl"></div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6 mb-4">
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <div class="skeleton h-6 w-1/2 mb-3"></div>
+                            <div class="skeleton h-4 w-full mb-2"></div>
+                            <div class="skeleton h-4 w-2/3"></div>
+                        </div>
+                        <div class="skeleton w-16 h-20 rounded-xl"></div>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <div class="skeleton h-6 w-2/3 mb-3"></div>
+                            <div class="skeleton h-4 w-full mb-2"></div>
+                            <div class="skeleton h-4 w-1/3"></div>
+                        </div>
+                        <div class="skeleton w-16 h-20 rounded-xl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    function handleSubmit(e) {
-      e.preventDefault();
-      if (!requireAuth()) return;
-      const title = (titleInput.value||'').trim();
-      const desc = (descInput.value||'').trim();
-      if (!title || !desc) {
-        formStatus.textContent = 'العنوان والوصف مطلوبان.';
-        return;
-      }
-      const category = categoryInput.value || 'غير محدد';
-      const impact = impactInput.value || 'متوسط';
-      const effort = effortInput.value || 'متوسط';
-      const tags = (tagsInput.value||'').split(',').map(t=>t.trim()).filter(Boolean);
-      const notes = (notesInput.value||'').trim();
-      const now = new Date().toISOString();
+        <!-- Ideas Feed: New (Hidden) -->
+        <div id="feedNew" class="space-y-4 hidden">
+            <div class="skeleton-container">
+                <div class="glass-card rounded-2xl p-6 mb-4">
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <div class="skeleton h-6 w-2/3 mb-3"></div>
+                            <div class="skeleton h-4 w-full mb-2"></div>
+                        </div>
+                        <div class="skeleton w-16 h-20 rounded-xl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-      if (editId) {
-        ideas = ideas.map(i => i.id === editId ? { ...i, title, description: desc, category, impact, effort, tags, notes, updatedAt: now } : i);
-        formStatus.textContent = 'تم تحديث الفكرة.';
-      } else {
-        const idea = {
-          id: crypto.randomUUID(),
-          title,
-          description: desc,
-          category,
-          impact,
-          effort,
-          tags,
-          notes,
-          createdAt: now,
-          updatedAt: now,
-          owner: { ...currentUser }
-        };
-        ideas.unshift(idea);
-        formStatus.textContent = 'تمت إضافة الفكرة.';
-      }
-      saveIdeas();
-      renderIdeas();
-      resetForm();
-    }
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <div
+                class="w-28 h-28 mx-auto mb-6 rounded-full bg-gradient-to-br from-neon/10 to-aurora/10 flex items-center justify-center">
+                <i class="fa-solid fa-rocket text-neon text-5xl"></i>
+            </div>
+            <h3 class="font-heading text-2xl font-bold text-starlight mb-2">No Ideas Yet</h3>
+            <p class="text-platinum">Be the first to forge the future!</p>
+        </div>
+        <!-- Info Rail (Desktop) -->
+        <aside id="infoRail" class="hidden xl:block fixed right-6 top-32 z-40 w-64 space-y-3">
+            <div class="glass-card rounded-2xl p-3 text-[11px] text-platinum/80">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="uppercase tracking-wide text-[10px] text-platinum/70">Forge Snapshot</span>
+                    <i class="fa-solid fa-circle-nodes text-neon text-xs"></i>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mt-1">
+                    <div class="text-center">
+                        <p id="railTopCount" class="font-heading text-base text-neon">0</p>
+                        <p class="text-[10px] text-platinum/70">Top</p>
+                    </div>
+                    <div class="text-center">
+                        <p id="railNewCount" class="font-heading text-base text-aurora">0</p>
+                        <p class="text-[10px] text-platinum/70">New</p>
+                    </div>
+                    <div class="text-center">
+                        <p id="railTotalCount" class="font-heading text-base text-teal">0</p>
+                        <p class="text-[10px] text-platinum/70">Total</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-3 text-[11px] flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-fire-flame-curved text-neon"></i>
+                    <div>
+                        <p class="text-[10px] text-platinum/60 uppercase tracking-wide">Your Karma</p>
+                        <p id="railKarma" class="font-heading text-base text-neon">0</p>
+                    </div>
+                </div>
+                <span class="text-[10px] text-platinum/60">Live</span>
+            </div>
+            <div class="glass-card rounded-2xl p-3 text-[11px] flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-neon"></i>
+                    <div>
+                        <p class="text-[10px] text-platinum/60 uppercase tracking-wide">Daily Streak</p>
+                        <p class="text-[11px] text-platinum/80">
+                            <span id="railStreakCurrent" class="font-heading text-neon">0</span>
+                            <span class="text-[10px] text-platinum/60 ml-1">days</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-[9px] text-platinum/60 uppercase tracking-wide">Best</p>
+                    <p class="font-heading text-xs text-platinum/90"><span id="railStreakBest">0</span> d</p>
+                </div>
+            </div>
+            <div class="glass-card rounded-2xl p-3 text-[11px] flex flex-col gap-1">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="text-[10px] text-platinum/70 uppercase tracking-wide">Event Status</span>
+                    <span id="railPhase" class="px-2 py-0.5 rounded-full border border-neon/40 text-[9px] text-neon uppercase tracking-wide">Active</span>
+                </div>
+                <p id="railStatus" class="text-[11px] text-platinum/80 leading-snug">
+                    Live · Submissions &amp; Voting Open
+                </p>
+                <p id="railSprint" class="text-[10px] text-platinum/60 mt-1 hidden">
+                    Sprint · Alpha Forge Sprint
+                </p>
+            </div>
+            <div class="glass-card rounded-2xl p-3 text-[11px] flex flex-col gap-2">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                    <span class="text-[10px] text-platinum/70 uppercase tracking-wide">Activity Heatmap</span>
+                    <span class="text-[10px] text-platinum/60">Last 7 days</span>
+                </div>
+                <div id="activityHeatmap" class="activity-heatmap mt-1"></div>
+                <div class="flex items-center justify-between text-[9px] text-platinum/50 mt-1">
+                    <span>Low</span>
+                    <span>High</span>
+                </div>
+            </div>
+        </aside>
+        <!-- Theme Switcher -->
+        <div id="themeSwitcher" class="fixed left-4 bottom-6 z-40 flex flex-col gap-2">
+            <div class="glass-card rounded-2xl px-3 py-2 flex items-center gap-2 text-[10px] text-platinum/80">
+                <i class="fa-solid fa-palette text-neon"></i>
+                <span class="hidden sm:inline">Theme</span>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button type="button" class="theme-chip" data-theme="stealth" onclick="changeTheme('stealth')"
+                    title="Stealth">
+                    <span class="theme-dot bg-[#39FF14]"></span>
+                    <span class="theme-label">Stealth</span>
+                </button>
+                <button type="button" class="theme-chip" data-theme="neo-cairo" onclick="changeTheme('neo-cairo')"
+                    title="Neo-Cairo">
+                    <span class="theme-dot bg-[#FFD700]"></span>
+                    <span class="theme-label">Neo-Cairo</span>
+                </button>
+                <button type="button" class="theme-chip" data-theme="minimal" onclick="changeTheme('minimal')"
+                    title="Minimal">
+                    <span class="theme-dot bg-[#9CA3AF]"></span>
+                    <span class="theme-label">Minimal</span>
+                </button>
+                <button type="button" class="theme-chip" data-theme="hacker" onclick="changeTheme('hacker')"
+                    title="Hacker Grid">
+                    <span class="theme-dot bg-[#10B981]"></span>
+                    <span class="theme-label">Hacker</span>
+                </button>
+            </div>
+        </div>
 
-    function handleActions(e) {
-      const btn = e.target.closest('button');
-      if (!btn || !btn.dataset.action) return;
-      const action = btn.dataset.action;
-      const id = btn.dataset.id;
-      const idea = ideas.find(i=>i.id===id);
-      if (!idea) return;
-      const isOwner = currentUser && idea.owner.email === currentUser.email;
-      const isAdmin = currentUser && currentUser.email === ADMIN_EMAIL;
-      if (!(isOwner || isAdmin)) return;
+    </main>
 
-      if (action === 'edit') {
-        editId = id;
-        titleInput.value = idea.title;
-        descInput.value = idea.description;
-        categoryInput.value = idea.category;
-        impactInput.value = idea.impact;
-        effortInput.value = idea.effort;
-        tagsInput.value = idea.tags.join(', ');
-        notesInput.value = idea.notes || '';
-        cancelEditBtn.style.display = 'block';
-        document.getElementById('addIdeaBtn').textContent = 'حفظ التعديل';
-        formStatus.textContent = 'وضع التعديل مفعل.';
-        titleInput.scrollIntoView({ behavior:'smooth', block:'center' });
-      }
-      if (action === 'delete') {
-        ideas = ideas.filter(i=>i.id!==id);
-        saveIdeas();
-        renderIdeas();
-      }
-    }
+    <!-- Footer -->
+    <footer class="border-t border-neon/10 mt-20 py-10">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-neon to-teal flex items-center justify-center overflow-hidden">
+                    <img src="ideas.png" alt="IDRISIUM IDEAS" class="w-8 h-8 object-contain rounded-lg shadow-[0_0_18px_rgba(57,255,20,0.8)]">
+                </div>
+                <span class="font-heading text-xl font-bold gradient-text">IDRISIUM IDEAS</span>
+            </div>
 
-    function signInMock() {
-      const name = prompt('ادخل الاسم للعرض:') || 'Guest';
-      const email = prompt('ادخل البريد (للتجربة):') || 'guest@example.com';
-      currentUser = { name, email, avatar: null };
-      saveUser(currentUser);
-      updateAuthUI();
-      renderIdeas();
-    }
+            <p class="text-platinum text-sm mb-6">Intelligence from the Shadows</p>
+            <div class="flex items-center justify-center gap-5 mb-6">
+                <a href="http://idrisium.linkpc.net/" target="_blank"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-solid fa-globe"></i></a>
+                <a href="https://github.com/IDRISIUM" target="_blank"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-brands fa-github"></i></a>
+                <a href="https://tiktok.com/@idris.ghamid" target="_blank"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-brands fa-tiktok"></i></a>
+                <a href="https://instagram.com/idris.ghamid" target="_blank"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-brands fa-instagram"></i></a>
+                <a href="https://t.me/IDRV72" target="_blank"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-brands fa-telegram"></i></a>
+                <a href="mailto:idris.ghamid@gmail.com"
+                    class="text-platinum hover:text-neon transition-colors text-lg"><i
+                        class="fa-solid fa-envelope"></i></a>
+            </div>
+            <p class="text-xs text-platinum/50">
+                Created by <span class="text-neon">IDRIS GHAMID</span> • Powered by <span class="gradient-text">IDRISIUM
+                    Corp</span>
+            </p>
+        </div>
+    </footer>
 
-    async function signInWithGoogle() {
-      if (!GOOGLE_CLIENT_ID) {
-        signInMock();
-        return;
-      }
-      // Placeholder: when client ID متوفر، أضف Google Identity Services.
-      signInMock();
-    }
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal-overlay hidden" onclick="if(event.target === this) closeProfile()">
+        <div class="glass-card max-w-lg w-full p-8 mx-4 relative flex flex-col items-center">
+            <button onclick="closeProfile()" class="absolute top-4 right-4 text-platinum hover:text-white"><i
+                    class="fa-solid fa-times text-xl"></i></button>
 
-    function signOut() {
-      currentUser = null;
-      localStorage.removeItem(USER_KEY);
-      updateAuthUI();
-      renderIdeas();
-    }
+            <!-- Rank Badge -->
+            <div class="relative mb-6">
+                <div class="w-24 h-24 rounded-full p-1 border-2 border-neon shadow-lg shadow-neon/50">
+                    <img id="profileAvatar" src="" class="w-full h-full rounded-full object-cover">
+                </div>
+                <div id="profileRankBadge"
+                    class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-black border border-neon text-neon text-xs font-bold px-3 py-1 rounded-full uppercase whitespace-nowrap box-shadow-neon"
+                    title="Your current reputation tier based on total karma.">
+                    Novice
+                </div>
+            </div>
 
-    loginBtn.addEventListener('click', signInWithGoogle);
-    logoutBtn.addEventListener('click', signOut);
-    cancelEditBtn.addEventListener('click', resetForm);
-    form.addEventListener('submit', handleSubmit);
-    listEl.addEventListener('click', handleActions);
-    searchInput.addEventListener('input', (e)=>{
-      filters.query = (e.target.value||'').trim().toLowerCase();
-      renderIdeas();
-    });
-    filterCategory.addEventListener('change',(e)=>{
-      filters.category = e.target.value;
-      renderIdeas();
-    });
-    filterMineBtn.addEventListener('click', ()=>{
-      if (!currentUser) return;
-      filters.mine = !filters.mine;
-      filterMineBtn.classList.toggle('active', filters.mine);
-      renderIdeas();
-    });
+            <h2 id="profileName" class="text-2xl font-bold text-white mb-1">User Name</h2>
+            <p id="profileEmail" class="text-sm text-platinum mb-6">user@example.com</p>
 
-    loadUser();
-    loadIdeas();
-    updateAuthUI();
-    renderIdeas();
-  </script>
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-4 w-full mb-3 text-center">
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileIdeaCount" class="text-2xl font-bold text-teal">0</p>
+                    <p class="text-xs text-platinum">Forged</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileVoteCount" class="text-2xl font-bold text-neon" title="Total karma your ideas have accumulated.">0</p>
+                    <p class="text-xs text-platinum">Karma</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileRankLevel" class="text-2xl font-bold text-aurora">1</p>
+                    <p class="text-xs text-platinum">Level</p>
+                </div>
+            </div>
+            <div class="w-full mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileKarmaCreation" class="text-lg font-bold text-neon">0</p>
+                    <p class="text-[11px] text-platinum/80">Creation</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileKarmaComments" class="text-lg font-bold text-aurora">0</p>
+                    <p class="text-[11px] text-platinum/80">Comments</p>
+                </div>
+                <div class="p-3 rounded-xl bg-white/5">
+                    <p id="profileKarmaCommunity" class="text-lg font-bold text-teal">0</p>
+                    <p class="text-[11px] text-platinum/80">Community</p>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="w-full text-left mb-4">
+                <div class="flex justify-between text-xs text-platinum mb-2">
+                    <span id="rankCurrent">Novice</span>
+                    <span id="rankNext">Apprentice</span>
+                </div>
+                <div class="rank-progress-bg w-full">
+                    <div id="rankProgress" class="rank-progress-fill" style="width: 0%"></div>
+                </div>
+                <p id="rankMsg" class="text-xs text-center mt-3 text-neon-dim">10 karma to next rank</p>
+            </div>
+
+            <!-- Season Snapshot -->
+            <div class="w-full mb-6">
+                <h3 class="text-white font-bold text-sm mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-mountain-sun text-neon"></i>
+                    <span>Season Snapshot</span>
+                </h3>
+                <div id="profileSeasonSnapshot" class="text-[11px] text-platinum/80">
+                    <p class="text-[11px] text-platinum/60">Your seasonal record will appear here as you earn karma.</p>
+                </div>
+            </div>
+
+            <!-- Badges Grid -->
+            <div class="w-full">
+                <h3 class="text-white font-bold text-sm mb-3 border-b border-white/10 pb-2">Your Badges</h3>
+                <div id="profileBadges" class="flex flex-wrap gap-2 text-2xl text-platinum/30 justify-center">
+                    <!-- Badges injected by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Modal -->
+    <div id="commentsModal" class="modal-overlay hidden" onclick="if(event.target === this) closeComments()">
+        <div class="modal-content">
+            <div class="p-6 border-b border-neon/20">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-heading text-xl font-bold text-starlight">
+                        <i class="fa-solid fa-comments text-neon mr-2"></i>
+                        <span id="modalIdeaTitle">Comments</span>
+                    </h3>
+                    <button onclick="closeComments()"
+                        class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-platinum transition-all">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                <p id="modalIdeaDesc" class="text-sm text-platinum mt-2"></p>
+                <div
+                    class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-xs text-platinum/80">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span id="modalIdeaAuthor" class="flex items-center gap-1">
+                            <i class="fa-solid fa-user text-neon/80"></i>
+                            <span>Unknown forger</span>
+                        </span>
+                        <span id="modalIdeaMeta" class="flex items-center gap-1">
+                            <i class="fa-solid fa-clock text-platinum/70"></i>
+                            <span>Just now</span>
+                        </span>
+                        <span id="modalIdeaScore" class="flex items-center gap-1">
+                            <i class="fa-solid fa-fire-flame-curved text-neon"></i>
+                            <span>0 likes · 0 comments</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="modalShareButton"
+                            class="px-3 py-2 rounded-xl bg-neon/10 text-neon text-[11px] font-semibold hover:bg-neon/20 transition-colors flex items-center gap-1">
+                            <i class="fa-solid fa-share-nodes text-xs"></i>
+                            <span>Share</span>
+                        </button>
+                        <a id="modalShareX" href="#" target="_blank"
+                            class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-platinum text-xs"
+                            title="Share on X">
+                            <i class="fa-brands fa-x-twitter"></i>
+                        </a>
+                        <a id="modalShareTelegram" href="#" target="_blank"
+                            class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-platinum text-xs"
+                            title="Share on Telegram">
+                            <i class="fa-brands fa-telegram"></i>
+                        </a>
+                        <a id="modalShareWhatsApp" href="#" target="_blank"
+                            class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-platinum text-xs"
+                            title="Share on WhatsApp">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Comment Form -->
+            <div class="p-4 border-b border-neon/10">
+                <div class="flex gap-3">
+                    <input type="text" id="commentInput" placeholder="Add a comment..." maxlength="500"
+                        class="neon-input flex-1 px-4 py-3 rounded-xl text-starlight placeholder-platinum/50">
+                    <button onclick="submitComment()" id="submitCommentBtn"
+                        class="neon-btn px-6 py-3 rounded-xl font-semibold">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-platinum/50 mt-2">Be respectful. Comments are public.</p>
+            </div>
+
+            <!-- Comments List -->
+            <div id="commentsList" class="p-4 space-y-3 max-h-[50vh] overflow-y-auto">
+                <p class="text-center text-platinum py-8">Loading comments...</p>
+            </div>
+
+            <!-- Comment Count -->
+            <div class="p-4 border-t border-neon/10 text-center">
+                <span id="commentCount" class="text-xs text-platinum">0 comments</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal (No Tilt) -->
+    <div id="chatModal" class="modal-overlay hidden" onclick="if(event.target === this) closeChat()">
+        <div
+            class="bg-[#111111] border border-neon/20 rounded-2xl max-w-md w-full h-[80vh] mx-4 relative flex flex-col shadow-2xl">
+            <!-- Header -->
+            <div class="p-4 border-b border-neon/20 flex items-center justify-between bg-black/50 rounded-t-2xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full border border-neon p-0.5 relative">
+                        <img id="chatAvatar" src="" class="w-full h-full rounded-full object-cover">
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-neon rounded-full border-2 border-black"></div>
+                    </div>
+                    <div>
+                        <h3 id="chatName" class="font-bold text-white text-sm">Founder</h3>
+                        <p id="chatStatus" class="text-[10px] text-neon uppercase tracking-wider">Direct Line</p>
+                    </div>
+                </div>
+                <button onclick="closeChat()" class="text-platinum hover:text-white transition-colors">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Messages -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
+                <div class="text-center text-xs text-platinum/30 py-4">Encrypted Channel Established</div>
+            </div>
+
+            <!-- Input (No Form) -->
+            <div class="p-4 border-t border-neon/10 bg-black/30 rounded-b-2xl">
+                <div class="flex gap-2">
+                    <input type="text" id="chatInput" placeholder="Type your message..." autocomplete="off"
+                        onkeydown="if(event.key === 'Enter') { event.preventDefault(); sendChatMessage(); }"
+                        class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-platinum/30 focus:border-neon focus:outline-none transition-colors">
+                    <button onclick="sendChatMessage()"
+                        class="bg-gradient-to-r from-neon to-teal text-black w-12 h-12 rounded-xl flex items-center justify-center hover:scale-105 transition-transform font-bold">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Inbox Modal (No Tilt) -->
+    <div id="inboxModal" class="modal-overlay hidden" onclick="if(event.target === this) closeInbox()">
+        <div
+            class="bg-[#111111] border border-neon/20 rounded-2xl max-w-md w-full h-[70vh] mx-4 relative flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-neon/20 flex items-center justify-between">
+                <h3 class="font-bold text-white"><i class="fa-solid fa-inbox text-neon mr-2"></i>Inbox</h3>
+                <button onclick="closeInbox()" class="text-platinum hover:text-white"><i
+                        class="fa-solid fa-times"></i></button>
+            </div>
+            <div id="inboxList" class="flex-1 overflow-y-auto p-2 space-y-2">
+                <!-- User Items -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
 </body>
+
 </html>
