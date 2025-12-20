@@ -96,86 +96,8 @@
                         </div>
                     </div>
                 </div>
-                <!-- Admin Controls (Header) -->
-                <div id="adminHeaderControls" class="hidden flex items-center gap-2">
-                    <button onclick="toggleTimer()" id="toggleTimerBtn"
-                        class="px-3 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
-                        <i class="fa-solid fa-clock"></i> <span id="toggleTimerText">Hide Timer</span>
-                    </button>
-                    <button onclick="resetTimer()"
-                        class="px-3 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
-                        <i class="fa-solid fa-rotate"></i> Reset
-                    </button>
-                </div>
                 <div id="authSection" class="flex items-center gap-4">
                     <!-- Auth UI will be injected here -->
-                </div>
-            </div>
-
-            <!-- Inline Admin Panel (visible only for admins) -->
-            <div id="adminPanel" class="hidden">
-                <div class="glass-card rounded-xl p-4 border-gold/30 bg-gold/5">
-                    <div class="flex items-center justify-between flex-wrap gap-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center">
-                                <i class="fa-solid fa-crown text-gold"></i>
-                            </div>
-                            <div>
-                                <p class="font-heading font-bold text-gold">God Mode Activated</p>
-                                <p class="text-xs text-platinum">You have full admin privileges</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <button onclick="pickRandomIdea()"
-                                class="px-4 py-2 rounded-lg bg-gold/20 text-gold text-xs font-semibold hover:bg-gold/30 transition-all">
-                                <i class="fa-solid fa-dice mr-1"></i> Pick Random
-                            </button>
-                            <button onclick="clearWinner()"
-                                class="px-4 py-2 rounded-lg bg-red-500/20 text-red-400 text-xs font-semibold hover:bg-red-500/30 transition-all">
-                                <i class="fa-solid fa-trophy mr-1"></i> Clear Winner
-                            </button>
-                            <button onclick="jumpToWinner()"
-                                class="px-4 py-2 rounded-lg bg-neon/10 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
-                                <i class="fa-solid fa-location-arrow mr-1"></i> Jump to Winner
-                            </button>
-                            <button onclick="exportIdeasCSV()"
-                                class="px-4 py-2 rounded-lg bg-neon/20 text-neon text-xs font-semibold hover:bg-neon/30 transition-all">
-                                <i class="fa-solid fa-file-export mr-1"></i> Export CSV
-                            </button>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <div class="flex flex-wrap gap-2 text-xs">
-                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
-                                <i class="fa-solid fa-layer-group text-neon"></i>
-                                <span id="adminStatTotalIdeas">0 total ideas</span>
-                            </span>
-                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
-                                <i class="fa-solid fa-star text-gold"></i>
-                                <span id="adminStatFounderPicks">0 founder picks</span>
-                            </span>
-                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
-                                <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
-                                <span id="adminStatLowSignal">0 low-signal ideas</span>
-                            </span>
-                            <span class="px-3 py-2 rounded-lg bg-black/40 border border-white/10 flex items-center gap-2">
-                                <i class="fa-solid fa-trophy text-gold"></i>
-                                <span id="adminStatWinner">No winner yet</span>
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <label for="adminFilterSelect"
-                                class="text-[11px] text-platinum/80 uppercase tracking-wide">Admin Filter</label>
-                            <select id="adminFilterSelect" onchange="changeAdminFilter()"
-                                class="neon-input px-3 py-2 rounded-lg text-[12px] bg-onyx cursor-pointer">
-                                <option value="all">All ideas</option>
-                                <option value="high-signal">High Signal (10+ score)</option>
-                                <option value="low-signal">Low Signal (≤ 0 score)</option>
-                                <option value="founder">Founder Picks</option>
-                                <option value="winners">Winners Only</option>
-                            </select>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -183,115 +105,6 @@
 
     <!-- Main -->
     <main class="max-w-4xl mx-auto px-6 pt-32 pb-24 relative z-10">
-
-        <!-- Doomsday Timer -->
-        <section id="timerSection" class="glass-card rounded-3xl p-8 mb-10 text-center">
-            <p class="text-sm text-aurora font-semibold tracking-widest uppercase mb-2">
-                <i class="fa-solid fa-clock mr-2"></i>Event Ends In
-            </p>
-            <div id="countdown" class="flex items-center justify-center gap-2 sm:gap-4 flex-wrap">
-                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
-                    <span id="days" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
-                    <p class="text-xs text-platinum mt-1">DAYS</p>
-                </div>
-                <span class="text-3xl text-neon font-bold">:</span>
-                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
-                    <span id="hours" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
-                    <p class="text-xs text-platinum mt-1">HOURS</p>
-                </div>
-                <span class="text-3xl text-neon font-bold">:</span>
-                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
-                    <span id="minutes" class="font-heading text-3xl sm:text-5xl font-bold text-neon">00</span>
-                    <p class="text-xs text-platinum mt-1">MINS</p>
-                </div>
-                <span class="text-3xl text-neon font-bold">:</span>
-                <div class="timer-digit rounded-2xl px-4 py-3 sm:px-6 sm:py-4">
-                    <span id="seconds" class="font-heading text-3xl sm:text-5xl font-bold text-aurora">00</span>
-                    <p class="text-xs text-platinum mt-1">SECS</p>
-                </div>
-            </div>
-            <!-- Forge Closed Banner (Hidden) -->
-            <div id="forgeClosed" class="hidden forge-closed rounded-2xl p-6 mt-6">
-                <h3 class="font-heading text-2xl font-bold text-red-400">
-                    <i class="fa-solid fa-lock mr-2"></i>FORGE CLOSED
-                </h3>
-                <p class="text-red-300 mt-2">The submission period has ended. Thank you for participating!</p>
-            </div>
-        </section>
-
-        <!-- How It Works -->
-        <section id="howItWorks" class="glass-card rounded-3xl p-8 mb-10 text-left">
-            <h2 class="font-heading text-2xl font-bold text-starlight mb-3">How IDRISIUM IDEAS Works</h2>
-            <p class="text-platinum text-sm mb-6 max-w-2xl">
-                IDRISIUM IDEAS is a limited-time hub where your community drops app ideas. Like or dislike submissions and help decide what gets built inside the ecosystem.
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
-                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
-                        <i class="fa-solid fa-user-plus"></i>
-                    </div>
-                    <div>
-                        <p class="font-heading text-sm text-starlight">1. Join the Forge</p>
-                        <p class="text-xs text-platinum mt-1">Sign in with Google to unlock submissions, karma, and your personal reputation profile.</p>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
-                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
-                        <i class="fa-solid fa-lightbulb"></i>
-                    </div>
-                    <div>
-                        <p class="font-heading text-sm text-starlight">2. Forge Your Ideas</p>
-                        <p class="text-xs text-platinum mt-1">Share your most ambitious app or product ideas. Describe the problem, who it’s for, and why it matters.</p>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
-                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
-                    </div>
-                    <div>
-                        <p class="font-heading text-sm text-starlight">3. Like and Discuss</p>
-                        <p class="text-xs text-platinum mt-1">Explore the feed, like the strongest concepts, and use comments to refine and challenge each idea while building karma.</p>
-                    </div>
-                </div>
-                <div class="glass-card rounded-2xl p-4 flex gap-3 items-start">
-                    <div class="w-9 h-9 rounded-xl bg-neon/10 flex items-center justify-center text-neon">
-                        <i class="fa-solid fa-trophy"></i>
-                    </div>
-                    <div>
-                        <p class="font-heading text-sm text-starlight">4. Watch the Winner Emerge</p>
-                        <p class="text-xs text-platinum mt-1">When the countdown hits zero, the highest-signal ideas help define what gets built next inside IDRISIUM.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Event Timeline -->
-        <section id="eventTimeline" class="glass-card rounded-3xl p-8 mb-10">
-            <h2 class="font-heading text-2xl font-bold text-starlight mb-4 text-left">Event Timeline</h2>
-            <div class="flex flex-col gap-5">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-neon"></span>
-                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 1 · Submissions Open</p>
-                    </div>
-                    <p class="text-xs text-platinum max-w-md">Use the Forge form below to send in your strongest ideas before the timer runs out.</p>
-                </div>
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-aurora"></span>
-                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 2 · Community Karma</p>
-                    </div>
-                    <p class="text-xs text-platinum max-w-md">The community likes and comments on ideas, building karma and signal around what deserves to exist.</p>
-                </div>
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-gold"></span>
-                        <p class="font-heading text-sm text-starlight uppercase tracking-wide">Phase 3 · Forge Outcome</p>
-                    </div>
-                    <p class="text-xs text-platinum max-w-md">When the Forge closes, top-ranked ideas and signals inform what IDRISIUM builds next.</p>
-                </div>
-            </div>
-        </section>
 
         <!-- Login Prompt -->
         <section id="loginPrompt" class="glass-card rounded-3xl p-10 mb-10 text-center hidden">
@@ -398,105 +211,18 @@
             </form>
         </section>
 
-        <!-- Weekly Spotlight -->
-        <section class="glass-card rounded-3xl p-6 mb-10">
-            <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
-                <h2 class="font-heading text-2xl font-bold text-starlight flex items-center gap-2">
-                    <i class="fa-solid fa-star-half-stroke text-neon"></i>
-                    Weekly Spotlight
-                </h2>
-                <p class="text-[11px] text-platinum/70 max-w-sm text-right md:text-left">
-                    A single high-signal idea chosen automatically from this week&#39;s karma and discussions.
-                </p>
-            </div>
-            <div id="spotlightContent" class="mt-2">
-                <p class="text-xs text-platinum/70">Calculating spotlight from live karma and comments...</p>
-                <p id="statNewIdeas" class="font-heading text-3xl font-bold text-aurora">0</p>
-                <p class="text-xs text-platinum mt-1">New Ideas</p>
-            </div>
-            <div class="glass-card rounded-2xl p-5 text-center">
-                <p id="statTotalIdeas" class="font-heading text-3xl font-bold text-teal">0</p>
-                <p class="text-xs text-platinum mt-1">Total Ideas</p>
-            </div>
-        </section>
+        <!-- Ideas Feed: Top -->
+        <!-- Hidden tab controls kept for JS logic compatibility -->
+        <div class="hidden">
+            <button id="tabTop" class="active" type="button" aria-hidden="true"></button>
+            <button id="tabNew" type="button" aria-hidden="true"></button>
+            <span id="resultsCount"></span>
+        </div>
 
-        <!-- Forge Reputation -->
-        <section class="glass-card rounded-3xl p-6 mb-10">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div class="max-w-md">
-                    <h2 class="font-heading text-2xl font-bold text-starlight mb-2">Forge Reputation</h2>
-                    <p class="text-sm text-platinum">
-                        Every vote your ideas and comments earn becomes karma. Karma unlocks higher ranks, unique badges,
-                        and a direct encrypted line to the founder at higher tiers.
-                    </p>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-platinum">
-                    <div class="glass-card rounded-2xl p-3">
-                        <p class="font-heading text-sm text-starlight">Novice</p>
-                        <p class="text-[11px] text-platinum/80 mt-1">0+ karma · exploring the forge.</p>
-                    </div>
-                    <div class="glass-card rounded-2xl p-3">
-                        <p class="font-heading text-sm text-starlight">Apprentice</p>
-                        <p class="text-[11px] text-platinum/80 mt-1">10+ karma · consistent signal, trusted voice.</p>
-                    </div>
-                    <div class="glass-card rounded-2xl p-3 border border-neon/40">
-                        <p class="font-heading text-sm text-neon">Artisan</p>
-                        <p class="text-[11px] text-platinum/80 mt-1">50+ karma · unlocks Founder Direct Line access.</p>
-                    </div>
-                    <div class="glass-card rounded-2xl p-3">
-                        <p class="font-heading text-sm text-starlight">Master</p>
-                        <p class="text-[11px] text-platinum/80 mt-1">200+ karma · heavy influence on what gets built.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-5 pt-4 border-t border-white/5">
-                <div class="flex items-center justify-between mb-2 gap-2 flex-wrap">
-                    <h3 class="font-heading text-sm font-semibold text-starlight flex items-center gap-2">
-                        <i class="fa-solid fa-ranking-star text-neon"></i>
-                        Top Forgers (Live)
-                    </h3>
-                    <div class="flex items-center gap-2 text-[10px] text-platinum/70">
-                        <span class="hidden sm:inline">Based on total karma received across ideas.</span>
-                        <div class="inline-flex rounded-xl bg-black/40 p-0.5 border border-white/10">
-                            <button type="button" onclick="setLeaderboardRange('day')" data-leaderboard-range="day"
-                                class="px-2 py-1 rounded-lg bg-white/5 text-platinum/70 border border-white/10 text-[10px]">
-                                Today
-                            </button>
-                            <button type="button" onclick="setLeaderboardRange('week')" data-leaderboard-range="week"
-                                class="px-2 py-1 rounded-lg bg-white/5 text-platinum/70 border border-white/10 text-[10px]">
-                                This Week
-                            </button>
-                            <button type="button" onclick="setLeaderboardRange('all')" data-leaderboard-range="all"
-                                class="px-2 py-1 rounded-lg bg-neon/20 text-neon border border-neon/60 text-[10px]">
-                                All Time
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div id="topForgersList" class="mt-3 space-y-2 text-xs text-platinum/80">
-                </div>
-            </section>
+        <div id="feedTop" class="space-y-4">
 
-            <!-- Ideas Feed: Top -->
-            <!-- Hidden tab controls kept for JS logic compatibility -->
-            <div class="hidden">
-                <button id="tabTop" class="active" type="button" aria-hidden="true"></button>
-                <button id="tabNew" type="button" aria-hidden="true"></button>
-                <span id="resultsCount"></span>
-            </div>
-
-            <div id="feedTop" class="space-y-4">
-
-                <!-- Skeleton -->
-                <div class="skeleton-container">
-                    <div class="glass-card rounded-2xl p-6 mb-4">
-                        <div class="flex gap-4">
-                            <div class="flex-1">
-                                <div class="skeleton h-6 w-3/4 mb-3"></div>
-                                <div class="skeleton h-4 w-full mb-2"></div>
-                                <div class="skeleton h-4 w-1/2"></div>
-                            </div>
-                            <div class="skeleton w-16 h-20 rounded-xl"></div>
+            <!-- Skeleton -->
+            <div class="skeleton-container">
                 <div class="glass-card rounded-2xl p-6 mb-4">
                     <div class="flex gap-4">
                         <div class="flex-1">
@@ -510,9 +236,9 @@
                 <div class="glass-card rounded-2xl p-6 mb-4">
                     <div class="flex gap-4">
                         <div class="flex-1">
-                            <div class="skeleton h-6 w-1/2 mb-3"></div>
+                            <div class="skeleton h-6 w-3/4 mb-3"></div>
                             <div class="skeleton h-4 w-full mb-2"></div>
-                            <div class="skeleton h-4 w-2/3"></div>
+                            <div class="skeleton h-4 w-1/2"></div>
                         </div>
                         <div class="skeleton w-16 h-20 rounded-xl"></div>
                     </div>
@@ -554,108 +280,6 @@
             <h3 class="font-heading text-2xl font-bold text-starlight mb-2">No Ideas Yet</h3>
             <p class="text-platinum">Be the first to forge the future!</p>
         </div>
-        <!-- Info Rail (Desktop) -->
-        <aside id="infoRail" class="hidden xl:block fixed right-6 top-32 z-40 w-64 space-y-3">
-            <div class="glass-card rounded-2xl p-3 text-[11px] text-platinum/80">
-                <div class="flex items-center justify-between mb-1">
-                    <span class="uppercase tracking-wide text-[10px] text-platinum/70">Forge Snapshot</span>
-                    <i class="fa-solid fa-circle-nodes text-neon text-xs"></i>
-                </div>
-                <div class="grid grid-cols-3 gap-2 mt-1">
-                    <div class="text-center">
-                        <p id="railTopCount" class="font-heading text-base text-neon">0</p>
-                        <p class="text-[10px] text-platinum/70">Top</p>
-                    </div>
-                    <div class="text-center">
-                        <p id="railNewCount" class="font-heading text-base text-aurora">0</p>
-                        <p class="text-[10px] text-platinum/70">New</p>
-                    </div>
-                    <div class="text-center">
-                        <p id="railTotalCount" class="font-heading text-base text-teal">0</p>
-                        <p class="text-[10px] text-platinum/70">Total</p>
-                    </div>
-                </div>
-            </div>
-            <div class="glass-card rounded-2xl p-3 text-[11px] flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-fire-flame-curved text-neon"></i>
-                    <div>
-                        <p class="text-[10px] text-platinum/60 uppercase tracking-wide">Your Karma</p>
-                        <p id="railKarma" class="font-heading text-base text-neon">0</p>
-                    </div>
-                </div>
-                <span class="text-[10px] text-platinum/60">Live</span>
-            </div>
-            <div class="glass-card rounded-2xl p-3 text-[11px] flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-fire text-neon"></i>
-                    <div>
-                        <p class="text-[10px] text-platinum/60 uppercase tracking-wide">Daily Streak</p>
-                        <p class="text-[11px] text-platinum/80">
-                            <span id="railStreakCurrent" class="font-heading text-neon">0</span>
-                            <span class="text-[10px] text-platinum/60 ml-1">days</span>
-                        </p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <p class="text-[9px] text-platinum/60 uppercase tracking-wide">Best</p>
-                    <p class="font-heading text-xs text-platinum/90"><span id="railStreakBest">0</span> d</p>
-                </div>
-            </div>
-            <div class="glass-card rounded-2xl p-3 text-[11px] flex flex-col gap-1">
-                <div class="flex items-center justify-between gap-2">
-                    <span class="text-[10px] text-platinum/70 uppercase tracking-wide">Event Status</span>
-                    <span id="railPhase" class="px-2 py-0.5 rounded-full border border-neon/40 text-[9px] text-neon uppercase tracking-wide">Active</span>
-                </div>
-                <p id="railStatus" class="text-[11px] text-platinum/80 leading-snug">
-                    Live · Submissions &amp; Voting Open
-                </p>
-                <p id="railSprint" class="text-[10px] text-platinum/60 mt-1 hidden">
-                    Sprint · Alpha Forge Sprint
-                </p>
-            </div>
-            <div class="glass-card rounded-2xl p-3 text-[11px] flex flex-col gap-2">
-                <div class="flex items-center justify-between gap-2 mb-1">
-                    <span class="text-[10px] text-platinum/70 uppercase tracking-wide">Activity Heatmap</span>
-                    <span class="text-[10px] text-platinum/60">Last 7 days</span>
-                </div>
-                <div id="activityHeatmap" class="activity-heatmap mt-1"></div>
-                <div class="flex items-center justify-between text-[9px] text-platinum/50 mt-1">
-                    <span>Low</span>
-                    <span>High</span>
-                </div>
-            </div>
-        </aside>
-        <!-- Theme Switcher -->
-        <div id="themeSwitcher" class="fixed left-4 bottom-6 z-40 flex flex-col gap-2">
-            <div class="glass-card rounded-2xl px-3 py-2 flex items-center gap-2 text-[10px] text-platinum/80">
-                <i class="fa-solid fa-palette text-neon"></i>
-                <span class="hidden sm:inline">Theme</span>
-            </div>
-            <div class="flex flex-col gap-2">
-                <button type="button" class="theme-chip" data-theme="stealth" onclick="changeTheme('stealth')"
-                    title="Stealth">
-                    <span class="theme-dot bg-[#39FF14]"></span>
-                    <span class="theme-label">Stealth</span>
-                </button>
-                <button type="button" class="theme-chip" data-theme="neo-cairo" onclick="changeTheme('neo-cairo')"
-                    title="Neo-Cairo">
-                    <span class="theme-dot bg-[#FFD700]"></span>
-                    <span class="theme-label">Neo-Cairo</span>
-                </button>
-                <button type="button" class="theme-chip" data-theme="minimal" onclick="changeTheme('minimal')"
-                    title="Minimal">
-                    <span class="theme-dot bg-[#9CA3AF]"></span>
-                    <span class="theme-label">Minimal</span>
-                </button>
-                <button type="button" class="theme-chip" data-theme="hacker" onclick="changeTheme('hacker')"
-                    title="Hacker Grid">
-                    <span class="theme-dot bg-[#10B981]"></span>
-                    <span class="theme-label">Hacker</span>
-                </button>
-            </div>
-        </div>
-
     </main>
 
     <!-- Footer -->

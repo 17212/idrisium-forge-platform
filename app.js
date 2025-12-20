@@ -973,6 +973,7 @@ window.signOutUser = async function () {
 
 onAuthStateChanged(auth, user => {
     currentUser = user;
+    isAdmin = false; // admin mode removed
     updateAuthUI(user);
     if (user) {
         checkUserSubmission(user.uid);
@@ -985,21 +986,8 @@ onAuthStateChanged(auth, user => {
 function updateAuthUI(user) {
     if (user) {
         // Signed-in state
-        loginPrompt.classList.add('hidden');
-        submitSection.classList.remove('hidden');
-
-        // Check if Admin
-        isAdmin = user.email === _0x5e6f;
-        if (isAdmin) {
-            adminPanel.classList.remove('hidden');
-            adminHeaderControls.classList.remove('hidden');
-            adminHeaderControls.classList.add('flex');
-            submitSection.classList.add('hidden'); // Admin doesn't submit ideas
-        } else {
-            adminPanel.classList.add('hidden');
-            adminHeaderControls.classList.add('hidden');
-            adminHeaderControls.classList.remove('flex');
-        }
+        if (loginPrompt) loginPrompt.classList.add('hidden');
+        if (submitSection) submitSection.classList.remove('hidden');
 
         const adminBadge = isAdmin
             ? '<span class="text-gold text-xs"><i class="fa-solid fa-crown mr-1"></i>Admin</span>'
@@ -1017,24 +1005,19 @@ function updateAuthUI(user) {
                     </p>
                     <div class="flex items-center gap-2 text-xs text-platinum">
                         <button onclick="signOutUser()" class="hover:text-white transition-colors">Sign Out</button>
-                        <button id="chatHeaderBtn" onclick="openChat()" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-neon/10 text-neon hover:bg-neon/30 transition-colors relative" title="Founder Chat">
-                            <i class="fa-solid fa-comments text-sm"></i>
-                            <span id="chatHeaderBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-black shadow-lg">0</span>
-                        </button>
-                        <button id="inboxHeaderBtn" onclick="openInbox()" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-aurora/10 text-aurora hover:bg-aurora/30 transition-colors" title="Admin Inbox">
-                            <i class="fa-solid fa-inbox text-sm"></i>
-                        </button>
                     </div>
                 </div>
             </div>
         `;
     } else {
         // Signed-out state
-        loginPrompt.classList.remove('hidden');
-        submitSection.classList.add('hidden');
-        adminPanel.classList.add('hidden');
-        adminHeaderControls.classList.add('hidden');
-        adminHeaderControls.classList.remove('flex');
+        if (loginPrompt) loginPrompt.classList.remove('hidden');
+        if (submitSection) submitSection.classList.add('hidden');
+        if (adminPanel) adminPanel.classList.add('hidden');
+        if (adminHeaderControls) {
+            adminHeaderControls.classList.add('hidden');
+            adminHeaderControls.classList.remove('flex');
+        }
         isAdmin = false;
 
         authSection.innerHTML = `
@@ -1111,30 +1094,7 @@ async function checkUserSubmission(uid) {
     updateSubmissionUI();
 
     // Header quick-access buttons (Chat / Inbox) now gated only by admin
-    const chatHeaderBtn = document.getElementById('chatHeaderBtn');
-    const inboxHeaderBtn = document.getElementById('inboxHeaderBtn');
-    if (chatHeaderBtn) chatHeaderBtn.classList.toggle('hidden', false);
-    if (inboxHeaderBtn) inboxHeaderBtn.classList.toggle('hidden', !isAdmin);
-
-    // Founder Chat / Admin Inbox (Floating Action Button) - AUTO-LOAD
-    document.querySelectorAll('#founderChatFab').forEach(el => el.remove());
-
-    const fab = document.createElement('button');
-    fab.id = 'founderChatFab';
-    fab.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (isAdmin) window.openInbox();
-        else window.openChat();
-    };
-    fab.className = 'fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-neon to-teal text-black rounded-full shadow-[0_0_20px_rgba(57,255,20,0.6)] flex items-center justify-center hover:scale-110 transition-transform animate-bounce-slow group';
-    fab.innerHTML = `
-            <i class="fa-solid ${isAdmin ? 'fa-inbox' : 'fa-comments'} text-2xl"></i>
-            <span id="chatBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-black shadow-lg">0</span>
-        `;
-    fab.title = isAdmin ? "Admin Inbox" : "Founder Direct Line";
-    document.body.appendChild(fab);
-    listenToNotifications();
+    // Chat/Inboxes removed from header and FAB
 }
 
 function updateSubmissionUI() {
