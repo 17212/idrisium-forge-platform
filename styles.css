@@ -251,6 +251,64 @@ body::before {
     transform: translateY(-2px);
 }
 
+.idea-card {
+    width: 100%;
+}
+
+.idea-desc {
+    color: #EDEDED;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.idea-desc h1,
+.idea-desc h2,
+.idea-desc h3 {
+    color: #EDEDED;
+}
+
+.idea-desc-collapsed {
+    max-height: 120px;
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
+}
+
+.desc-toggle-btn {
+    background: rgba(57, 255, 20, 0.12);
+    color: #39FF14;
+    border: 1px solid rgba(57, 255, 20, 0.4);
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.25s ease;
+}
+
+.desc-toggle-btn:hover {
+    background: rgba(57, 255, 20, 0.2);
+    box-shadow: 0 0 18px rgba(57, 255, 20, 0.3);
+}
+
+.desc-toggle-btn:active {
+    transform: scale(0.98);
+}
+
+@media (max-width: 640px) {
+    .idea-card {
+        padding: 18px !important;
+    }
+    .idea-desc {
+        font-size: 13px;
+        line-height: 1.65;
+    }
+    .desc-toggle-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
 /* Neon Input */
 .neon-input {
     background: rgba(10, 10, 10, 0.8);
@@ -634,49 +692,6 @@ body::before {
     }
 }
 
-/* Comment System */
-.comment-card {
-    background: rgba(20, 20, 20, 0.6);
-    border: 1px solid rgba(57, 255, 20, 0.1);
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 8px;
-    transition: all 0.2s ease;
-}
-
-.comment-card:hover {
-    border-color: rgba(57, 255, 20, 0.3);
-}
-
-.comment-vote-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border: none;
-    background: rgba(255, 255, 255, 0.05);
-    color: #888;
-}
-
-.comment-vote-btn:hover {
-    background: rgba(57, 255, 20, 0.2);
-    color: #39FF14;
-}
-
-.comment-vote-btn.upvoted {
-    background: rgba(57, 255, 20, 0.2);
-    color: #39FF14;
-}
-
-.comment-vote-btn.downvoted {
-    background: rgba(255, 80, 80, 0.2);
-    color: #FF5050;
-}
-
 /* Modal Overlay */
 .modal-overlay {
     position: fixed;
@@ -710,108 +725,5 @@ body::before {
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
-    }
-}
-
-/* Replies */
-/* ═══════════════════════════════════════════════════════════════════
-   ADVANCED NESTED REPLIES (Facebook Style)
-   ═══════════════════════════════════════════════════════════════════ */
-.comment-thread {
-    position: relative;
-    margin-bottom: 24px;
-}
-
-.comment-card {
-    position: relative;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    padding: 16px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(10px);
-    z-index: 2;
-}
-
-.comment-card:hover {
-    border-color: rgba(57, 255, 20, 0.3);
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* Thread Connector Line */
-.replies-container {
-    margin-left: 20px;
-    padding-left: 20px;
-    border-left: 2px solid rgba(57, 255, 20, 0.15);
-    /* VISIBLE THREAD LINE */
-    margin-top: 0;
-    padding-top: 12px;
-}
-
-.reply-card {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.03);
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 12px;
-    position: relative;
-}
-
-/* The horizontal connector line */
-.reply-card::before {
-    content: '';
-    position: absolute;
-    top: 24px;
-    left: -22px;
-    /* Connects to the main vertical line */
-    width: 20px;
-    height: 2px;
-    background: rgba(57, 255, 20, 0.15);
-    border-radius: 2px;
-}
-
-/* Inline Reply Form */
-.inline-reply-form {
-    margin-top: 8px;
-    margin-left: 20px;
-    padding: 12px;
-    background: rgba(57, 255, 20, 0.02);
-    border: 1px dashed rgba(57, 255, 20, 0.2);
-    border-radius: 12px;
-    display: flex;
-    gap: 12px;
-    animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.reply-form {
-    margin-top: 10px;
-    margin-left: 32px;
-    animation: fadeIn 0.3s ease;
-}
-
-/* Pulse animation for new comments */
-.new-comment {
-    animation: pulseGreen 0.5s ease;
-}
-
-@keyframes pulseGreen {
-    0% {
-        box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.5);
-    }
-
-    100% {
-        box-shadow: 0 0 0 15px rgba(57, 255, 20, 0);
     }
 }

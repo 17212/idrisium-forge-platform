@@ -52,11 +52,6 @@ let isAdmin = false;
 let currentUserKarma = 0; // Global Karma Tracker
 let timerVisible = true;
 let globalWinnerId = null; // Stores the randomly picked winner ID
-let currentIdeaId = null; // Currently open idea for details/comments
-let ideaComments = []; // Store comments for current idea
-let latestComments = []; // Latest comments snapshot for activity feed
-let activityEvents = []; // Combined activity events (ideas + comments)
-let commentsUnsubscribe = null;
 let adminFilter = 'all';
 let currentEventStatusKey = null; // Track last event status phase for animations
 let relatedIndex = new Map();
@@ -74,6 +69,11 @@ let seasonSnapshots = null;
 
 const STREAK_KEY = 'idrisium_daily_streak_v1';
 let streakState = null;
+
+function setTextIfExists(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
 
 try {
     app = initializeApp(firebaseConfig);
@@ -100,15 +100,25 @@ const adminPanel = document.getElementById('adminPanel');
 const adminHeaderControls = document.getElementById('adminHeaderControls');
 const timerSection = document.getElementById('timerSection');
 
-// Char counters
-document.getElementById('ideaTitle').addEventListener('input', e => {
-    document.getElementById('titleCount').textContent = e.target.value.length;
-    updateIdeaPreview();
-});
-document.getElementById('ideaDescription').addEventListener('input', e => {
-    document.getElementById('descCount').textContent = e.target.value.length;
-    updateIdeaPreview();
-});
+// Char counters (defensive against missing nodes)
+const ideaTitleInput = document.getElementById('ideaTitle');
+const ideaDescInput = document.getElementById('ideaDescription');
+const titleCountEl = document.getElementById('titleCount');
+const descCountEl = document.getElementById('descCount');
+
+if (ideaTitleInput && titleCountEl) {
+    ideaTitleInput.addEventListener('input', e => {
+        titleCountEl.textContent = e.target.value.length;
+        updateIdeaPreview();
+    });
+}
+
+if (ideaDescInput && descCountEl) {
+    ideaDescInput.addEventListener('input', e => {
+        descCountEl.textContent = e.target.value.length;
+        updateIdeaPreview();
+    });
+}
 
 // Idea submission wizard (multi-step)
 let currentIdeaStep = 1;
@@ -242,9 +252,7 @@ function updateDuplicateSuggestions(title, desc) {
 
     results.sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
-        const cb = (b.idea.commentCount || 0) - (a.idea.commentCount || 0);
-        if (cb) return cb;
-        return (b.idea.votes || 0) - (a.idea.votes || 0);
+        return 0;
     });
 
     const topMatches = results.slice(0, 3);
@@ -253,8 +261,6 @@ function updateDuplicateSuggestions(title, desc) {
         const titleSafe = escapeHtml(idea.title || 'Untitled idea');
         const snippet = escapeHtml((idea.description || '').slice(0, 140));
         const when = formatTime(idea.timestamp);
-        const votes = idea.votes || 0;
-        const comments = idea.commentCount || 0;
         return `
             <button type="button" class="w-full text-left glass-card rounded-xl p-3 border border-white/5 hover:border-neon/40 transition-colors" onclick="jumpToIdea('${idea.id}')">
                 <div class="flex items-center justify-between gap-2 mb-1">
@@ -262,10 +268,6 @@ function updateDuplicateSuggestions(title, desc) {
                     <span class="text-[10px] text-platinum/60 whitespace-nowrap">${when}</span>
                 </div>
                 <p class="text-[11px] text-platinum/80 mb-1 line-clamp-2">${snippet}</p>
-                <div class="flex items-center gap-3 text-[10px] text-platinum/70">
-                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-fire-flame-curved text-neon/80"></i>${votes} karma</span>
-                    <span class="inline-flex items-center gap-1"><i class="fa-solid fa-comment text-aurora/80"></i>${comments} comments</span>
-                </div>
             </button>
         `;
     }).join('');
@@ -492,18 +494,25 @@ function initDeadline() {
 }
 
 function updateTimer() {
+    const daysEl = document.getElementById('days');
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+
     const now = new Date();
     const diff = deadline - now;
 
     if (diff <= 0) {
         forgeIsOpen = false;
-        document.getElementById('days').textContent = '00';
-        document.getElementById('hours').textContent = '00';
-        document.getElementById('minutes').textContent = '00';
-        document.getElementById('seconds').textContent = '00';
-        forgeClosed.classList.remove('hidden');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Forge Closed';
+        if (daysEl) daysEl.textContent = '00';
+        if (hoursEl) hoursEl.textContent = '00';
+        if (minutesEl) minutesEl.textContent = '00';
+        if (secondsEl) secondsEl.textContent = '00';
+        if (forgeClosed) forgeClosed.classList.remove('hidden');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Forge Closed';
+        }
         updateEventStatus();
         return;
     }
@@ -514,10 +523,10 @@ function updateTimer() {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    document.getElementById('days').textContent = String(days).padStart(2, '0');
-    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+    if (daysEl) daysEl.textContent = String(days).padStart(2, '0');
+    if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+    if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
+    if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
     updateEventStatus();
 }
 
@@ -881,7 +890,7 @@ timerVisible = localStorage.getItem('idrisium_timer_visible') !== 'false';
 initDeadline();
 
 // Apply saved timer visibility
-if (!timerVisible) {
+if (timerSection && !timerVisible) {
     timerSection.classList.add('hidden');
 }
 
@@ -892,8 +901,8 @@ window.toggleTimer = async function () {
     timerVisible = !timerVisible;
     try {
         await setDoc(doc(db, 'settings', 'forge'), { timerVisible }, { merge: true });
-        timerSection.classList.toggle('hidden', !timerVisible);
-        document.getElementById('toggleTimerText').textContent = timerVisible ? 'Hide Timer' : 'Show Timer';
+        if (timerSection) timerSection.classList.toggle('hidden', !timerVisible);
+        setTextIfExists('toggleTimerText', timerVisible ? 'Hide Timer' : 'Show Timer');
         Swal.fire({ icon: 'info', title: timerVisible ? 'Timer Visible for All' : 'Timer Hidden for All', timer: 1500, showConfirmButton: false });
     } catch (e) {
         Swal.fire({ icon: 'error', title: 'Failed', text: e.message });
@@ -969,10 +978,6 @@ onAuthStateChanged(auth, user => {
         checkUserSubmission(user.uid);
         updateStreakUI();
     } else {
-        const el = document.getElementById('headerKarmaValue');
-        if (el) el.textContent = '0';
-        const railKarmaEl = document.getElementById('railKarma');
-        if (railKarmaEl) railKarmaEl.textContent = '0';
         resetStreakUIOnSignOut();
     }
 });
@@ -1011,12 +1016,6 @@ function updateAuthUI(user) {
                         ${adminBadge}
                     </p>
                     <div class="flex items-center gap-2 text-xs text-platinum">
-                        <span id="headerKarma" class="inline-flex items-center gap-1 text-neon">
-                            <i class="fa-solid fa-fire-flame-curved"></i>
-                            <span class="uppercase tracking-wide text-[10px]">Karma</span>
-                            <span id="headerKarmaValue">0</span>
-                        </span>
-                        <span class="w-1 h-1 rounded-full bg-platinum/50"></span>
                         <button onclick="signOutUser()" class="hover:text-white transition-colors">Sign Out</button>
                         <button id="chatHeaderBtn" onclick="openChat()" class="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg bg-neon/10 text-neon hover:bg-neon/30 transition-colors relative" title="Founder Chat">
                             <i class="fa-solid fa-comments text-sm"></i>
@@ -1082,41 +1081,8 @@ async function checkUserSubmission(uid) {
     const snap = await getDocs(q);
     userSubmissionCount = snap.size;
 
-    // Dynamic Limit & Ban Check
-    let myKarma = 0;
-
-    // Actually, we need to sum user's karma here to determine Max Ideas
-    // This is "World Class" logic - Including Comments via Collection Group
-    let karmaSum = 0;
-    snap.docs.forEach(d => karmaSum += (d.data().votes || 0));
-
-    try {
-        const commentsQ = query(collectionGroup(db, 'comments'), where('uid', '==', uid));
-        const commentsSnap = await getDocs(commentsQ);
-        commentsSnap.forEach(d => karmaSum += (d.data().votes || 0));
-    } catch (e) {
-        console.log('Comment karma sync skipped (Index needed?)', e);
-    }
-
-    // TESTER BOOST
-    if (currentUser.email === 'youssefhondi@gmail.com') karmaSum = 999;
-
-    currentUserKarma = karmaSum; // Sync Global
-
-    // KARMA TIERS
-    let dynamicMax = 3; // Basic
-    if (karmaSum > 10) dynamicMax = 5;  // 10 Karma = 5 Ideas
-    if (karmaSum > 30) dynamicMax = 10; // 30 Karma = 10 Ideas
-    if (karmaSum > 50) dynamicMax = 20; // 50 Karma = 20 Ideas (and Chat)
-
-    if (karmaSum < -50) {
-        // SOFT BAN
-        canSubmit = false;
-        document.getElementById('submissionStatus').innerHTML = `<span class="text-red-500 font-bold"><i class="fa-solid fa-ban mr-1"></i>ACCOUNT RESTRICTED (Low Karma)</span>`;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Restricted';
-        return; // Stop here
-    }
+    // Fixed daily limit without karma
+    const dynamicMax = 3;
 
     if (userSubmissionCount >= dynamicMax) {
         const ideas = snap.docs.map(d => d.data());
@@ -1144,70 +1110,49 @@ async function checkUserSubmission(uid) {
 
     updateSubmissionUI();
 
-    // Header Karma
-    if (uid) {
-        const qKarma = query(collection(db, 'ideas'), where('uid', '==', uid));
-        getDocs(qKarma).then(snap => {
-            let k = 0;
-            snap.forEach(d => k += (d.data().votes || 0));
-            const el = document.getElementById('headerKarmaValue');
-            if (el) el.textContent = k;
-        });
-    }
-
-    // Dynamic Text
-    const submitLimitMsg = document.getElementById('submitLimitMsg');
-    if (submitLimitMsg) submitLimitMsg.textContent = `Daily limit: ${dynamicMax} Ideas`;
-
-    document.getElementById('headerKarmaValue').textContent = karmaSum;
-    const railKarmaEl = document.getElementById('railKarma');
-    if (railKarmaEl) railKarmaEl.textContent = karmaSum;
-
-    // Header quick-access buttons (Chat / Inbox) gated by karma & admin
+    // Header quick-access buttons (Chat / Inbox) now gated only by admin
     const chatHeaderBtn = document.getElementById('chatHeaderBtn');
     const inboxHeaderBtn = document.getElementById('inboxHeaderBtn');
-    const canUseChat = karmaSum >= 50 || isAdmin;
-    if (chatHeaderBtn) chatHeaderBtn.classList.toggle('hidden', !canUseChat);
+    if (chatHeaderBtn) chatHeaderBtn.classList.toggle('hidden', false);
     if (inboxHeaderBtn) inboxHeaderBtn.classList.toggle('hidden', !isAdmin);
 
     // Founder Chat / Admin Inbox (Floating Action Button) - AUTO-LOAD
     document.querySelectorAll('#founderChatFab').forEach(el => el.remove());
 
-    if (karmaSum >= 50 || isAdmin) {
-        const fab = document.createElement('button');
-        fab.id = 'founderChatFab';
-        fab.onclick = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (isAdmin) window.openInbox();
-            else window.openChat();
-        };
-        fab.className = 'fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-neon to-teal text-black rounded-full shadow-[0_0_20px_rgba(57,255,20,0.6)] flex items-center justify-center hover:scale-110 transition-transform animate-bounce-slow group';
-        fab.innerHTML = `
+    const fab = document.createElement('button');
+    fab.id = 'founderChatFab';
+    fab.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isAdmin) window.openInbox();
+        else window.openChat();
+    };
+    fab.className = 'fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-neon to-teal text-black rounded-full shadow-[0_0_20px_rgba(57,255,20,0.6)] flex items-center justify-center hover:scale-110 transition-transform animate-bounce-slow group';
+    fab.innerHTML = `
             <i class="fa-solid ${isAdmin ? 'fa-inbox' : 'fa-comments'} text-2xl"></i>
             <span id="chatBadge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-black shadow-lg">0</span>
         `;
-        fab.title = isAdmin ? "Admin Inbox" : "Founder Direct Line";
-        document.body.appendChild(fab);
-
-        // Start Listening for Badges
-        listenToNotifications();
-    }
+    fab.title = isAdmin ? "Admin Inbox" : "Founder Direct Line";
+    document.body.appendChild(fab);
+    listenToNotifications();
 }
 
 function updateSubmissionUI() {
+    const statusEl = document.getElementById('submissionStatus');
+    if (!statusEl || !submitBtn) return;
+
     const remaining = MAX_IDEAS_PER_USER - userSubmissionCount;
 
     if (!canSubmit) {
-        document.getElementById('submissionStatus').innerHTML = `<span class="text-red-400"><i class="fa-solid fa-clock mr-1"></i>Cooldown: ${timeRemainingMsg}</span>`;
+        statusEl.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-clock mr-1"></i>Cooldown: ${timeRemainingMsg}</span>`;
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> Wait ${timeRemainingMsg}`;
     } else if (remaining <= 0) {
-        document.getElementById('submissionStatus').innerHTML = `<span class="text-aurora"><i class="fa-solid fa-star mr-1"></i>Bonus Submission Available</span>`;
+        statusEl.innerHTML = `<span class="text-aurora"><i class="fa-solid fa-star mr-1"></i>Bonus Submission Available</span>`;
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit Bonus Idea';
     } else {
-        document.getElementById('submissionStatus').innerHTML = `<span class="text-neon"><i class="fa-solid fa-lightbulb mr-1"></i>${remaining} ideas remaining</span>`;
+        statusEl.innerHTML = `<span class="text-neon"><i class="fa-solid fa-lightbulb mr-1"></i>${remaining} ideas remaining</span>`;
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit to the Forge';
     }
@@ -1229,7 +1174,7 @@ function validateText(text) {
 // ═══════════════════════════════════════════════════════════════════
 // SEARCH, FILTER & SORT
 // ═══════════════════════════════════════════════════════════════════
-let currentSorting = 'votes';
+let currentSorting = 'newest';
 let searchQuery = '';
 let searchDebounceTimeout = null;
 let showMyIdeasOnly = false;
@@ -1322,7 +1267,9 @@ window.clearSearch = function () {
 };
 
 window.changeSorting = function () {
-    currentSorting = document.getElementById('sortSelect').value;
+    const sel = document.getElementById('sortSelect');
+    if (!sel) return;
+    currentSorting = sel.value;
     saveFilterState();
     renderFilteredIdeas();
 };
@@ -1421,22 +1368,17 @@ function ensureFeedInfiniteScrollListener() {
         const scrollY = window.scrollY || window.pageYOffset || 0;
         const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
         const docHeight = document.documentElement.scrollHeight || 0;
-
         if (docHeight - (scrollY + viewportHeight) > 320) return;
 
         const tabTopEl = document.getElementById('tabTop');
-        if (!tabTopEl) return;
-
-        const currentTab = tabTopEl.classList.contains('active') ? 'top' : 'new';
+        const currentTab = tabTopEl?.classList?.contains('active') ? 'top' : 'new';
 
         if (currentTab === 'top') {
             if (!hasMoreTop) return;
-            const total = (topIdeas || []).length;
-            visibleTopCount = Math.min(visibleTopCount + FEED_PAGE_SIZE, total);
+            visibleTopCount = Math.min(visibleTopCount + FEED_PAGE_SIZE, topIdeas.length);
         } else {
             if (!hasMoreNew) return;
-            const total = (newIdeas || []).length;
-            visibleNewCount = Math.min(visibleNewCount + FEED_PAGE_SIZE, total);
+            visibleNewCount = Math.min(visibleNewCount + FEED_PAGE_SIZE, newIdeas.length);
         }
 
         renderFilteredIdeas();
@@ -1537,7 +1479,25 @@ function renderRecentlyViewed() {
 }
 
 function renderFilteredIdeas() {
-    const currentTab = document.getElementById('tabTop').classList.contains('active') ? 'top' : 'new';
+    const tabTopEl = document.getElementById('tabTop');
+    const tabNewEl = document.getElementById('tabNew');
+
+    // If tabs are missing (e.g., simplified layout), default to "top" feed
+    if (!tabTopEl && !tabNewEl) {
+        const currentTab = 'top';
+        return renderIdeasForTab(currentTab);
+    }
+
+    if (tabTopEl && tabNewEl && !tabTopEl.classList.contains('active') && !tabNewEl.classList.contains('active')) {
+        tabTopEl.classList.add('active');
+        tabNewEl.classList.remove('active');
+    }
+
+    const currentTab = tabTopEl?.classList?.contains('active') ? 'top' : 'new';
+    return renderIdeasForTab(currentTab);
+}
+
+function renderIdeasForTab(currentTab) {
     let ideas = currentTab === 'top' ? [...topIdeas] : [...newIdeas];
 
     const totalCount = ideas.length;
@@ -1554,12 +1514,9 @@ function renderFilteredIdeas() {
     if (isAdmin && adminFilter && adminFilter !== 'all') {
         ideas = ideas.filter(idea => {
             if (!idea) return false;
-            const votes = idea.votes || 0;
-            if (adminFilter === 'high-signal') return votes >= 10;
-            if (adminFilter === 'low-signal') return votes <= 0;
             if (adminFilter === 'founder') return idea.founderPick === true;
             if (adminFilter === 'winners') return globalWinnerId && idea.id === globalWinnerId;
-            return true;
+            return true; // high/low signal disabled with likes off
         });
     }
 
@@ -1568,49 +1525,7 @@ function renderFilteredIdeas() {
     }
 
     // Apply sorting
-    if (currentSorting === 'signal') {
-        const now = Date.now();
-        ideas.sort((a, b) => {
-            const va = a?.votes || 0;
-            const vb = b?.votes || 0;
-            const ca = a?.commentCount || 0;
-            const cb = b?.commentCount || 0;
-
-            const ta = a?.timestamp?.toDate?.() || new Date(0);
-            const tb = b?.timestamp?.toDate?.() || new Date(0);
-            const ageHa = Math.max(0, (now - ta.getTime()) / (1000 * 60 * 60));
-            const ageHb = Math.max(0, (now - tb.getTime()) / (1000 * 60 * 60));
-            const recencyA = Math.max(0, 48 - ageHa) / 48;
-            const recencyB = Math.max(0, 48 - ageHb) / 48;
-
-            const ageDaysA = ageHa / 24;
-            const ageDaysB = ageHb / 24;
-
-            let revivalBoostA = 0;
-            let revivalBoostB = 0;
-
-            if (ageDaysA >= 3 && ca >= 3) {
-                revivalBoostA = ca * 2;
-            }
-
-            if (ageDaysB >= 3 && cb >= 3) {
-                revivalBoostB = cb * 2;
-            }
-
-            const scoreA = va * 3 + ca * 2 + recencyA * 5 + revivalBoostA;
-            const scoreB = vb * 3 + cb * 2 + recencyB * 5 + revivalBoostB;
-            return scoreB - scoreA;
-        });
-    } else if (currentSorting === 'votes') {
-        ideas.sort((a, b) => (b.votes || 0) - (a.votes || 0));
-    } else if (currentSorting === 'mostDiscussed') {
-        ideas.sort((a, b) => {
-            const cb = b.commentCount || 0;
-            const ca = a.commentCount || 0;
-            if (cb !== ca) return ca - cb;
-            return (b.votes || 0) - (a.votes || 0);
-        });
-    } else if (currentSorting === 'newest') {
+    if (currentSorting === 'newest' || currentSorting === 'signal' || currentSorting === 'votes' || currentSorting === 'mostDiscussed') {
         ideas.sort((a, b) => {
             const ta = a.timestamp?.toDate?.() || new Date(0);
             const tb = b.timestamp?.toDate?.() || new Date(0);
@@ -1636,6 +1551,7 @@ function renderFilteredIdeas() {
 
     // Render
     const feed = currentTab === 'top' ? feedTop : feedNew;
+    if (!feed) return;
     if (ideas.length === 0) {
         if (currentTab === 'top') {
             hasMoreTop = false;
@@ -1956,8 +1872,10 @@ window.submitIdea = async function (event) {
         });
 
         ideaForm.reset();
-        document.getElementById('titleCount').textContent = '0';
-        document.getElementById('descCount').textContent = '0';
+        const titleCountEl = document.getElementById('titleCount');
+        const descCountEl = document.getElementById('descCount');
+        if (titleCountEl) titleCountEl.textContent = '0';
+        if (descCountEl) descCountEl.textContent = '0';
 
         // Reset wizard to first step
         currentIdeaStep = 1;
@@ -1980,76 +1898,33 @@ window.submitIdea = async function (event) {
 // TAB SWITCHING
 // ═══════════════════════════════════════════════════════════════════
 window.switchTab = function (tab) {
-    document.getElementById('tabTop').classList.toggle('active', tab === 'top');
-    document.getElementById('tabNew').classList.toggle('active', tab === 'new');
-    feedTop.classList.toggle('hidden', tab !== 'top');
-    feedNew.classList.toggle('hidden', tab !== 'new');
+    const tabTopEl = document.getElementById('tabTop');
+    const tabNewEl = document.getElementById('tabNew');
+    if (tabTopEl) tabTopEl.classList.toggle('active', tab === 'top');
+    if (tabNewEl) tabNewEl.classList.toggle('active', tab === 'new');
+    if (feedTop) feedTop.classList.toggle('hidden', tab !== 'top');
+    if (feedNew) feedNew.classList.toggle('hidden', tab !== 'new');
     renderFilteredIdeas();
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // VOTING
 // ═══════════════════════════════════════════════════════════════════
-function hasVoted(id) { return JSON.parse(localStorage.getItem('idrisium_votes') || '{}')[id] === true; }
-function markVoted(id) { const v = JSON.parse(localStorage.getItem('idrisium_votes') || '{}'); v[id] = true; localStorage.setItem('idrisium_votes', JSON.stringify(v)); }
+function hasVoted() { return false; }
+function markVoted() { /* no-op */ }
+window.handleVote = function () {
+    Swal.fire({ icon: 'info', title: 'Likes disabled', text: 'Reactions are turned off.' });
+};
 
-window.handleVote = async function (id, type) {
-    if (!currentUser) return Swal.fire({ icon: 'warning', title: 'Sign In Required' });
-
-    // BAN CHECK
-    const myKarma = parseInt(document.getElementById('headerKarmaValue').textContent) || 0;
-    if (myKarma < -50) return Swal.fire({ icon: 'error', title: 'Account Restricted', text: 'Your karma is too low to participate.' });
-
-    const voteKey = `idrisium_vote_${id}`;
-    const existingVote = localStorage.getItem(voteKey); // 'up', 'down', or null
-
-    if (existingVote === type) return; // Already voted this way
-
-    try {
-        const ideaRef = doc(db, 'ideas', id);
-        let incrementValue = 0;
-
-        if (type === 'up') {
-            if (existingVote === 'down') incrementValue = 2; // -1 -> +1 = +2
-            else incrementValue = 1;
-        } else {
-            if (existingVote === 'up') incrementValue = -2; // +1 -> -1 = -2
-            else incrementValue = -1;
-        }
-
-        await updateDoc(ideaRef, { votes: increment(incrementValue) });
-
-        localStorage.setItem(voteKey, type);
-
-        // Update UI immediately (Optimistic)
-        const countEl = document.getElementById(`vote-count-${id}`);
-        const upBtn = document.getElementById(`vote-up-${id}`);
-        const downBtn = document.getElementById(`vote-down-${id}`);
-
-        if (countEl) countEl.textContent = parseInt(countEl.textContent || 0) + incrementValue;
-
-        if (type === 'up') {
-            upBtn.classList.add('text-neon');
-            downBtn.classList.remove('text-red-500');
-        } else {
-            downBtn.classList.add('text-red-500');
-            upBtn.classList.remove('text-neon');
-        }
-
-        // Silent success
-        if (navigator.vibrate) navigator.vibrate(50);
-
-        // REFRESH STATS
-        if (currentUser) checkUserSubmission(currentUser.uid);
-
-        if (type === 'up') {
-            bumpDailyStreak();
-            markSprintParticipation();
-        }
-    } catch (e) {
-        console.error(e);
-        Swal.fire({ icon: 'error', title: 'Vote Failed', text: e.message });
-    }
+// Expand / collapse long descriptions per idea
+window.toggleDescription = function (ideaId) {
+    const descEl = document.getElementById(`desc-${ideaId}`);
+    const btnEl = document.getElementById(`desc-toggle-${ideaId}`);
+    if (!descEl || !btnEl) return;
+    const expanded = descEl.dataset.expanded === 'true';
+    descEl.dataset.expanded = expanded ? 'false' : 'true';
+    descEl.classList.toggle('idea-desc-collapsed', expanded === true);
+    btnEl.textContent = expanded ? 'عرض المزيد' : 'إخفاء';
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -2067,93 +1942,14 @@ function formatTime(ts) {
     return `${Math.floor(diff / 86400)}d ago`;
 }
 
-const FOLLOW_KEY = 'idrisium_followed_ideas';
-let followedIdeas = {};
-let followedLoaded = false;
-
-function ensureFollowLoaded() {
-    if (followedLoaded) return;
-    followedLoaded = true;
-    try {
-        const raw = localStorage.getItem(FOLLOW_KEY);
-        followedIdeas = raw ? JSON.parse(raw) || {} : {};
-        if (typeof followedIdeas !== 'object' || followedIdeas === null) {
-            followedIdeas = {};
-        }
-    } catch (e) {
-        followedIdeas = {};
-    }
-}
-
-function saveFollowedIdeas() {
-    try {
-        localStorage.setItem(FOLLOW_KEY, JSON.stringify(followedIdeas));
-    } catch (e) {
-        console.log('Follow storage failed', e);
-    }
-}
-
-function isIdeaFollowed(id) {
-    if (!id) return false;
-    ensureFollowLoaded();
-    const entry = followedIdeas[id];
-    return !!(entry && entry.followed);
-}
-
-function getLastSeenComments(id) {
-    if (!id) return 0;
-    ensureFollowLoaded();
-    const entry = followedIdeas[id];
-    return entry && typeof entry.lastSeenComments === 'number' ? entry.lastSeenComments : 0;
-}
-
-function markIdeaCommentsSeen(id, comments) {
-    if (!id) return;
-    ensureFollowLoaded();
-    const current = followedIdeas[id] || { followed: false, lastSeenComments: 0 };
-    const c = typeof comments === 'number' ? comments : 0;
-    current.lastSeenComments = Math.max(current.lastSeenComments || 0, c);
-    followedIdeas[id] = current;
-    saveFollowedIdeas();
-}
-
-window.toggleFollowIdea = function (id, currentComments) {
-    if (!id) return;
-    if (!currentUser) {
-        Swal.fire({ icon: 'info', title: 'Sign In Required', text: 'Sign in to follow ideas and track their activity.' });
-        return;
-    }
-
-    ensureFollowLoaded();
-    const existing = followedIdeas[id] || { followed: false, lastSeenComments: 0 };
-    const nowFollow = !existing.followed;
-    existing.followed = nowFollow;
-    if (nowFollow && typeof currentComments === 'number') {
-        existing.lastSeenComments = currentComments;
-    }
-    followedIdeas[id] = existing;
-    saveFollowedIdeas();
-
-    renderFilteredIdeas();
-
-    const msg = nowFollow ? 'You will see a badge when this idea gets new comments.' : 'You will no longer highlight new activity for this idea.';
-    Swal.fire({
-        icon: nowFollow ? 'success' : 'info',
-        title: nowFollow ? 'Following Idea' : 'Unfollowed Idea',
-        text: msg,
-        timer: 1800,
-        showConfirmButton: false
-    });
-};
-
 function renderCard(idea, index, isBadgeTop = false) {
-    const voted = hasVoted(idea.id);
     const isOwner = currentUser && currentUser.uid === idea.uid;
     const canDelete = isAdmin || isOwner;
     const isWinner = globalWinnerId === idea.id;
     const isFounderPick = idea.founderPick === true;
     const escapedTitle = escapeHtml(idea.title).replace(/'/g, "\\'");
-    const escapedDesc = escapeHtml(idea.description).replace(/'/g, "\\'");
+    const rawDesc = idea.description || '';
+    const escapedDesc = escapeHtml(rawDesc).replace(/'/g, "\\'");
 
     // Edit button for owner only
     const editBtn = isOwner ? `
@@ -2187,15 +1983,13 @@ function renderCard(idea, index, isBadgeTop = false) {
     if (Array.isArray(related) && related.length) {
         const items = related.slice(0, 3).map(rel => {
             const rTitle = escapeHtml(rel.title || 'Untitled idea');
-            const rComments = rel.commentCount || 0;
             const rVotes = rel.votes || 0;
             return `
                             <button type="button" class="text-[11px] text-platinum/80 hover:text-neon flex items-center gap-2 text-left" onclick="jumpToIdea('${rel.id}')">
                                 <span class="w-1.5 h-1.5 rounded-full bg-neon/70"></span>
                                 <span class="flex-1 truncate">${rTitle}</span>
                                 <span class="hidden sm:inline-flex items-center gap-1 text-[10px] text-platinum/60 whitespace-nowrap">
-                                    <i class="fa-solid fa-comment text-aurora/80"></i>${rComments}
-                                    <i class="fa-solid fa-fire-flame-curved text-neon/80 ml-1"></i>${rVotes}
+                                    <i class="fa-solid fa-fire-flame-curved text-neon/80"></i>${rVotes}
                                 </span>
                             </button>
             `;
@@ -2210,260 +2004,56 @@ function renderCard(idea, index, isBadgeTop = false) {
                         </div>`;
     }
 
-    const totalComments = idea.commentCount || 0;
-    const isFollowed = isIdeaFollowed(idea.id);
-    const lastSeenComments = getLastSeenComments(idea.id);
-    const hasNewActivity = isFollowed && totalComments > lastSeenComments;
-
-    const followBtn = currentUser ? `
-                        <button type="button" onclick="toggleFollowIdea('${idea.id}', ${totalComments})" class="px-2 py-1 rounded-full border text-[10px] ${isFollowed ? 'border-neon/60 text-neon bg-neon/10' : 'border-white/10 text-platinum/80 hover:border-neon/40'}">
-                            <i class="fa-solid ${isFollowed ? 'fa-bell' : 'fa-bell-slash'} mr-1"></i>${isFollowed ? 'Following' : 'Follow'}
-                        </button>
-                    ` : '';
-
-    const newActivityBadge = hasNewActivity ? `
-                        <span class="px-2 py-1 rounded-full bg-neon/15 text-[10px] text-neon flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-neon animate-pulse"></span>
-                            New activity
-                        </span>
-                    ` : '';
-
     let lowSignalClass = '';
-    try {
-        const votes = idea.votes || 0;
-        const comments = idea.commentCount || 0;
-        const ts = idea.timestamp?.toDate?.() || null;
-        if (!isWinner && !isFounderPick && votes <= 0 && comments === 0 && ts) {
-            const ageDays = (Date.now() - ts.getTime()) / (1000 * 60 * 60 * 24);
-            if (ageDays >= 5) {
-                lowSignalClass = ' idea-low-signal';
-            }
-        }
-    } catch (e) {
-        console.log('Low-signal check failed', e);
-    }
+
+    const isLongDesc = rawDesc.length > 320;
+    const descClasses = `idea-desc markdown-preview ${isLongDesc ? 'idea-desc-collapsed' : ''}`;
+    const descExpanded = isLongDesc ? 'false' : 'true';
 
     return `
-        <div id="idea-${idea.id}" class="glass-card rounded-2xl p-6${lowSignalClass}" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s; ${winnerStyle} ${founderStyle}">
-            <div class="flex items-start gap-4">
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            ${winnerBadge}
-                            ${founderBadge}
-                            ${isBadgeTop && index === 0 && !isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-neon/20 to-teal/20 text-neon rounded-full" title="Top-ranked idea in this feed."><i class="fa-solid fa-crown mr-1"></i>Top</span>' : ''}
-                            ${!isBadgeTop && !isWinner ? '<span class="px-2 py-1 text-xs font-semibold bg-aurora/20 text-aurora rounded-full" title="Recently forged idea in this event."><i class="fa-solid fa-sparkles mr-1"></i>New</span>' : ''}
-                            <span class="text-xs text-platinum">${formatTime(idea.timestamp)}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            ${founderToggleBtn}
-                            ${editBtn}
-                            ${deleteBtn}
-                        </div>
+        <div id="idea-${idea.id}" class="idea-card glass-card rounded-2xl p-6${lowSignalClass}" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s; ${winnerStyle} ${founderStyle}">
+            <div class="flex flex-col gap-4">
+                <div class="flex items-start justify-between gap-3 flex-wrap">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        ${winnerBadge}
+                        ${founderBadge}
+                        ${isBadgeTop && index === 0 && !isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-neon/20 to-teal/20 text-neon rounded-full" title="Top-ranked idea in this feed."><i class="fa-solid fa-crown mr-1"></i>Top</span>' : ''}
+                        ${!isBadgeTop && !isWinner ? '<span class="px-2 py-1 text-xs font-semibold bg-aurora/20 text-aurora rounded-full" title="Recently forged idea in this event."><i class="fa-solid fa-sparkles mr-1"></i>New</span>' : ''}
+                        <span class="text-xs text-platinum">${formatTime(idea.timestamp)}</span>
                     </div>
-                    <h4 class="font-heading text-lg font-bold text-starlight mb-2 line-clamp-2"${inlineEditAttrs}>${escapeHtml(idea.title)}</h4>
-                    <div class="text-sm text-platinum line-clamp-3 mb-3 markdown-preview"${inlineEditAttrs}>
-                        ${renderMarkdown(idea.description || '')}
+                    <div class="flex items-center gap-2">
+                        ${founderToggleBtn}
+                        ${editBtn}
+                        ${deleteBtn}
                     </div>
-                    <div class="flex items-center gap-3 text-xs text-platinum mt-3">
-                        <span><i class="fa-solid fa-user text-neon/60 mr-1"></i>${escapeHtml(idea.author)}</span>
-                        <button onclick="openComments('${idea.id}', '${escapedTitle}', '${escapedDesc}')" class="hover:text-neon transition-colors flex items-center gap-1">
-                            <i class="fa-solid fa-comment"></i> ${idea.commentCount || 0} Comments
-                        </button>
-                        ${isOwner ? '<span class="text-neon"><i class="fa-solid fa-check-circle mr-1"></i>Yours</span>' : ''}
-                        ${isAdmin && !isOwner ? '<span class="text-gold"><i class="fa-solid fa-shield mr-1"></i>Admin View</span>' : ''}
-                        ${newActivityBadge}
-                        ${followBtn}
-                    </div>
-                    ${relatedHtml}
                 </div>
-                <div class="flex flex-col items-center gap-1 bg-white/5 rounded-xl p-1 min-w-[56px]">
-                    <button id="vote-up-${idea.id}" onclick="handleVote('${idea.id}', 'up')"
-                        class="hover:bg-white/10 p-1.5 rounded-lg transition-colors ${localStorage.getItem(`idrisium_vote_${idea.id}`) === 'up' ? 'text-neon' : 'text-platinum'}"
-                        title="Like">
-                        <i class="fa-solid fa-thumbs-up"></i>
-                    </button>
-                    <span id="vote-count-${idea.id}" class="font-bold text-lg text-white">${idea.votes || 0}</span>
-                    <button id="vote-down-${idea.id}" onclick="handleVote('${idea.id}', 'down')"
-                        class="hover:bg-white/10 p-1.5 rounded-lg transition-colors ${localStorage.getItem(`idrisium_vote_${idea.id}`) === 'down' ? 'text-red-500' : 'text-platinum'}"
-                        title="Dislike">
-                        <i class="fa-solid fa-thumbs-down"></i>
-                    </button>
+                <div>
+                    <h4 class="font-heading text-lg sm:text-xl font-bold text-starlight mb-2 leading-tight"${inlineEditAttrs}>${escapeHtml(idea.title)}</h4>
+                    <div id="desc-${idea.id}" class="${descClasses}" data-expanded="${descExpanded}"${inlineEditAttrs}>
+                        ${renderMarkdown(rawDesc)}
+                    </div>
+                    ${isLongDesc ? `<button id="desc-toggle-${idea.id}" type="button" class="desc-toggle-btn mt-2" onclick="toggleDescription('${idea.id}')">عرض المزيد</button>` : ''}
                 </div>
+                <div class="flex items-center gap-3 text-xs text-platinum flex-wrap">
+                    <span><i class="fa-solid fa-user text-neon/60 mr-1"></i>${escapeHtml(idea.author)}</span>
+                    ${isOwner ? '<span class="text-neon"><i class="fa-solid fa-check-circle mr-1"></i>Yours</span>' : ''}
+                </div>
+                ${relatedHtml}
             </div>
         </div>
     `;
 }
 
-function renderCommentsList() {
-    const listEl = document.getElementById('commentsList');
-    const countEl = document.getElementById('commentCount');
-    if (!listEl) return;
+function renderCommentsList() { /* comments disabled */ }
 
-    if (!ideaComments || ideaComments.length === 0) {
-        listEl.innerHTML = '<p class="text-center text-platinum/60 py-6 text-xs">No comments yet. Start the conversation.</p>';
-        if (countEl) countEl.textContent = '0 comments';
-        return;
-    }
-
-    listEl.innerHTML = ideaComments.map(c => {
-        const when = formatTime(c.timestamp);
-        const author = escapeHtml(c.author || 'Unknown Forger');
-        const content = escapeHtml(c.content || '');
-        const votes = c.votes || 0;
-        return `
-            <div class="glass-card rounded-xl p-3 text-xs flex flex-col gap-1">
-                <div class="flex items-center justify-between gap-2">
-                    <span class="font-semibold text-starlight truncate">${author}</span>
-                    <span class="text-[10px] text-platinum/60 whitespace-nowrap">${when}</span>
-                </div>
-                <p class="text-platinum mt-1">${content}</p>
-                <div class="flex items-center justify-between mt-1 text-[11px] text-platinum/70">
-                    <span><i class="fa-solid fa-arrow-trend-up text-neon/70 mr-1"></i>${votes} karma</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    if (countEl) {
-        const count = ideaComments.length;
-        countEl.textContent = count + (count === 1 ? ' comment' : ' comments');
-    }
-}
-
-window.openComments = async function (ideaId, title, desc) {
-    try { trackRecentlyViewed(ideaId); } catch (e) { console.log('trackRecentlyViewed failed', e); }
-    currentIdeaId = ideaId;
-
-    const modal = document.getElementById('commentsModal');
-    if (!modal) return;
-    modal.classList.remove('hidden');
-
-    const inputEl = document.getElementById('commentInput');
-    if (inputEl) inputEl.value = '';
-
-    const titleEl = document.getElementById('modalIdeaTitle');
-    if (titleEl) titleEl.textContent = title || 'Comments';
-
-    const descEl = document.getElementById('modalIdeaDesc');
-    if (descEl) descEl.textContent = desc || '';
-
-    const authorSpan = document.querySelector('#modalIdeaAuthor span:last-child');
-    const metaSpan = document.querySelector('#modalIdeaMeta span:last-child');
-    const scoreSpan = document.querySelector('#modalIdeaScore span:last-child');
-
-    if (authorSpan) authorSpan.textContent = 'Loading forger...';
-    if (metaSpan) metaSpan.textContent = 'Loading...';
-    if (scoreSpan) scoreSpan.textContent = 'Loading...';
-
-    try {
-        const ideaRef = doc(db, 'ideas', ideaId);
-        const snap = await getDoc(ideaRef);
-        if (snap.exists()) {
-            const idea = snap.data();
-            const authorName = idea.author || 'Unknown Forger';
-            const when = formatTime(idea.timestamp);
-            const votes = idea.votes || 0;
-            const comments = idea.commentCount || 0;
-            const countEl = document.getElementById('commentCount');
-
-            if (authorSpan) authorSpan.textContent = authorName;
-            if (metaSpan) metaSpan.textContent = when;
-            if (scoreSpan) scoreSpan.textContent = votes + ' likes · ' + comments + ' comments';
-
-            if (countEl) {
-                countEl.textContent = comments + (comments === 1 ? ' comment' : ' comments');
-            }
-
-            markIdeaCommentsSeen(ideaId, comments);
-        }
-    } catch (e) {
-        console.log('Idea meta load error', e);
-    }
-
-    if (commentsUnsubscribe) {
-        commentsUnsubscribe();
-        commentsUnsubscribe = null;
-    }
-
-    try {
-        const commentsRef = collection(db, 'ideas', ideaId, 'comments');
-        const q = query(commentsRef, orderBy('timestamp', 'desc'));
-        commentsUnsubscribe = onSnapshot(q, snap => {
-            ideaComments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderCommentsList();
-        }, e => {
-            console.log('Comments listener error', e);
-            const listEl = document.getElementById('commentsList');
-            if (listEl) {
-                listEl.innerHTML = '<p class="text-center text-red-400 py-6 text-xs">Unable to load comments.</p>';
-            }
-        });
-    } catch (e) {
-        console.log('Comments init error', e);
-    }
+window.openComments = function () {
+    Swal.fire({ icon: 'info', title: 'Comments disabled', text: 'Commenting is turned off.' });
 };
 
-window.closeComments = function () {
-    const modal = document.getElementById('commentsModal');
-    if (modal) modal.classList.add('hidden');
+window.closeComments = function () { /* no-op */ };
 
-    if (commentsUnsubscribe) {
-        commentsUnsubscribe();
-        commentsUnsubscribe = null;
-    }
-    currentIdeaId = null;
-    ideaComments = [];
-};
-
-window.submitComment = async function () {
-    if (!currentUser) {
-        return Swal.fire({ icon: 'warning', title: 'Please Sign In', text: 'Sign in to join the discussion.' });
-    }
-    if (!currentIdeaId) {
-        return Swal.fire({ icon: 'error', title: 'No Idea Selected', text: 'Open an idea before adding a comment.' });
-    }
-
-    const inputEl = document.getElementById('commentInput');
-    const btnEl = document.getElementById('submitCommentBtn');
-    if (!inputEl) return;
-
-    const text = inputEl.value.trim();
-    if (!text) return;
-    if (!validateText(text)) {
-        return Swal.fire({ icon: 'error', title: ' Language Detected', text: 'Be respectful. No profanity allowed.' });
-    }
-
-    try {
-        if (btnEl) {
-            btnEl.disabled = true;
-            btnEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-        }
-
-        const commentsRef = collection(db, 'ideas', currentIdeaId, 'comments');
-        await addDoc(commentsRef, {
-            content: text,
-            uid: currentUser.uid,
-            author: currentUser.displayName || 'Unknown Forger',
-            votes: 0,
-            timestamp: serverTimestamp()
-        });
-        await updateDoc(doc(db, 'ideas', currentIdeaId), {
-            commentCount: increment(1)
-        });
-
-        inputEl.value = '';
-        bumpDailyStreak();
-        markSprintParticipation();
-    } catch (e) {
-        console.error('Comment error', e);
-        Swal.fire({ icon: 'error', title: 'Comment Failed', text: e.message });
-    } finally {
-        if (btnEl) {
-            btnEl.disabled = false;
-            btnEl.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
-        }
-    }
+window.submitComment = function () {
+    return Swal.fire({ icon: 'info', title: 'Comments disabled', text: 'Commenting is turned off.' });
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -3043,17 +2633,6 @@ function renderActivityFeed() {
         });
     });
 
-    // Comment events
-    (latestComments || []).forEach(c => {
-        if (!c) return;
-        events.push({
-            type: 'comment',
-            ts: c.timestamp,
-            content: c.content || '',
-            author: c.author || 'Unknown Forger'
-        });
-    });
-
     const ideaMap = new Map();
     (topIdeas || []).forEach(i => { if (i) ideaMap.set(i.id, i); });
     (newIdeas || []).forEach(i => { if (i) ideaMap.set(i.id, i); });
@@ -3192,10 +2771,8 @@ function initListeners() {
             }
             if (data.timerVisible !== undefined) {
                 timerVisible = data.timerVisible;
-                timerSection.classList.toggle('hidden', !timerVisible);
-                if (document.getElementById('toggleTimerText')) {
-                    document.getElementById('toggleTimerText').textContent = timerVisible ? 'Hide Timer' : 'Show Timer';
-                }
+                if (timerSection) timerSection.classList.toggle('hidden', !timerVisible);
+                setTextIfExists('toggleTimerText', timerVisible ? 'Hide Timer' : 'Show Timer');
             }
             if (data.deadline) {
                 deadline = new Date(data.deadline);
@@ -3208,7 +2785,7 @@ function initListeners() {
     const qTop = query(collection(db, 'ideas'), orderBy('votes', 'desc'), limit(30));
     onSnapshot(qTop, snap => {
         topIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        document.getElementById('statTopIdeas').textContent = topIdeas.length;
+        setTextIfExists('statTopIdeas', topIdeas.length);
         const railTop = document.getElementById('railTopCount');
         if (railTop) railTop.textContent = topIdeas.length;
 
@@ -3237,7 +2814,7 @@ function initListeners() {
     const qNew = query(collection(db, 'ideas'), orderBy('timestamp', 'desc'), limit(30));
     onSnapshot(qNew, async snap => {
         newIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        document.getElementById('statNewIdeas').textContent = newIdeas.length;
+        setTextIfExists('statNewIdeas', newIdeas.length);
         const railNew = document.getElementById('railNewCount');
         if (railNew) railNew.textContent = newIdeas.length;
 
@@ -3245,14 +2822,14 @@ function initListeners() {
         try {
             const snapshot = await getCountFromServer(collection(db, 'ideas'));
             const total = snapshot.data().count;
-            document.getElementById('statTotalIdeas').textContent = total;
+            setTextIfExists('statTotalIdeas', total);
             const railTotal = document.getElementById('railTotalCount');
             if (railTotal) railTotal.textContent = total;
         } catch (e) {
             console.error('Count error:', e);
             // Fallback to local count
             const fallbackTotal = topIdeas.length || newIdeas.length;
-            document.getElementById('statTotalIdeas').textContent = fallbackTotal;
+            setTextIfExists('statTotalIdeas', fallbackTotal);
             const railTotal = document.getElementById('railTotalCount');
             if (railTotal) railTotal.textContent = fallbackTotal;
         }
@@ -3267,24 +2844,14 @@ function initListeners() {
         renderSpotlight();
         renderFilteredIdeas();
     });
-
-    // Latest comments across all ideas for Activity Feed
-    try {
-        const qComments = query(collectionGroup(db, 'comments'), orderBy('timestamp', 'desc'), limit(10));
-        onSnapshot(qComments, snap => {
-            latestComments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderActivityFeed();
-        }, (e) => {
-            console.log('Activity comments feed error', e);
-        });
-    } catch (e) {
-        console.log('Activity comments query failed to init', e);
-    }
 }
 
 loadFilterState();
 loadRecentlyViewedFromStorage();
 if (db) initListeners();
+
+// Initial render fallback to clear skeletons even before snapshots land
+renderFilteredIdeas();
 
 // ═══════════════════════════════════════════════════════════════════
 // SPOTLIGHT & TILT
@@ -3401,10 +2968,11 @@ window.openProfile = async function () {
     const modal = document.getElementById('profileModal');
 
     // Set basic info
-    document.getElementById('profileAvatar').src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName}&background=39FF14&color=000`;
-    document.getElementById('profileName').textContent = currentUser.displayName;
-    document.getElementById('profileEmail').textContent = currentUser.email;
-    document.getElementById('profileIdeaCount').textContent = userSubmissionCount;
+    const avatarEl = document.getElementById('profileAvatar');
+    if (avatarEl) avatarEl.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName}&background=39FF14&color=000`;
+    setTextIfExists('profileName', currentUser.displayName || '');
+    setTextIfExists('profileEmail', currentUser.email || '');
+    setTextIfExists('profileIdeaCount', userSubmissionCount);
 
     // Calculate Votes (Idea Creation Karma)
     let totalVotesReceived = 0;
@@ -3426,7 +2994,7 @@ window.openProfile = async function () {
     // TESTER BOOST
     if (currentUser.email === 'youssefhondi@gmail.com') totalVotesReceived = 999;
 
-    document.getElementById('profileVoteCount').textContent = totalVotesReceived;
+    setTextIfExists('profileVoteCount', totalVotesReceived);
 
     // Determine Rank
     // Ranks: Novice(0), Apprentice(10), Artisan(50), Master(200), Legend(500)
@@ -3440,10 +3008,10 @@ window.openProfile = async function () {
     else if (totalVotesReceived >= 50) { rank = 'Artisan'; nextRank = 'Master'; min = 50; max = 200; level = 3; }
     else if (totalVotesReceived >= 10) { rank = 'Apprentice'; nextRank = 'Artisan'; min = 10; max = 50; level = 2; }
 
-    document.getElementById('profileRankBadge').textContent = rank;
-    document.getElementById('profileRankLevel').textContent = level;
-    document.getElementById('rankCurrent').textContent = rank;
-    document.getElementById('rankNext').textContent = nextRank;
+    setTextIfExists('profileRankBadge', rank);
+    setTextIfExists('profileRankLevel', level);
+    setTextIfExists('rankCurrent', rank);
+    setTextIfExists('rankNext', nextRank);
 
     // Progress Calc
     let percent = 0;
@@ -3451,10 +3019,11 @@ window.openProfile = async function () {
     else {
         percent = Math.min(100, Math.max(0, ((totalVotesReceived - min) / (max - min)) * 100));
     }
-    document.getElementById('rankProgress').style.width = percent + '%';
+    const rankProgressEl = document.getElementById('rankProgress');
+    if (rankProgressEl) rankProgressEl.style.width = percent + '%';
 
-    if (rank === 'Legend') document.getElementById('rankMsg').textContent = 'Maximum Rank Achieved!';
-    else document.getElementById('rankMsg').textContent = `${max - totalVotesReceived} more karma to reach ${nextRank}`;
+    if (rank === 'Legend') setTextIfExists('rankMsg', 'Maximum Rank Achieved!');
+    else setTextIfExists('rankMsg', `${max - totalVotesReceived} more karma to reach ${nextRank}`);
 
     // Seasonal Snapshot
     try {
@@ -3495,76 +3064,12 @@ window.openProfile = async function () {
              <li><i class="fa-solid fa-star text-gold mr-1"></i> 10 Karma: Unlock 5 Ideas</li>
              <li><i class="fa-solid fa-bullhorn text-aurora mr-1"></i> 30 Karma: Unlock 10 Ideas</li>
              <li><i class="fa-solid fa-crown text-neon mr-1"></i> 50 Karma: Unlock 20 Ideas + Founder Chat</li>
-             <li><i class="fa-solid fa-medal text-yellow-400 mr-1"></i> 200 Karma: Legend Border (Comments)</li>
+             <li><i class="fa-solid fa-medal text-yellow-400 mr-1"></i> 200 Karma: Legend Border</li>
         </ul>
     </div>`;
 
-    // Karma Layers: Creation / Comments / Community
-    let commentKarma = 0;
-    const collabMap = new Map();
-    try {
-        const cq = query(collectionGroup(db, 'comments'), where('uid', '==', currentUser.uid));
-        const commSnap = await getDocs(cq);
-        for (const docSnap of commSnap.docs) {
-            const data = docSnap.data() || {};
-            const baseVotes = data.votes || 0;
-            let weightedVotes = baseVotes;
-
-            const parent = docSnap.ref.parent;
-            const ideaRef = parent && parent.parent ? parent.parent : null;
-            if (ideaRef) {
-                try {
-                    const ideaDoc = await getDoc(ideaRef);
-                    if (ideaDoc.exists()) {
-                        const ideaData = ideaDoc.data() || {};
-
-                        // Early Comment Multipliers (Idea 38)
-                        try {
-                            const ideaTs = ideaData.timestamp;
-                            const commentTs = data.timestamp;
-                            if (ideaTs && commentTs) {
-                                const ideaDate = ideaTs.toDate ? ideaTs.toDate() : new Date(ideaTs);
-                                const commentDate = commentTs.toDate ? commentTs.toDate() : new Date(commentTs);
-                                const diffHours = (commentDate - ideaDate) / (1000 * 60 * 60);
-                                let multiplier = 1;
-                                if (diffHours >= 0 && diffHours <= 1) {
-                                    multiplier = 2; // first hour
-                                } else if (diffHours > 1 && diffHours <= 24) {
-                                    multiplier = 1.5; // first day
-                                }
-                                weightedVotes = Math.round(baseVotes * multiplier);
-                            }
-                        } catch (e) {
-                            // fallback to baseVotes
-                            weightedVotes = baseVotes;
-                        }
-
-                        const ownerId = ideaData.uid || null;
-                        const ownerName = ideaData.author || 'Unknown Forger';
-                        if (ownerId && ownerId !== currentUser.uid) {
-                            const existing = collabMap.get(ownerId) || { uid: ownerId, name: ownerName, comments: 0 };
-                            existing.comments += 1;
-                            collabMap.set(ownerId, existing);
-                        }
-                    }
-                } catch (e) {
-                    // ignore per-idea failures
-                }
-            }
-
-            commentKarma += weightedVotes;
-        }
-    } catch (e) { console.error('Comment karma calc failed', e); }
-
-    let collabStrongestCount = 0;
-    let collabPartners = 0;
-    collabMap.forEach(entry => {
-        collabPartners += 1;
-        if (entry.comments > collabStrongestCount) {
-            collabStrongestCount = entry.comments;
-        }
-    });
-
+    // Karma Layers: Creation / Community (comments disabled)
+    const commentKarma = 0;
     let communityKarma = 0;
     try {
         for (let i = 0; i < localStorage.length; i++) {
@@ -3577,34 +3082,17 @@ window.openProfile = async function () {
         console.log('Community karma calc failed', e);
     }
 
-    const elCreation = document.getElementById('profileKarmaCreation');
-    const elComments = document.getElementById('profileKarmaComments');
-    const elCommunity = document.getElementById('profileKarmaCommunity');
-    if (elCreation) elCreation.textContent = creationKarma;
-    if (elComments) elComments.textContent = commentKarma;
-    if (elCommunity) elCommunity.textContent = communityKarma;
+    setTextIfExists('profileKarmaCreation', creationKarma);
+    setTextIfExists('profileKarmaComments', commentKarma);
+    setTextIfExists('profileKarmaCommunity', communityKarma);
 
-    // Combo Badges (Idea 35) + Mentor (Idea 39) + Duo/Collab (Idea 37)
+    // Combo Badges (comments disabled)
     try {
         if (acceptedIdeasCount >= 10) {
             badgesHtml += `<div class="tooltip" title="Idea Machine: 10+ ideas that earned karma"><i class="fa-solid fa-gears text-neon drop-shadow-lg"></i></div>`;
         }
         if (highSignalIdeasCount >= 3) {
             badgesHtml += `<div class="tooltip" title="Signal Cluster: 3+ high-karma ideas (10+ each)"><i class="fa-solid fa-sitemap text-aurora drop-shadow-lg"></i></div>`;
-        }
-        if (commentKarma >= 50 && communityKarma >= 50) {
-            badgesHtml += `<div class="tooltip" title="Network Node: Heavy commenter & voter in the Forge"><i class="fa-solid fa-circle-nodes text-teal drop-shadow-lg"></i></div>`;
-        }
-
-        if (commentKarma >= 30) {
-            badgesHtml += `<div class="tooltip" title="Mentor: comments that consistently attract high likes"><i class="fa-solid fa-chalkboard-user text-gold drop-shadow-lg"></i></div>`;
-        }
-
-        if (collabStrongestCount >= 5) {
-            badgesHtml += `<div class="tooltip" title="Duo Forge: Deep collaboration with another forger across many threads"><i class="fa-solid fa-user-friends text-neon drop-shadow-lg"></i></div>`;
-        }
-        if (collabPartners >= 3 && collabStrongestCount >= 3) {
-            badgesHtml += `<div class="tooltip" title="Collab Web: Active in discussions with many different forgers"><i class="fa-solid fa-users-line text-aurora drop-shadow-lg"></i></div>`;
         }
     } catch (e) {
         // ignore

@@ -47,41 +47,13 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700&display=swap"
         rel="stylesheet">
 
-    <!-- Core Scripts -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Core Styles -->
+    <link rel="stylesheet" href="forge-utility.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
     <!-- Removed Vanilla Tilt for Static Stability -->
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        void: '#000000',
-                        abyss: '#050505',
-                        neon: '#39FF14',
-                        'neon-dim': 'rgba(57, 255, 20, 0.1)',
-                        'neon-glow': 'rgba(57, 255, 20, 0.3)',
-                        aurora: '#00D9FF',
-                        'aurora-dim': 'rgba(0, 217, 255, 0.1)',
-                        teal: '#14F4C9',
-                        onyx: '#0a0a0a',
-                        platinum: '#888888',
-                        starlight: '#EDEDED',
-                        gold: '#FFD700'
-                    },
-                    fontFamily: {
-                        heading: ['IDRISIUMfont', 'Inter', 'Cairo', 'sans-serif'],
-                        body: ['IDRISIUMfont', 'Inter', 'Cairo', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-
 </head>
 
 <body>
@@ -506,7 +478,15 @@
             </section>
 
             <!-- Ideas Feed: Top -->
+            <!-- Hidden tab controls kept for JS logic compatibility -->
+            <div class="hidden">
+                <button id="tabTop" class="active" type="button" aria-hidden="true"></button>
+                <button id="tabNew" type="button" aria-hidden="true"></button>
+                <span id="resultsCount"></span>
+            </div>
+
             <div id="feedTop" class="space-y-4">
+
                 <!-- Skeleton -->
                 <div class="skeleton-container">
                     <div class="glass-card rounded-2xl p-6 mb-4">
@@ -796,87 +776,6 @@
                 <div id="profileBadges" class="flex flex-wrap gap-2 text-2xl text-platinum/30 justify-center">
                     <!-- Badges injected by JS -->
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Comments Modal -->
-    <div id="commentsModal" class="modal-overlay hidden" onclick="if(event.target === this) closeComments()">
-        <div class="modal-content">
-            <div class="p-6 border-b border-neon/20">
-                <div class="flex items-center justify-between">
-                    <h3 class="font-heading text-xl font-bold text-starlight">
-                        <i class="fa-solid fa-comments text-neon mr-2"></i>
-                        <span id="modalIdeaTitle">Comments</span>
-                    </h3>
-                    <button onclick="closeComments()"
-                        class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-platinum transition-all">
-                        <i class="fa-solid fa-times"></i>
-                    </button>
-                </div>
-                <p id="modalIdeaDesc" class="text-sm text-platinum mt-2"></p>
-                <div
-                    class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-xs text-platinum/80">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <span id="modalIdeaAuthor" class="flex items-center gap-1">
-                            <i class="fa-solid fa-user text-neon/80"></i>
-                            <span>Unknown forger</span>
-                        </span>
-                        <span id="modalIdeaMeta" class="flex items-center gap-1">
-                            <i class="fa-solid fa-clock text-platinum/70"></i>
-                            <span>Just now</span>
-                        </span>
-                        <span id="modalIdeaScore" class="flex items-center gap-1">
-                            <i class="fa-solid fa-fire-flame-curved text-neon"></i>
-                            <span>0 likes · 0 comments</span>
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button id="modalShareButton"
-                            class="px-3 py-2 rounded-xl bg-neon/10 text-neon text-[11px] font-semibold hover:bg-neon/20 transition-colors flex items-center gap-1">
-                            <i class="fa-solid fa-share-nodes text-xs"></i>
-                            <span>Share</span>
-                        </button>
-                        <a id="modalShareX" href="#" target="_blank"
-                            class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-platinum text-xs"
-                            title="Share on X">
-                            <i class="fa-brands fa-x-twitter"></i>
-                        </a>
-                        <a id="modalShareTelegram" href="#" target="_blank"
-                            class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-platinum text-xs"
-                            title="Share on Telegram">
-                            <i class="fa-brands fa-telegram"></i>
-                        </a>
-                        <a id="modalShareWhatsApp" href="#" target="_blank"
-                            class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-platinum text-xs"
-                            title="Share on WhatsApp">
-                            <i class="fa-brands fa-whatsapp"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add Comment Form -->
-            <div class="p-4 border-b border-neon/10">
-                <div class="flex gap-3">
-                    <input type="text" id="commentInput" placeholder="Add a comment..." maxlength="500"
-                        class="neon-input flex-1 px-4 py-3 rounded-xl text-starlight placeholder-platinum/50">
-                    <button onclick="submitComment()" id="submitCommentBtn"
-                        class="neon-btn px-6 py-3 rounded-xl font-semibold">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </div>
-                <p class="text-xs text-platinum/50 mt-2">Be respectful. Comments are public.</p>
-            </div>
-
-            <!-- Comments List -->
-            <div id="commentsList" class="p-4 space-y-3 max-h-[50vh] overflow-y-auto">
-                <p class="text-center text-platinum py-8">Loading comments...</p>
-            </div>
-
-            <!-- Comment Count -->
-            <div class="p-4 border-t border-neon/10 text-center">
-                <span id="commentCount" class="text-xs text-platinum">0 comments</span>
             </div>
         </div>
     </div>
