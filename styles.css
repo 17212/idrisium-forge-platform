@@ -309,6 +309,39 @@ body::before {
     }
 }
 
+/* Mobile refinements */
+@media (max-width: 640px) {
+    #mainHeader > div {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+    #mainHeader h1 {
+        font-size: 20px;
+    }
+    main {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-top: 88px;
+    }
+    #timerSection {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    #countdown .font-heading {
+        font-size: 28px;
+    }
+    #countdown .timer-digit {
+        padding: 10px 12px;
+    }
+    .glass-card {
+        border-radius: 18px;
+    }
+    .pulse-glow {
+        width: 44px;
+        height: 44px;
+    }
+}
+
 /* Neon Input */
 .neon-input {
     background: rgba(10, 10, 10, 0.8);
