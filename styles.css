@@ -591,7 +591,7 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .footer-social a {
@@ -599,16 +599,16 @@ body::before {
 }
 
 .footer-credits {
-    margin-top: 10px;
+    margin-top: 8px;
 }
 
 .footer-lift {
     margin-top: 0;
-    transform: translateY(-100px);
+    transform: translateY(-60px);
 }
 
 .footer-tagline {
-    margin-top: 51px; /* slightly tighter */
+    margin-top: 8px;
 }
 
 .idea-keyboard-focus {
