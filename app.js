@@ -973,7 +973,7 @@ window.signInWithGoogle = async function () {
 window.signOutUser = async function () {
     cleanupListeners();
     await signOut(auth);
-    Swal.fire({ icon: 'info', title: 'Signed Out', timer: 1500, showConfirmButton: false });
+    window.location.reload();
 };
 
 onAuthStateChanged(auth, user => {
@@ -1733,19 +1733,20 @@ window.submitIdea = async function (event) {
         });
 
         // Confetti!
-        confetti({ particleCount: 150, spread: 100, origin: { y: 0.7 }, colors: ['#39FF14', '#00D9FF', '#14F4C9', '#FFD700'] });
+        try {
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.7 }, colors: ['#39FF14', '#00D9FF', '#14F4C9', '#FFD700'] });
+        } catch (e) { console.log('Confetti error', e); }
 
         // Refresh Stats & Countdown
-        await checkUserSubmission(currentUser.uid);
-
-        bumpDailyStreak();
-        bumpDailyStreak();
-        // markSprintParticipation removed
+        try {
+            await checkUserSubmission(currentUser.uid);
+            bumpDailyStreak();
+        } catch (e) { console.log('Stats update error', e); }
 
         Swal.fire({
             icon: 'success',
-            title: '🎉 Idea Forged!',
-            text: 'Your idea has been successfully submitted.',
+            title: '🎉 عاش يا بطل!',
+            text: 'فكرتك وصلت وهتكسر الدنيا!',
             timer: 3000,
             showConfirmButton: false
         });
@@ -1760,11 +1761,14 @@ window.submitIdea = async function (event) {
         // Update UI based on remaining
         updateSubmissionUI();
 
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> ابعت الفكرة';
+
     } catch (err) {
         console.error(err);
-        Swal.fire({ icon: 'error', title: 'Submission Failed', text: err.message });
+        Swal.fire({ icon: 'error', title: 'حصل مشكلة', text: err.message });
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit to the Forge';
+        submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> ابعت الفكرة';
     }
 };
 
@@ -1787,7 +1791,7 @@ window.switchTab = function (tab) {
 function hasVoted() { return false; }
 function markVoted() { /* no-op */ }
 window.handleVote = function () {
-    Swal.fire({ icon: 'info', title: 'Likes disabled', text: 'Reactions are turned off.' });
+    Swal.fire({ icon: 'info', title: 'اللايكات مقفولة', text: 'التفاعل مقفول حالياً.' });
 };
 
 // Expand / collapse long descriptions per idea
@@ -1815,13 +1819,13 @@ window.toggleDescription = function (ideaId) {
 function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 
 function formatTime(ts) {
-    if (!ts) return 'Just now';
+    if (!ts) return 'دلوقتي';
     const d = ts.toDate ? ts.toDate() : new Date(ts);
     const diff = Math.floor((Date.now() - d) / 1000);
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return `${Math.floor(diff / 86400)}d ago`;
+    if (diff < 60) return 'دلوقتي';
+    if (diff < 3600) return `${Math.floor(diff / 60)} دقيقة فات`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} ساعة فات`;
+    return `${Math.floor(diff / 86400)} يوم فات`;
 }
 
 function renderCard(idea, index, isBadgeTop = false) {
@@ -1912,7 +1916,7 @@ function renderCard(idea, index, isBadgeTop = false) {
 function renderCommentsList() { /* comments disabled */ }
 
 window.openComments = function () {
-    Swal.fire({ icon: 'info', title: 'Comments disabled', text: 'Commenting is turned off.' });
+    Swal.fire({ icon: 'info', title: 'التعليقات مقفولة', text: 'التعليقات مقفولة حالياً.' });
 };
 
 window.closeComments = function () { /* no-op */ };
@@ -1940,23 +1944,23 @@ window.editIdeaById = async function (ideaId) {
 
 window.editIdea = async function (ideaId, currentTitle, currentDesc) {
     const { value: formValues } = await Swal.fire({
-        title: 'Edit Your Idea',
+        title: 'عدل فكرتك',
         html: `
-        < input id = "swal-title" class="swal2-input" placeholder = "Title" value = "${currentTitle}" maxlength = "200" >
-            <textarea id="swal-desc" class="swal2-textarea" placeholder="Description" maxlength="1000">${currentDesc}</textarea>
+        <input id="swal-title" class="swal2-input" placeholder="العنوان" value="${currentTitle}" maxlength="200">
+            <textarea id="swal-desc" class="swal2-textarea" placeholder="الوصف" maxlength="1000">${currentDesc}</textarea>
     `,
         showCancelButton: true,
-        confirmButtonText: 'Save Changes',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: 'احفظ التعديل',
+        cancelButtonText: 'إلغاء',
         preConfirm: () => {
             const title = document.getElementById('swal-title').value.trim();
             const desc = document.getElementById('swal-desc').value.trim();
             if (!title || !desc) {
-                Swal.showValidationMessage('Both fields are required');
+                Swal.showValidationMessage('لازم تكتب العنوان والوصف');
                 return false;
             }
             if (!validateText(title) || !validateText(desc)) {
-                Swal.showValidationMessage(' No profanity allowed');
+                Swal.showValidationMessage('بلاش ألفاظ خارجة');
                 return false;
             }
             return { title, desc };
@@ -1969,9 +1973,9 @@ window.editIdea = async function (ideaId, currentTitle, currentDesc) {
                 title: formValues.title,
                 description: formValues.desc
             });
-            Swal.fire({ icon: 'success', title: 'Updated!', timer: 1500, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: 'تم التعديل!', timer: 1500, showConfirmButton: false });
         } catch (e) {
-            Swal.fire({ icon: 'error', title: 'Update Failed', text: e.message });
+            Swal.fire({ icon: 'error', title: 'فشل التعديل', text: e.message });
         }
     }
 };
@@ -1979,21 +1983,21 @@ window.editIdea = async function (ideaId, currentTitle, currentDesc) {
 window.deleteIdea = async function (ideaId) {
     const result = await Swal.fire({
         icon: 'warning',
-        title: 'Delete this Idea?',
-        text: 'This action cannot be undone.',
+        title: 'تمسح الفكرة دي؟',
+        text: 'مش هتعرف ترجعها تاني.',
         showCancelButton: true,
-        confirmButtonText: 'Yes, Delete',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: 'أيوه، امسحها',
+        cancelButtonText: 'إلغاء',
         confirmButtonColor: '#FF4444'
     });
 
     if (result.isConfirmed) {
         try {
             await deleteDoc(doc(db, 'ideas', ideaId));
-            Swal.fire({ icon: 'success', title: 'Idea Deleted', timer: 1500, showConfirmButton: false });
+            Swal.fire({ icon: 'success', title: 'الفكرة اتمسحت', timer: 1500, showConfirmButton: false });
         } catch (e) {
             console.error('Delete Error:', e);
-            Swal.fire({ icon: 'error', title: 'Delete Failed', text: e.message });
+            Swal.fire({ icon: 'error', title: 'فشل المسح', text: e.message });
         }
     }
 };

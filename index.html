@@ -48,7 +48,7 @@
                     </div>
                     <div class="header-title">
                         <h1>IDRISIUM IDEAS</h1>
-                        <p class="header-subtitle">منصة الأفكار والابتكار</p>
+                        <p class="header-subtitle">منصة الأفكار نوعاً ما</p>
                     </div>
                 </div>
 
@@ -66,7 +66,7 @@
                 <div class="stat-badge">
                     <i class="fa-solid fa-users"></i>
                     <span class="stat-value" id="statOnlineNow">0</span>
-                    <span class="stat-label">متواجدون الآن</span>
+                    <span class="stat-label">موجودين دلوقتي</span>
                 </div>
                 <div class="stat-badge">
                     <i class="fa-solid fa-chart-line"></i>
@@ -84,8 +84,8 @@
             <div class="login-icon">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <h2>سجل دخولك يا بطل</h2>
-            <p>سجل دخولك عشان تقدر تشارك أفكارك وتتفاعل مع المجتمع</p>
+            <h2>خش ببروفايلك</h2>
+            <p>سجل دخولك عشان تقدر تشارك أفكارك وتتفاعل مع الناس</p>
             <button onclick="signInWithGoogle()" class="google-btn">
                 <svg width="20" height="20" viewBox="0 0 48 48">
                     <path fill="#FFC107"
@@ -99,8 +99,8 @@
         <section id="submitSection" class="submit-card glass-card hidden">
             <div class="submit-header">
                 <div class="submit-title-row">
-                    <h3>اصنع فكرتك</h3>
-                    <p>حول خيالك لواقع ملموس</p>
+                    <h3>اكتب فكرة جديدة</h3>
+                    <p>اكتب الي ييجي في بالك</p>
                 </div>
             </div>
 
@@ -110,10 +110,10 @@
                         <i class="fa-solid fa-heading"></i>
                         عنوان الفكرة <span class="required">*</span>
                     </label>
-                    <input type="text" id="ideaTitle" placeholder="مثلاً: تطبيق لتنظيم الوقت بطريقة ذكية"
-                        maxlength="100" required>
+                    <input type="text" id="ideaTitle" placeholder="مثلاً: تطبيق بيظبط الوقت بذكاء" maxlength="100"
+                        required>
                     <div class="input-hint">
-                        <span>خلي العنوان جذاب وقصير</span>
+                        <span>خلي العنوان جذاب وقصير هيكون افضل</span>
                         <span><span id="titleCount">0</span>/100</span>
                     </div>
                 </div>
@@ -121,9 +121,10 @@
                 <div class="form-group">
                     <label for="authorName">
                         <i class="fa-solid fa-user-tag"></i>
-                        اسمك المستعار <span class="required">*</span>
+                        اسمك <span class="required">*</span>
                     </label>
-                    <input type="text" id="authorName" placeholder="اكتب اسمك اللي هيظهر للناس" maxlength="30" required>
+                    <input type="text" id="authorName" placeholder="اكتب الاسم اللي هيظهر للناس" maxlength="30"
+                        required>
                 </div>
 
                 <div class="form-group">
@@ -132,10 +133,10 @@
                         وصف الفكرة بالتفصيل <span class="required">*</span>
                     </label>
                     <textarea id="ideaDescription"
-                        placeholder="اشرح فكرتك بالتفصيل، إيه المشكلة اللي بتحلها؟ وإزاي هتشتغل؟" rows="5"
+                        placeholder="اشرح فكرتك بالتفصيل، إيه المشكلة اللي بتحلها؟ وهتشتغل إزاي؟" rows="5"
                         maxlength="1000" required></textarea>
                     <div class="input-hint">
-                        <span>استخدم Markdown للتنسيق (اختياري)</span>
+                        <span>ممكن تستخدم Markdown للتنسيق</span>
                         <span><span id="descCount">0</span>/1000</span>
                     </div>
                 </div>
@@ -143,7 +144,7 @@
                 <div id="duplicateSuggestions" class="suggestions-box hidden">
                     <div class="suggestions-header">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>أفكار مشابهة موجودة فعلاً:</span>
+                        <span>فيه أفكار شبه دي موجودة:</span>
                     </div>
                     <div id="duplicateSuggestionsList" class="flex flex-col gap-2">
                         <!-- Suggestions injected by JS -->
@@ -153,7 +154,7 @@
                 <div class="form-actions justify-end">
                     <button type="submit" id="submitBtn" class="btn-submit pulse-glow w-full sm:w-auto justify-center">
                         <i class="fa-solid fa-bolt"></i>
-                        اصنع الفكرة الآن
+                        انشر الفكرة
                     </button>
                 </div>
             </form>
@@ -164,9 +165,9 @@
         <div class="feed-controls flex items-center justify-center mb-6 gap-4 flex-wrap">
             <div class="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/10">
                 <button id="tabTop" onclick="switchTab('top')"
-                    class="px-4 py-2 rounded-lg text-sm transition-all active">الأفضل</button>
+                    class="px-4 py-2 rounded-lg text-sm transition-all active">الأجمد</button>
                 <button id="tabNew" onclick="switchTab('new')"
-                    class="px-4 py-2 rounded-lg text-sm transition-all">الأحدث</button>
+                    class="px-4 py-2 rounded-lg text-sm transition-all">الجديد</button>
             </div>
         </div>
 
@@ -189,7 +190,7 @@
                 <i class="fa-solid fa-rocket"></i>
             </div>
             <h3>مفيش أفكار لسه!</h3>
-            <p>كُن أول واحد يشارك فكرته</p>
+            <p>كن أول واحد يشارك فكرته</p>
             <div class="empty-features">
             </div>
         </div>
@@ -208,7 +209,7 @@
         </div>
         <div class="footer-credits">
             <p>تم التطوير بواسطة <span class="neon">إدريس غامد</span></p>
-            <p class="small">جميع الحقوق محفوظة لشركة <span class="gradient-text">IDRISIUM Corp.</span> &copy; 2024</p>
+            <p class="small">جميع الحقوق محفوظة لشركة <span class="gradient-text">IDRISIUM Corp.</span> &copy; 2025</p>
             <p class="small"><a href="http://idrisium.linkpc.net/" target="_blank"
                     class="text-platinum/60 hover:text-neon">idrisium.linkpc.net</a></p>
         </div>
@@ -233,7 +234,7 @@
             </div>
             <button onclick="signOutUser()" class="btn-signout">
                 <i class="fa-solid fa-right-from-bracket"></i>
-                تسجيل الخروج
+                اخرج
             </button>
         </div>
     </div>
