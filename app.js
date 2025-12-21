@@ -170,6 +170,8 @@ function renderMarkdown(text) {
     html = html.replace(/\*(.+?)\*/g, '<em>$1<\/em>');
     html = html.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-white\/5 text-[11px]">$1<\/code>');
     html = html.replace(/\n\n+/g, '<\/p><p>');
+
+    return html;
 }
 
 function updateDuplicateSuggestions(title, desc) {
