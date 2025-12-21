@@ -2014,8 +2014,7 @@ window.exportIdeasCSV = function () {
     const rows = allIdeas.map(idea => {
         const date = idea.timestamp?.toDate?.() ? idea.timestamp.toDate().toISOString() : 'N/A';
         return [
-            `"${(idea.title || '').replace(/" / g, '""')
-            } "`,
+            `"${(idea.title || '').replace(/"/g, '""')}"`,
             `"${(idea.description || '').replace(/"/g, '""')}"`,
             `"${(idea.author || '').replace(/"/g, '""')}"`,
             idea.votes || 0,
