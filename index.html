@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="description"
         content="IDRISIUM IDEAS - A cinematic hub where the IDRISIUM community drops app ideas and decides what gets built.">
     <meta name="author" content="IDRIS GHAMID">
@@ -11,45 +11,34 @@
     <title>IDRISIUM IDEAS | Community App Ideas Hub</title>
     <link rel="icon" type="image/png" href="ideas.png">
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="IDRISIUM IDEAS - Community App Ideas Hub">
-    <meta property="og:description"
-        content="Drop app ideas, like or dislike submissions, and help choose what IDRISIUM builds next.">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="IDRISIUM IDEAS - Community App Ideas Hub">
-    <meta name="twitter:description"
-        content="A dark-mode ideas arena where the community submits, likes, and dislikes app ideas for IDRISIUM.">
-
-    <!-- Structured Data: Event -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Event",
-      "name": "IDRISIUM IDEAS - App Ideas Crowdsourcing Event",
-      "description": "A cinematic online arena where the community submits, likes, and dislikes app ideas to shape the IDRISIUM ecosystem.",
-      "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
-      "eventStatus": "https://schema.org/EventScheduled",
-      "organizer": {
-        "@type": "Organization",
-        "name": "IDRISIUM Corp",
-        "url": "http://idrisium.linkpc.net/"
-      }
-    }
-    </script>
-
     <!-- Fonts -->
-    <div class="aurora-orb aurora-orb-1"></div>
-    <div class="aurora-orb aurora-orb-2"></div>
-    <div class="aurora-orb aurora-orb-3"></div>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles with cache busting -->
+    <link rel="stylesheet" href="forge-utility.css?v=3">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css?v=3">
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+
+<body>
+    <!-- Aurora Background -->
+    <div class="aurora-bg">
+        <div class="aurora-orb aurora-orb-1"></div>
+        <div class="aurora-orb aurora-orb-2"></div>
+        <div class="aurora-orb aurora-orb-3"></div>
     </div>
 
     <!-- Header -->
     <header class="site-header" id="mainHeader">
         <div class="header-container">
-            <!-- Top Row: Logo + Auth -->
             <div class="header-top">
                 <div class="header-brand">
                     <div class="header-logo">
@@ -66,12 +55,9 @@
                         <p class="header-subtitle">The Global Ideas Forge</p>
                     </div>
                 </div>
-                <div id="authSection" class="header-auth">
-                    <!-- Auth UI will be injected here -->
-                </div>
+                <div id="authSection" class="header-auth"></div>
             </div>
 
-            <!-- Stats Row -->
             <div class="header-stats">
                 <div class="stat-badge">
                     <i class="fa-solid fa-lightbulb"></i>
@@ -94,7 +80,6 @@
 
     <!-- Main -->
     <main class="main-content">
-
         <!-- Login Prompt -->
         <section id="loginPrompt" class="glass-card login-card hidden">
             <div class="login-icon">
@@ -102,7 +87,6 @@
             </div>
             <h2>Join IDRISIUM IDEAS</h2>
             <p>Sign in with Google to submit revolutionary ideas and join the IDRISIUM forge.</p>
-
             <button onclick="signInWithGoogle()" class="google-btn">
                 <svg width="20" height="20" viewBox="0 0 48 48">
                     <path fill="#FFC107"
@@ -120,7 +104,6 @@
 
         <!-- Submit Form -->
         <section id="submitSection" class="glass-card submit-card hidden">
-            <!-- Card Header -->
             <div class="submit-header">
                 <div class="submit-title-row">
                     <div class="submit-icon">
@@ -137,14 +120,12 @@
                 </div>
             </div>
 
-            <!-- Progress Bar -->
             <div class="submit-progress">
                 <div class="progress-rail">
                     <div id="submissionProgressBar" class="progress-fill" style="width: 0%;"></div>
                 </div>
             </div>
 
-            <!-- Wizard Steps -->
             <div class="wizard-nav">
                 <div class="wizard-step active" data-step="1">
                     <span class="step-num">1</span>
@@ -162,9 +143,7 @@
                 </div>
             </div>
 
-            <!-- Form -->
             <form id="ideaForm" onsubmit="submitIdea(event)" class="submit-form">
-                <!-- Step 1: Basics -->
                 <div id="wizardStep1" class="form-step">
                     <div class="form-group">
                         <label for="ideaTitle">
@@ -190,7 +169,6 @@
                         </div>
                     </div>
 
-                    <!-- Custom Notes Field (replaces category) -->
                     <div class="form-group">
                         <label for="ideaNotes">
                             <i class="fa-solid fa-sticky-note"></i>
@@ -205,7 +183,6 @@
                     </div>
                 </div>
 
-                <!-- Step 2: Details -->
                 <div id="wizardStep2" class="form-step hidden">
                     <div class="form-group">
                         <label for="ideaDescription">
@@ -213,7 +190,7 @@
                             Description <span class="required">*</span>
                         </label>
                         <textarea id="ideaDescription" required rows="6" maxlength="1000"
-                            placeholder="Describe your idea in detail...&#10;• What problem does it solve?&#10;• Who is the target audience?&#10;• What makes it unique?"></textarea>
+                            placeholder="Describe your idea in detail..."></textarea>
                         <div class="input-hint">
                             <span>Be detailed but concise</span>
                             <span><span id="descCount">0</span>/1000</span>
@@ -230,7 +207,6 @@
                     </div>
                 </div>
 
-                <!-- Step 3: Preview -->
                 <div id="wizardStep3" class="form-step hidden">
                     <div class="preview-header">
                         <i class="fa-solid fa-eye"></i>
@@ -244,37 +220,32 @@
                     </div>
                 </div>
 
-                <!-- Form Actions -->
                 <div class="form-actions">
                     <button type="button" id="prevStepBtn" onclick="prevIdeaStep()" class="btn-secondary hidden">
-                        <i class="fa-solid fa-arrow-left"></i>
-                        Back
+                        <i class="fa-solid fa-arrow-left"></i> Back
                     </button>
                     <button type="button" id="nextStepBtn" onclick="nextIdeaStep()" class="btn-primary">
-                        Continue
-                        <i class="fa-solid fa-arrow-right"></i>
+                        Continue <i class="fa-solid fa-arrow-right"></i>
                     </button>
                     <button type="submit" id="submitBtn" class="btn-submit hidden">
-                        <i class="fa-solid fa-rocket"></i>
-                        Launch Idea
+                        <i class="fa-solid fa-rocket"></i> Launch Idea
                     </button>
                 </div>
             </form>
 
-            <!-- Hidden elements for compatibility -->
             <span id="submissionStatus" class="hidden"></span>
             <span id="wizardStepLabel" class="hidden">Step 1 of 3</span>
         </section>
 
-        <!-- Ideas Feed -->
+        <!-- Hidden tabs for compatibility -->
         <div class="hidden">
-            <button id="tabTop" class="active" type="button" aria-hidden="true"></button>
-            <button id="tabNew" type="button" aria-hidden="true"></button>
+            <button id="tabTop" class="active" type="button"></button>
+            <button id="tabNew" type="button"></button>
             <span id="resultsCount"></span>
         </div>
 
+        <!-- Ideas Feed -->
         <div id="feedTop" class="ideas-feed">
-            <!-- Skeleton Loaders -->
             <div class="skeleton-container">
                 <div class="glass-card skeleton-card">
                     <div class="skeleton-content">
@@ -295,7 +266,6 @@
             </div>
         </div>
 
-        <!-- Feed New (Hidden) -->
         <div id="feedNew" class="ideas-feed hidden"></div>
 
         <!-- Empty State -->
@@ -316,25 +286,13 @@
     <!-- Footer -->
     <footer class="site-footer">
         <p class="footer-motto">"Mafish 2alb.. Fi bas Talaga"</p>
-
         <div class="footer-social">
-            <a href="http://idrisium.linkpc.net/" target="_blank" aria-label="Website">
-                <i class="fa-solid fa-globe"></i>
-            </a>
-            <a href="https://github.com/IDRISIUM" target="_blank" aria-label="GitHub">
-                <i class="fa-brands fa-github"></i>
-            </a>
-            <a href="https://tiktok.com/@idris.ghamid" target="_blank" aria-label="TikTok">
-                <i class="fa-brands fa-tiktok"></i>
-            </a>
-            <a href="https://instagram.com/idris.ghamid" target="_blank" aria-label="Instagram">
-                <i class="fa-brands fa-instagram"></i>
-            </a>
-            <a href="https://t.me/IDRV72" target="_blank" aria-label="Telegram">
-                <i class="fa-brands fa-telegram"></i>
-            </a>
+            <a href="http://idrisium.linkpc.net/" target="_blank"><i class="fa-solid fa-globe"></i></a>
+            <a href="https://github.com/IDRISIUM" target="_blank"><i class="fa-brands fa-github"></i></a>
+            <a href="https://tiktok.com/@idris.ghamid" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+            <a href="https://instagram.com/idris.ghamid" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+            <a href="https://t.me/IDRV72" target="_blank"><i class="fa-brands fa-telegram"></i></a>
         </div>
-
         <div class="footer-credits">
             <p>Crafted with <span class="neon">⚡</span> by <span class="neon">IDRIS GHAMID</span></p>
             <p class="small">Powered by <span class="gradient-text">IDRISIUM Corp</span> • © 2024</p>
@@ -345,7 +303,6 @@
     <div id="profileModal" class="modal-overlay hidden" onclick="if(event.target === this) closeProfile()">
         <div class="modal-card profile-modal">
             <button onclick="closeProfile()" class="modal-close"><i class="fa-solid fa-times"></i></button>
-
             <div class="profile-header">
                 <div class="profile-avatar">
                     <img id="profileAvatar" src="" alt="Profile">
@@ -353,14 +310,12 @@
                 <h2 id="profileName">User Name</h2>
                 <p id="profileEmail">user@example.com</p>
             </div>
-
             <div class="profile-stats">
                 <div class="profile-stat">
                     <span class="stat-number" id="profileIdeaCount">0</span>
                     <span class="stat-label">Ideas Submitted</span>
                 </div>
             </div>
-
             <button onclick="signOutUser(); closeProfile();" class="btn-signout">
                 <i class="fa-solid fa-right-from-bracket"></i> Sign Out
             </button>
@@ -383,17 +338,13 @@
                 </div>
                 <button onclick="closeChat()" class="modal-close"><i class="fa-solid fa-times"></i></button>
             </div>
-
             <div id="chatMessages" class="chat-messages">
                 <div class="chat-notice">Encrypted Channel Established</div>
             </div>
-
             <div class="chat-input-area">
                 <input type="text" id="chatInput" placeholder="Type your message..." autocomplete="off"
                     onkeydown="if(event.key === 'Enter') { event.preventDefault(); sendChatMessage(); }">
-                <button onclick="sendChatMessage()" class="chat-send">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
+                <button onclick="sendChatMessage()" class="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
     </div>
@@ -410,6 +361,6 @@
     </div>
 
     <script type="module" src="app.js"></script>
-    </body>
+</body>
 
 </html>
