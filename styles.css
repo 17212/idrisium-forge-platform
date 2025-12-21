@@ -599,7 +599,7 @@ body::before {
 }
 
 .footer-credits {
-    margin-top: 12px;
+    margin-top: 10px;
 }
 
 .footer-lift {
@@ -608,7 +608,7 @@ body::before {
 }
 
 .footer-tagline {
-    margin-top: 56px; /* ~2cm */
+    margin-top: 51px; /* slightly tighter */
 }
 
 .idea-keyboard-focus {
