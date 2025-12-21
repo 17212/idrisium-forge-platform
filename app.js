@@ -67,9 +67,63 @@ let seasonSnapshots = null;
 const STREAK_KEY = 'idrisium_daily_streak_v1';
 let streakState = null;
 
-function setTextIfExists(id, value) {
+function setTextIfExists(id, value, animate = false) {
     const el = document.getElementById(id);
-    if (el) el.textContent = value;
+    if (!el) return;
+    if (animate) {
+        const start = parseInt(el.textContent) || 0;
+        animateValue(id, start, value, 1000);
+    } else {
+        el.textContent = value;
+    }
+}
+
+function animateValue(id, start, end, duration) {
+    const obj = document.getElementById(id);
+    if (!obj) return;
+    if (start === end) return;
+    const range = end - start;
+    let current = start;
+    const increment = end > start ? 1 : -1;
+    const stepTime = Math.abs(Math.floor(duration / range));
+    const timer = setInterval(function () {
+        current += increment;
+        obj.textContent = current;
+        if (current == end) {
+            clearInterval(timer);
+        }
+    }, stepTime || 1);
+}
+
+async function trackVisitor() {
+    try {
+        const visitorKey = 'idrisium_visitor_tracked';
+        if (!localStorage.getItem(visitorKey)) {
+            const statsRef = doc(db, 'settings', 'stats');
+            await setDoc(statsRef, { totalVisitors: increment(1) }, { merge: true });
+            localStorage.setItem(visitorKey, 'true');
+        }
+    } catch (e) {
+        console.error('Visitor tracking error:', e);
+    }
+}
+
+function trackOnlineStatus() {
+    try {
+        const onlineRef = doc(collection(db, 'online_users'));
+        setDoc(onlineRef, { timestamp: serverTimestamp() });
+        window.addEventListener('beforeunload', () => {
+            deleteDoc(onlineRef);
+        });
+        // Cleanup old online users (simple client-side cleanup for demo, ideally a cloud function)
+        setInterval(async () => {
+            const q = query(collection(db, 'online_users'), where('timestamp', '<', new Date(Date.now() - 5 * 60 * 1000)));
+            const snap = await getDocs(q);
+            snap.forEach(d => deleteDoc(d.ref));
+        }, 60000);
+    } catch (e) {
+        console.error('Online status error:', e);
+    }
 }
 
 try {
@@ -2737,16 +2791,13 @@ function initListeners() {
         try {
             const snapshot = await getCountFromServer(collection(db, 'ideas'));
             const total = snapshot.data().count;
-            setTextIfExists('statTotalIdeas', total);
+            setTextIfExists('statTotalIdeas', total, true);
             const railTotal = document.getElementById('railTotalCount');
             if (railTotal) railTotal.textContent = total;
         } catch (e) {
             console.error('Count error:', e);
-            // Fallback to local count
             const fallbackTotal = topIdeas.length || newIdeas.length;
-            setTextIfExists('statTotalIdeas', fallbackTotal);
-            const railTotal = document.getElementById('railTotalCount');
-            if (railTotal) railTotal.textContent = fallbackTotal;
+            setTextIfExists('statTotalIdeas', fallbackTotal, true);
         }
 
         // Update Live Activity Feed & Admin Stats
@@ -2759,6 +2810,26 @@ function initListeners() {
         renderSpotlight();
         renderFilteredIdeas();
     });
+
+    // Real-time Stats Listeners
+    onSnapshot(doc(db, 'settings', 'stats'), snap => {
+        if (snap.exists()) {
+            const data = snap.data();
+            if (data.totalVisitors !== undefined) {
+                setTextIfExists('statTotalVisitors', data.totalVisitors, true);
+            }
+        }
+    });
+
+    onSnapshot(collection(db, 'online_users'), snap => {
+        setTextIfExists('statOnlineNow', snap.size, true);
+    });
+}
+
+// Initialize Tracking
+if (db) {
+    trackVisitor();
+    trackOnlineStatus();
 }
 
 loadFilterState();
