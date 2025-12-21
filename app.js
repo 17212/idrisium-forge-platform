@@ -32,7 +32,7 @@ const {
     onSnapshot, setDoc, writeBatch, getCountFromServer
 } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
 import {
-    getAuth, signInWithPopup, signOut, GoogleAuthProvider, onAuthStateChanged
+    getAuth, signInWithPopup, signOut, GoogleAuthProvider, onAuthStateChanged, signInAnonymously
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -997,6 +997,9 @@ onAuthStateChanged(auth, user => {
         canSubmit = true;
         updateSubmissionUI();
         resetStreakUIOnSignOut();
+
+        // Sign in anonymously to enable real stats/presence for guests
+        signInAnonymously(auth).catch(console.error);
     }
 
     // Always keep listeners active (public feed)
@@ -1004,7 +1007,7 @@ onAuthStateChanged(auth, user => {
 });
 
 function updateAuthUI(user) {
-    if (user) {
+    if (user && !user.isAnonymous) {
         // Signed-in state
         if (loginPrompt) loginPrompt.classList.add('hidden');
         if (submitSection) submitSection.classList.remove('hidden');
@@ -1706,7 +1709,7 @@ window.shareIdea = async function (ideaId, title) {
 // ═══════════════════════════════════════════════════════════════════
 window.submitIdea = async function (event) {
     event.preventDefault();
-    if (!currentUser) return Swal.fire({ icon: 'warning', title: 'Please Sign In' });
+    if (!currentUser || currentUser.isAnonymous) return Swal.fire({ icon: 'warning', title: 'Please Sign In' });
     // Timer and limits removed - submissions always open
 
     const title = document.getElementById('ideaTitle').value.trim();
