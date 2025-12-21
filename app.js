@@ -1817,13 +1817,10 @@ function formatTime(ts) {
 function renderCard(idea, index, isBadgeTop = false) {
     const isOwner = currentUser && currentUser.uid === idea.uid;
     const canDelete = isAdmin || isOwner;
-    const escapedTitle = escapeHtml(idea.title).replace(/'/g, "\\'");
-    const rawDesc = idea.description || '';
-    const escapedDesc = escapeHtml(rawDesc).replace(/'/g, "\\'");
 
-    // Edit button for owner only
+    // Edit button for owner only - uses data-id, will fetch current data from Firestore
     const editBtn = isOwner ? `
-        <button onclick="editIdea('${idea.id}', '${escapedTitle}', '${escapedDesc}')" class="w-8 h-8 rounded-lg bg-aurora/10 hover:bg-aurora/30 text-aurora flex items-center justify-center transition-all" title="Edit Idea">
+        <button onclick="editIdeaById('${idea.id}')" class="w-8 h-8 rounded-lg bg-aurora/10 hover:bg-aurora/30 text-aurora flex items-center justify-center transition-all" title="Edit Idea">
             <i class="fa-solid fa-pen text-sm"></i>
         </button>
     ` : '';
@@ -1836,7 +1833,6 @@ function renderCard(idea, index, isBadgeTop = false) {
 
     // Founder toggle (disabled in UI)
     const founderToggleBtn = '';
-    const inlineEditAttrs = isOwner ? ` ondblclick="editIdea('${idea.id}', '${escapedTitle}', '${escapedDesc}')"` : '';
 
     const related = relatedIndex && relatedIndex.get(idea.id) ? relatedIndex.get(idea.id) : [];
     let relatedHtml = '';
@@ -1866,9 +1862,11 @@ function renderCard(idea, index, isBadgeTop = false) {
 
     let lowSignalClass = '';
 
-    const isLongDesc = rawDesc.length > 320;
-    const descClasses = `idea-desc markdown-preview ${isLongDesc ? 'idea-desc-collapsed' : ''}`;
-    const descExpanded = isLongDesc ? 'false' : 'true';
+    // Description truncation
+    const rawDesc = idea.description || '';
+    const MAX_DESC_LENGTH = 200;
+    const isLongDesc = rawDesc.length > MAX_DESC_LENGTH;
+    const truncatedDesc = isLongDesc ? rawDesc.substring(0, MAX_DESC_LENGTH) + '...' : rawDesc;
 
     return `
         <div id="idea-${idea.id}" class="idea-card glass-card rounded-2xl p-6${lowSignalClass}" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s;">
@@ -1884,11 +1882,12 @@ function renderCard(idea, index, isBadgeTop = false) {
                     </div>
                 </div>
                 <div>
-                    <h4 class="font-heading text-lg sm:text-xl font-bold text-starlight mb-2 leading-tight"${inlineEditAttrs}>${escapeHtml(idea.title)}</h4>
-                    <div id="desc-${idea.id}" class="${descClasses}" data-expanded="${descExpanded}"${inlineEditAttrs}>
-                        ${renderMarkdown(rawDesc)}
+                    <h4 class="font-heading text-lg sm:text-xl font-bold text-starlight mb-2 leading-tight">${escapeHtml(idea.title)}</h4>
+                    <div class="idea-desc text-sm text-platinum/80 leading-relaxed">
+                        <span id="desc-short-${idea.id}">${escapeHtml(truncatedDesc)}</span>
+                        <span id="desc-full-${idea.id}" class="hidden">${escapeHtml(rawDesc)}</span>
                     </div>
-                    ${isLongDesc ? `<button id="desc-toggle-${idea.id}" type="button" class="desc-toggle-btn mt-2" onclick="toggleDescription('${idea.id}')">عرض المزيد</button>` : ''}
+                    ${isLongDesc ? `<button type="button" id="desc-toggle-${idea.id}" class="text-neon text-xs mt-2 hover:underline" onclick="toggleDescription('${idea.id}')">عرض المزيد</button>` : ''}
                 </div>
                 <div class="flex items-center gap-3 text-xs text-platinum flex-wrap">
                     <span><i class="fa-solid fa-user text-neon/60 mr-1"></i>${escapeHtml(idea.author)}</span>
@@ -1900,6 +1899,28 @@ function renderCard(idea, index, isBadgeTop = false) {
 }
 
 function renderCommentsList() { /* comments disabled */ }
+
+window.toggleDescription = function (ideaId) {
+    const shortEl = document.getElementById('desc-short-' + ideaId);
+    const fullEl = document.getElementById('desc-full-' + ideaId);
+    const toggleBtn = document.getElementById('desc-toggle-' + ideaId);
+
+    if (!shortEl || !fullEl || !toggleBtn) return;
+
+    const isExpanded = fullEl.classList.contains('hidden') === false;
+
+    if (isExpanded) {
+        // Collapse
+        shortEl.classList.remove('hidden');
+        fullEl.classList.add('hidden');
+        toggleBtn.textContent = 'عرض المزيد';
+    } else {
+        // Expand
+        shortEl.classList.add('hidden');
+        fullEl.classList.remove('hidden');
+        toggleBtn.textContent = 'عرض أقل';
+    }
+};
 
 window.openComments = function () {
     Swal.fire({ icon: 'info', title: 'Comments disabled', text: 'Commenting is turned off.' });
