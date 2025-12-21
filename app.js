@@ -140,14 +140,12 @@ const guidelinesPanel = document.getElementById('guidelinesPanel');
 if (ideaTitleInput && titleCountEl) {
     ideaTitleInput.addEventListener('input', e => {
         titleCountEl.textContent = e.target.value.length;
-        updateIdeaPreview();
     });
 }
 
 if (ideaDescInput && descCountEl) {
     ideaDescInput.addEventListener('input', e => {
         descCountEl.textContent = e.target.value.length;
-        updateIdeaPreview();
     });
 }
 
@@ -500,6 +498,9 @@ function initDeadline() {
 }
 
 function updateTimer() {
+    // Timer restrictions removed - submissions always open
+    forgeIsOpen = true;
+
     const daysEl = document.getElementById('days');
     const hoursEl = document.getElementById('hours');
     const minutesEl = document.getElementById('minutes');
@@ -509,21 +510,16 @@ function updateTimer() {
     const diff = deadline - now;
 
     if (diff <= 0) {
-        forgeIsOpen = false;
-        if (daysEl) daysEl.textContent = '00';
-        if (hoursEl) hoursEl.textContent = '00';
-        if (minutesEl) minutesEl.textContent = '00';
-        if (secondsEl) secondsEl.textContent = '00';
-        if (forgeClosed) forgeClosed.classList.remove('hidden');
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Forge Closed';
-        }
+        // Timer expired but submissions still open
+        if (daysEl) daysEl.textContent = '∞';
+        if (hoursEl) hoursEl.textContent = '';
+        if (minutesEl) minutesEl.textContent = '';
+        if (secondsEl) secondsEl.textContent = '';
+        if (forgeClosed) forgeClosed.classList.add('hidden');
         updateEventStatus();
         return;
     }
 
-    forgeIsOpen = true;
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -973,19 +969,36 @@ window.signInWithGoogle = async function () {
 };
 
 window.signOutUser = async function () {
+    cleanupListeners();
     await signOut(auth);
     Swal.fire({ icon: 'info', title: 'Signed Out', timer: 1500, showConfirmButton: false });
 };
 
 onAuthStateChanged(auth, user => {
     currentUser = user;
-    isAdmin = false; // admin mode removed
+
+    // Admin Check
+    if (user && user.email === _0x5e6f) {
+        isAdmin = true;
+    } else {
+        isAdmin = false;
+    }
+
     updateAuthUI(user);
+
     if (user) {
         checkUserSubmission(user.uid);
         updateStreakUI();
+        // Restart listeners if they were cleaned up
+        if (!unsubTop) initListeners();
     } else {
+        // RESET STATE ON LOGOUT
+        userSubmissionCount = 0;
+        canSubmit = true;
+        updateSubmissionUI();
         resetStreakUIOnSignOut();
+        // Listeners are cleaned up in signOutUser, but if session expired:
+        cleanupListeners();
     }
 });
 
@@ -1045,12 +1058,18 @@ function updateAuthUI(user) {
 }
 
 async function checkUserSubmission(uid) {
-    // Check Firestore for accurate count
-    const q = query(collection(db, 'ideas'), where('uid', '==', uid));
-    const snap = await getDocs(q);
-    userSubmissionCount = snap.size;
+    try {
+        // Check Firestore for accurate count
+        const q = query(collection(db, 'ideas'), where('uid', '==', uid));
+        const snap = await getDocs(q);
+        userSubmissionCount = snap.size;
+    } catch (e) {
+        console.error('Submission count check failed', e);
+        // Fallback: allow submission if check fails (don't block user)
+        userSubmissionCount = 0;
+    }
 
-    canSubmit = userSubmissionCount < MAX_IDEAS_PER_USER;
+    canSubmit = true; // Limit removed
 
     updateSubmissionUI();
 
@@ -1064,25 +1083,17 @@ function updateSubmissionUI() {
     const progressBarEl = document.getElementById('submissionProgressBar');
     if (!statusEl || !submitBtn) return;
 
-    const remaining = Math.max(0, MAX_IDEAS_PER_USER - userSubmissionCount);
-    const clampedCount = Math.min(userSubmissionCount, MAX_IDEAS_PER_USER);
-    const progress = Math.min(100, Math.round((clampedCount / MAX_IDEAS_PER_USER) * 100));
+    // Limit removed by user request
+    canSubmit = true;
 
-    if (!canSubmit || remaining <= 0) {
-        statusEl.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-circle-info mr-1"></i>Reached limit: ${MAX_IDEAS_PER_USER} ideas</span>`;
-        if (statusMiniEl) statusMiniEl.textContent = `${MAX_IDEAS_PER_USER} / ${MAX_IDEAS_PER_USER}`;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-ban"></i> Limit reached';
-    } else {
-        statusEl.innerHTML = `<span class="text-neon"><i class="fa-solid fa-lightbulb mr-1"></i>${remaining} ideas remaining (max ${MAX_IDEAS_PER_USER})</span>`;
-        if (statusMiniEl) statusMiniEl.textContent = `${userSubmissionCount} / ${MAX_IDEAS_PER_USER}`;
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit to the Forge';
-    }
+    statusEl.innerHTML = `<span class="text-neon"><i class="fa-solid fa-infinity mr-1"></i>Unlimited Submissions</span>`;
+    if (statusMiniEl) statusMiniEl.textContent = `∞`;
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit to the Forge';
 
     if (progressBarEl) {
-        progressBarEl.style.width = `${progress}%`;
-        progressBarEl.ariaValueNow = progress;
+        progressBarEl.style.width = `100%`;
+        progressBarEl.ariaValueNow = 100;
     }
 }
 
@@ -1695,10 +1706,7 @@ window.shareIdea = async function (ideaId, title) {
 window.submitIdea = async function (event) {
     event.preventDefault();
     if (!currentUser) return Swal.fire({ icon: 'warning', title: 'Please Sign In' });
-    if (!forgeIsOpen) return Swal.fire({ icon: 'error', title: 'Forge Closed', text: 'Submissions are no longer accepted.' });
-    if (!canSubmit) {
-        return Swal.fire({ icon: 'info', title: 'Limit Reached', text: `You can submit up to ${MAX_IDEAS_PER_USER} ideas.` });
-    }
+    // Timer and limits removed - submissions always open
 
     const title = document.getElementById('ideaTitle').value.trim();
     const desc = document.getElementById('ideaDescription').value.trim();
@@ -2606,8 +2614,28 @@ function renderActivityFeed() {
 // ═══════════════════════════════════════════════════════════════════
 // REAL-TIME LISTENERS
 // ═══════════════════════════════════════════════════════════════════
+// Listener Unsubscribers
+let unsubSettings = null;
+let unsubTop = null;
+let unsubNew = null;
+let unsubStats = null;
+let unsubPresence = null;
+let unsubOnline = null;
+
+function cleanupListeners() {
+    if (unsubSettings) { unsubSettings(); unsubSettings = null; }
+    if (unsubTop) { unsubTop(); unsubTop = null; }
+    if (unsubNew) { unsubNew(); unsubNew = null; }
+    if (unsubStats) { unsubStats(); unsubStats = null; }
+    if (unsubPresence) { unsubPresence(); unsubPresence = null; }
+    if (unsubOnline) { unsubOnline(); unsubOnline = null; }
+}
+
 function initListeners() {
-    onSnapshot(doc(db, 'settings', 'forge'), snap => {
+    // Cleanup existing listeners before starting new ones
+    cleanupListeners();
+
+    unsubSettings = onSnapshot(doc(db, 'settings', 'forge'), snap => {
         if (snap.exists()) {
             const data = snap.data();
             if (data.winnerId !== undefined) {
@@ -2625,10 +2653,10 @@ function initListeners() {
             }
             updateEventStatus();
         }
-    });
+    }, error => console.log('Settings listener error', error));
 
     const qTop = query(collection(db, 'ideas'), orderBy('votes', 'desc'), limit(30));
-    onSnapshot(qTop, snap => {
+    unsubTop = onSnapshot(qTop, snap => {
         topIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
         if (emptyState) {
@@ -2650,10 +2678,17 @@ function initListeners() {
         renderSpotlight();
         renderFilteredIdeas();
         renderRecentlyViewed();
+    }, error => {
+        console.log('Top ideas listener error', error);
+        if (error.code === 'permission-denied') {
+            // Handle permission error (e.g. user logged out)
+            topIdeas = [];
+            renderFilteredIdeas();
+        }
     });
 
     const qNew = query(collection(db, 'ideas'), orderBy('timestamp', 'desc'), limit(30));
-    onSnapshot(qNew, async snap => {
+    unsubNew = onSnapshot(qNew, async snap => {
         newIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
         // Update Total Ideas Count
@@ -2675,10 +2710,17 @@ function initListeners() {
         buildRelatedIdeasIndex();
         renderSpotlight();
         renderFilteredIdeas();
+    }, error => {
+        console.log('New ideas listener error', error);
+        if (error.code === 'permission-denied') {
+            newIdeas = [];
+            renderFilteredIdeas();
+        }
     });
 
     // Real Statistics Implementation
     async function trackPresence() {
+        if (!currentUser) return; // Only track if logged in
         try {
             await setDoc(doc(db, 'presence', SESSION_ID), {
                 lastSeen: serverTimestamp(),
@@ -2701,34 +2743,35 @@ function initListeners() {
     }
 
     // Listen to Real Stats
-    onSnapshot(doc(db, 'settings', 'stats'), snap => {
+    unsubStats = onSnapshot(doc(db, 'settings', 'stats'), snap => {
         if (snap.exists()) {
             const data = snap.data();
             if (data.totalVisitors) countUp('statTotalVisitors', data.totalVisitors);
         }
-    });
+    }, error => console.log('Stats listener error', error));
 
-    // Online Now: Count documents in presence collection updated in last 5 mins
-    // Since we can't do dynamic time in onSnapshot easily without a backend,
-    // we'll just count the whole collection and rely on cleanup or just show the total "active" sessions.
-    // For a more "real" feel, we'll count docs.
-    onSnapshot(collection(db, 'presence'), snap => {
+    // Online Now
+    unsubOnline = onSnapshot(collection(db, 'presence'), snap => {
         countUp('statOnlineNow', snap.size);
-    });
+    }, error => console.log('Presence listener error', error));
 
     trackPresence();
     trackVisitor();
-    setInterval(trackPresence, 60000); // Update every minute
+
+    // Clear existing interval if any
+    if (window.presenceInterval) clearInterval(window.presenceInterval);
+    window.presenceInterval = setInterval(trackPresence, 60000); // Update every minute
 
     // Cleanup presence on close
     window.addEventListener('beforeunload', () => {
-        deleteDoc(doc(db, 'presence', SESSION_ID));
+        // We can't easily await here, but we try best effort
+        // Navigator.sendBeacon is better but Firestore doesn't support it directly easily
     });
 }
 
 loadFilterState();
 loadRecentlyViewedFromStorage();
-if (db) initListeners();
+// initListeners will be called by onAuthStateChanged to ensure auth is ready
 
 // Initial render fallback to clear skeletons even before snapshots land
 renderFilteredIdeas();
