@@ -1306,3 +1306,154 @@ body {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   WIZARD NAVIGATION
+   ═══════════════════════════════════════════════════════════════════ */
+.wizard-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+    padding: 0 1rem;
+}
+
+.wizard-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+    opacity: 0.5;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wizard-step.active {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.wizard-step.completed {
+    opacity: 1;
+    color: var(--neon);
+}
+
+.step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+    transition: all 0.4s ease;
+}
+
+.wizard-step.active .step-num {
+    background: var(--neon);
+    color: #000;
+    border-color: var(--neon);
+    box-shadow: 0 0 15px var(--neon-glow);
+}
+
+.wizard-step.completed .step-num {
+    background: rgba(57, 255, 20, 0.2);
+    border-color: var(--neon);
+    color: var(--neon);
+}
+
+.step-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.wizard-line {
+    flex: 1;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0 1rem;
+    margin-bottom: 1.2rem;
+    /* Align with circle center approximately */
+    position: relative;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.wizard-line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--neon);
+    transform: scaleX(0);
+    transform-origin: right;
+    /* RTL */
+    transition: transform 0.5s ease;
+}
+
+.wizard-step.completed+.wizard-line::after {
+    transform: scaleX(1);
+}
+
+/* Form Steps Animation */
+.form-step {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.btn-submit,
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-submit {
+    background: var(--neon);
+    color: #000;
+    border: none;
+}
+
+.btn-submit:hover {
+    box-shadow: 0 0 20px var(--neon-glow);
+    transform: translateY(-2px);
+}
+
+.btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--platinum);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}

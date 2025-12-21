@@ -166,6 +166,56 @@ if (guidelinesToggle && guidelinesPanel) {
 let currentIdeaStep = 1;
 const MAX_IDEA_STEP = 3;
 
+window.goToIdeaStep = function (step) {
+    if (step < 1 || step > MAX_IDEA_STEP) return;
+    currentIdeaStep = step;
+
+    // Update Indicators
+    for (let i = 1; i <= MAX_IDEA_STEP; i++) {
+        const ind = document.getElementById(`step${i}Indicator`);
+        const content = document.getElementById(`wizardStep${i}`);
+
+        if (ind) {
+            ind.classList.toggle('active', i === step);
+            ind.classList.toggle('completed', i < step);
+        }
+
+        if (content) {
+            if (i === step) {
+                content.classList.remove('hidden');
+                // Small fade-in animation
+                content.style.animation = 'none';
+                content.offsetHeight; /* trigger reflow */
+                content.style.animation = 'fadeIn 0.3s ease forwards';
+            } else {
+                content.classList.add('hidden');
+            }
+        }
+    }
+};
+
+window.nextIdeaStep = function () {
+    if (currentIdeaStep === 1) {
+        const title = document.getElementById('ideaTitle').value.trim();
+        const author = document.getElementById('authorName').value.trim();
+        if (!title || !author) return Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'Please fill in the title and your name.' });
+    } else if (currentIdeaStep === 2) {
+        const desc = document.getElementById('ideaDescription').value.trim();
+        if (!desc) return Swal.fire({ icon: 'warning', title: 'Missing Description', text: 'Please describe your idea.' });
+        updateIdeaPreview(); // Ensure preview is fresh
+    }
+
+    if (currentIdeaStep < MAX_IDEA_STEP) {
+        goToIdeaStep(currentIdeaStep + 1);
+    }
+};
+
+window.prevIdeaStep = function () {
+    if (currentIdeaStep > 1) {
+        goToIdeaStep(currentIdeaStep - 1);
+    }
+};
+
 function renderMarkdown(text) {
     const safe = escapeHtml(text || '');
     let html = safe;
@@ -1763,7 +1813,8 @@ window.submitIdea = async function (event) {
         await checkUserSubmission(currentUser.uid);
 
         bumpDailyStreak();
-        markSprintParticipation();
+        bumpDailyStreak();
+        // markSprintParticipation removed
 
         Swal.fire({
             icon: 'success',
