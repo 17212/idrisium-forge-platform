@@ -1044,16 +1044,19 @@ async function checkUserSubmission(uid) {
 
 function updateSubmissionUI() {
     const statusEl = document.getElementById('submissionStatus');
+    const statusMiniEl = document.getElementById('submissionStatusMini');
     if (!statusEl || !submitBtn) return;
 
     const remaining = Math.max(0, MAX_IDEAS_PER_USER - userSubmissionCount);
 
     if (!canSubmit || remaining <= 0) {
         statusEl.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-circle-info mr-1"></i>Reached limit: ${MAX_IDEAS_PER_USER} ideas</span>`;
+        if (statusMiniEl) statusMiniEl.textContent = `${MAX_IDEAS_PER_USER} / ${MAX_IDEAS_PER_USER}`;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fa-solid fa-ban"></i> Limit reached';
     } else {
         statusEl.innerHTML = `<span class="text-neon"><i class="fa-solid fa-lightbulb mr-1"></i>${remaining} ideas remaining (max ${MAX_IDEAS_PER_USER})</span>`;
+        if (statusMiniEl) statusMiniEl.textContent = `${userSubmissionCount} / ${MAX_IDEAS_PER_USER}`;
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit to the Forge';
     }
