@@ -1349,22 +1349,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-family: 'Orbitron', sans-serif;
-    transition: all 0.4s ease;
-}
-
-.wizard-step.active .step-num {
-    background: var(--neon);
-    color: #000;
-    border-color: var(--neon);
-    box-shadow: 0 0 15px var(--neon-glow);
-}
-
-.wizard-step.completed .step-num {
-    background: rgba(57, 255, 20, 0.2);
-    border-color: var(--neon);
-    color: var(--neon);
 }
 
 .step-text {

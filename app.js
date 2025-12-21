@@ -167,7 +167,8 @@ let currentIdeaStep = 1;
 const MAX_IDEA_STEP = 3;
 
 window.goToIdeaStep = function (step) {
-    if (step < 1 || step > MAX_IDEA_STEP) return;
+    step = parseInt(step);
+    if (isNaN(step) || step < 1 || step > MAX_IDEA_STEP) return;
     currentIdeaStep = step;
 
     // Update Indicators
@@ -176,17 +177,24 @@ window.goToIdeaStep = function (step) {
         const content = document.getElementById(`wizardStep${i}`);
 
         if (ind) {
-            ind.classList.toggle('active', i === step);
-            ind.classList.toggle('completed', i < step);
+            // Remove all classes first
+            ind.classList.remove('active', 'completed');
+
+            // Add appropriate class
+            if (i === step) {
+                ind.classList.add('active');
+            } else if (i < step) {
+                ind.classList.add('completed');
+            }
         }
 
         if (content) {
             if (i === step) {
                 content.classList.remove('hidden');
-                // Small fade-in animation
+                // Re-trigger animation
                 content.style.animation = 'none';
                 content.offsetHeight; /* trigger reflow */
-                content.style.animation = 'fadeIn 0.3s ease forwards';
+                content.style.animation = 'fadeIn 0.4s ease forwards';
             } else {
                 content.classList.add('hidden');
             }
