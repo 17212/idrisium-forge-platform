@@ -99,8 +99,8 @@
                 <i class="fa-solid fa-user-lock text-neon text-4xl"></i>
             </div>
             <h2 class="font-heading text-3xl font-bold text-starlight mb-3">Join IDRISIUM IDEAS</h2>
-            <p class="text-platinum mb-8 max-w-md mx-auto">Sign in with Google to submit revolutionary ideas and send your karma
-                into the future of IDRISIUM.</p>
+            <p class="text-platinum mb-8 max-w-md mx-auto">Sign in with Google to submit revolutionary ideas and join the IDRISIUM forge.</p>
+
             <button onclick="signInWithGoogle()"
                 class="google-btn px-8 py-4 rounded-2xl text-lg font-semibold flex items-center gap-3 mx-auto">
                 <svg width="24" height="24" viewBox="0 0 48 48">
@@ -120,12 +120,41 @@
         <!-- Submit Form -->
         <section id="submitSection" class="glass-card rounded-3xl p-8 mb-10 hidden">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="font-heading text-xl font-bold text-starlight flex items-center gap-3">
-                    <i class="fa-solid fa-wand-magic-sparkles text-neon"></i> Forge Your Idea
-                </h3>
-                <div class="flex flex-col items-end gap-1 text-xs text-platinum">
+                <div class="flex items-center gap-3">
+                    <h3 class="font-heading text-xl font-bold text-starlight flex items-center gap-3">
+                        <i class="fa-solid fa-wand-magic-sparkles text-neon"></i> Forge Your Idea
+                    </h3>
+                    <span class="text-[11px] px-3 py-1 rounded-full bg-neon/10 text-neon border border-neon/30">حد أقصى 3 أفكار</span>
+                </div>
+                <div class="flex flex-col items-end gap-1 text-xs text-platinum text-right">
                     <span id="wizardStepLabel">Step 1 of 3 · Basics</span>
                     <span id="submissionStatus"></span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/40">
+                    <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-bolt"></i> تلميحات سريعة</p>
+                    <ul class="text-[12px] text-platinum/80 space-y-1 list-disc list-inside">
+                        <li>عرّف المشكلة وجمهورك بوضوح.</li>
+                        <li>اذكر أهم ميزة أو تفصيلة تميّز الفكرة.</li>
+                        <li>فكّر في أول نسخة يمكن تنفيذها سريعاً.</li>
+                    </ul>
+                </div>
+                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/40">
+                    <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> تحقق سريع</p>
+                    <ul class="text-[12px] text-platinum/80 space-y-1 list-disc list-inside">
+                        <li>عنوان واضح (≤ 200 حرف).</li>
+                        <li>وصف موجز ومباشر.</li>
+                        <li>احترام السياسات (بدون بيانات حساسة).</li>
+                    </ul>
+                </div>
+                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/40">
+                    <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-gauge-high"></i> جاهزية الإرسال</p>
+                    <div class="flex items-center justify-between text-[12px] text-platinum/80 mb-2">
+                        <span>عدد أفكارك الحالية</span>
+                        <span id="submissionStatusMini" class="text-neon font-semibold">0 / 3</span>
+                    </div>
+                    <p class="text-[11px] text-platinum/60">عند الوصول للحد الأقصى لن يمكنك الإرسال حتى تحذف فكرة أو ينتهي الحد.</p>
                 </div>
             </div>
             <form id="ideaForm" onsubmit="submitIdea(event)" class="space-y-5">
@@ -308,83 +337,32 @@
 
     <!-- Profile Modal -->
     <div id="profileModal" class="modal-overlay hidden" onclick="if(event.target === this) closeProfile()">
-        <div class="glass-card max-w-lg w-full p-8 mx-4 relative flex flex-col items-center">
-            <button onclick="closeProfile()" class="absolute top-4 right-4 text-platinum hover:text-white"><i
+        <div class="glass-card max-w-lg w-full mx-4 relative flex flex-col overflow-hidden rounded-3xl border border-neon/15">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(57,255,20,0.08),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(20,244,201,0.08),transparent_25%)] pointer-events-none"></div>
+            <button onclick="closeProfile()" class="absolute top-4 right-4 text-platinum hover:text-white z-10"><i
                     class="fa-solid fa-times text-xl"></i></button>
 
-            <!-- Rank Badge -->
-            <div class="relative mb-6">
-                <div class="w-24 h-24 rounded-full p-1 border-2 border-neon shadow-lg shadow-neon/50">
+            <div class="bg-gradient-to-r from-neon/20 via-aurora/20 to-black px-8 pt-10 pb-8 relative z-10 flex flex-col items-center">
+                <div class="w-24 h-24 rounded-full p-1 border-2 border-neon shadow-lg shadow-neon/50 bg-black/60">
                     <img id="profileAvatar" src="" class="w-full h-full rounded-full object-cover">
                 </div>
-                <div id="profileRankBadge"
-                    class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-black border border-neon text-neon text-xs font-bold px-3 py-1 rounded-full uppercase whitespace-nowrap box-shadow-neon"
-                    title="Your current reputation tier based on total karma.">
-                    Novice
-                </div>
+                <h2 id="profileName" class="text-2xl font-bold text-white mt-4 mb-1 text-center">User Name</h2>
+                <p id="profileEmail" class="text-sm text-platinum text-center">user@example.com</p>
             </div>
 
-            <h2 id="profileName" class="text-2xl font-bold text-white mb-1">User Name</h2>
-            <p id="profileEmail" class="text-sm text-platinum mb-6">user@example.com</p>
-
-            <!-- Stats -->
-            <div class="grid grid-cols-3 gap-4 w-full mb-3 text-center">
-                <div class="p-3 rounded-xl bg-white/5">
-                    <p id="profileIdeaCount" class="text-2xl font-bold text-teal">0</p>
-                    <p class="text-xs text-platinum">Forged</p>
+            <div class="p-8 grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                <div class="glass-card rounded-2xl p-4 border border-neon/20 bg-black/60">
+                    <p class="text-xs text-platinum/70 uppercase tracking-wide mb-1">Ideas Submitted</p>
+                    <p id="profileIdeaCount" class="text-3xl font-bold text-neon">0</p>
                 </div>
-                <div class="p-3 rounded-xl bg-white/5">
-                    <p id="profileVoteCount" class="text-2xl font-bold text-neon" title="Total karma your ideas have accumulated.">0</p>
-                    <p class="text-xs text-platinum">Karma</p>
-                </div>
-                <div class="p-3 rounded-xl bg-white/5">
-                    <p id="profileRankLevel" class="text-2xl font-bold text-aurora">1</p>
-                    <p class="text-xs text-platinum">Level</p>
-                </div>
-            </div>
-            <div class="w-full mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-                <div class="p-3 rounded-xl bg-white/5">
-                    <p id="profileKarmaCreation" class="text-lg font-bold text-neon">0</p>
-                    <p class="text-[11px] text-platinum/80">Creation</p>
-                </div>
-                <div class="p-3 rounded-xl bg-white/5">
-                    <p id="profileKarmaComments" class="text-lg font-bold text-aurora">0</p>
-                    <p class="text-[11px] text-platinum/80">Comments</p>
-                </div>
-                <div class="p-3 rounded-xl bg-white/5">
-                    <p id="profileKarmaCommunity" class="text-lg font-bold text-teal">0</p>
-                    <p class="text-[11px] text-platinum/80">Community</p>
-                </div>
-            </div>
-
-            <!-- Progress -->
-            <div class="w-full text-left mb-4">
-                <div class="flex justify-between text-xs text-platinum mb-2">
-                    <span id="rankCurrent">Novice</span>
-                    <span id="rankNext">Apprentice</span>
-                </div>
-                <div class="rank-progress-bg w-full">
-                    <div id="rankProgress" class="rank-progress-fill" style="width: 0%"></div>
-                </div>
-                <p id="rankMsg" class="text-xs text-center mt-3 text-neon-dim">10 karma to next rank</p>
-            </div>
-
-            <!-- Season Snapshot -->
-            <div class="w-full mb-6">
-                <h3 class="text-white font-bold text-sm mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-mountain-sun text-neon"></i>
-                    <span>Season Snapshot</span>
-                </h3>
-                <div id="profileSeasonSnapshot" class="text-[11px] text-platinum/80">
-                    <p class="text-[11px] text-platinum/60">Your seasonal record will appear here as you earn karma.</p>
-                </div>
-            </div>
-
-            <!-- Badges Grid -->
-            <div class="w-full">
-                <h3 class="text-white font-bold text-sm mb-3 border-b border-white/10 pb-2">Your Badges</h3>
-                <div id="profileBadges" class="flex flex-wrap gap-2 text-2xl text-platinum/30 justify-center">
-                    <!-- Badges injected by JS -->
+                <div class="glass-card rounded-2xl p-4 border border-white/10 bg-white/5 flex flex-col justify-between">
+                    <div>
+                        <p class="text-xs text-platinum/70 uppercase tracking-wide mb-1">Account</p>
+                        <p class="text-sm text-platinum">Signed in with Google</p>
+                    </div>
+                    <button onclick="signOutUser(); closeProfile();" class="mt-3 px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-sm font-semibold flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                    </button>
                 </div>
             </div>
         </div>

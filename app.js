@@ -44,9 +44,6 @@ let topIdeas = [];
 let newIdeas = [];
 let userSubmissionCount = 0;
 let canSubmit = true;
-let timeRemainingMsg = '';
-let userCooldownDeadline = null;
-let cooldownInterval = null;
 let forgeIsOpen = true;
 let isAdmin = false;
 let currentUserKarma = 0; // Global Karma Tracker
@@ -998,12 +995,14 @@ function updateAuthUI(user) {
                 <img src="${user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'U') + '&background=39FF14&color=000'}" 
                      alt="Avatar" class="user-avatar cursor-pointer hover:scale-110 transition-transform" onclick="window.openProfile()" 
                      onerror="this.src='https://ui-avatars.com/api/?name=U&background=39FF14&color=000'">
+                <button onclick="window.openProfile()" class="sm:hidden px-3 py-2 rounded-xl bg-white/5 text-xs text-platinum hover:bg-white/10 transition-colors">Profile</button>
                 <div class="hidden sm:block">
                     <p class="text-sm font-semibold text-starlight flex items-center gap-2">
                         ${escapeHtml(user.displayName || 'Forger')} 
                         ${adminBadge}
                     </p>
                     <div class="flex items-center gap-2 text-xs text-platinum">
+                        <button onclick="window.openProfile()" class="hover:text-neon transition-colors">Profile</button>
                         <button onclick="signOutUser()" class="hover:text-white transition-colors">Sign Out</button>
                     </div>
                 </div>
@@ -1029,67 +1028,13 @@ function updateAuthUI(user) {
     }
 }
 
-function startCooldownTicker() {
-    if (cooldownInterval) clearInterval(cooldownInterval);
-    cooldownInterval = setInterval(() => {
-        if (!userCooldownDeadline) return;
-        const diff = userCooldownDeadline - Date.now();
-        if (diff <= 0) {
-            clearInterval(cooldownInterval);
-            checkUserSubmission(currentUser.uid);
-            return;
-        }
-        const h = Math.floor(diff / (1000 * 60 * 60));
-        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((diff % (1000 * 60)) / 1000);
-        const ts = `${h}h ${m}m ${s}s`;
-
-        // Update UI directly
-        if (!canSubmit) {
-            const statusEl = document.getElementById('submissionStatus');
-            const btnEl = document.getElementById('submitBtn');
-            if (statusEl) statusEl.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-clock mr-1"></i>Cooldown: ${ts}</span>`;
-            if (btnEl) btnEl.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> Wait ${ts}`;
-        }
-    }, 1000);
-}
-
 async function checkUserSubmission(uid) {
-    canSubmit = true;
-    timeRemainingMsg = '';
-    if (cooldownInterval) clearInterval(cooldownInterval);
-
-    // Check Firestore for accurate count & cooldown
+    // Check Firestore for accurate count
     const q = query(collection(db, 'ideas'), where('uid', '==', uid));
     const snap = await getDocs(q);
     userSubmissionCount = snap.size;
 
-    // Fixed daily limit without karma
-    const dynamicMax = 3;
-
-    if (userSubmissionCount >= dynamicMax) {
-        const ideas = snap.docs.map(d => d.data());
-        ideas.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-
-        if (ideas.length > 0) {
-            const lastTime = ideas[0].timestamp ? ideas[0].timestamp.toDate() : new Date();
-            const diffMs = Date.now() - lastTime.getTime();
-            const cooldownMs = 12 * 60 * 60 * 1000;
-
-            if (diffMs < cooldownMs) {
-                canSubmit = false;
-                const remainingMs = cooldownMs - diffMs;
-                userCooldownDeadline = new Date(Date.now() + remainingMs);
-                const h = Math.floor(remainingMs / (1000 * 60 * 60));
-                const m = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
-                timeRemainingMsg = `${h}h ${m}m`;
-                startCooldownTicker();
-            }
-        }
-    } else {
-        // Update limit display text
-        document.getElementById('submissionStatus').innerHTML = `<span class="text-neon"><i class="fa-solid fa-lightbulb mr-1"></i>${dynamicMax - userSubmissionCount} ideas remaining (Limit: ${dynamicMax})</span>`;
-    }
+    canSubmit = userSubmissionCount < MAX_IDEAS_PER_USER;
 
     updateSubmissionUI();
 
@@ -1101,18 +1046,14 @@ function updateSubmissionUI() {
     const statusEl = document.getElementById('submissionStatus');
     if (!statusEl || !submitBtn) return;
 
-    const remaining = MAX_IDEAS_PER_USER - userSubmissionCount;
+    const remaining = Math.max(0, MAX_IDEAS_PER_USER - userSubmissionCount);
 
-    if (!canSubmit) {
-        statusEl.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-clock mr-1"></i>Cooldown: ${timeRemainingMsg}</span>`;
+    if (!canSubmit || remaining <= 0) {
+        statusEl.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-circle-info mr-1"></i>Reached limit: ${MAX_IDEAS_PER_USER} ideas</span>`;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> Wait ${timeRemainingMsg}`;
-    } else if (remaining <= 0) {
-        statusEl.innerHTML = `<span class="text-aurora"><i class="fa-solid fa-star mr-1"></i>Bonus Submission Available</span>`;
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit Bonus Idea';
+        submitBtn.innerHTML = '<i class="fa-solid fa-ban"></i> Limit reached';
     } else {
-        statusEl.innerHTML = `<span class="text-neon"><i class="fa-solid fa-lightbulb mr-1"></i>${remaining} ideas remaining</span>`;
+        statusEl.innerHTML = `<span class="text-neon"><i class="fa-solid fa-lightbulb mr-1"></i>${remaining} ideas remaining (max ${MAX_IDEAS_PER_USER})</span>`;
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit to the Forge';
     }
@@ -1791,7 +1732,7 @@ window.submitIdea = async function (event) {
     if (!currentUser) return Swal.fire({ icon: 'warning', title: 'Please Sign In' });
     if (!forgeIsOpen) return Swal.fire({ icon: 'error', title: 'Forge Closed', text: 'Submissions are no longer accepted.' });
     if (!canSubmit) {
-        return Swal.fire({ icon: 'info', title: 'Cooldown Active', text: `Please wait ${timeRemainingMsg} before submitting again.` });
+        return Swal.fire({ icon: 'info', title: 'Limit Reached', text: `You can submit up to ${MAX_IDEAS_PER_USER} ideas.` });
     }
 
     const title = document.getElementById('ideaTitle').value.trim();
@@ -1905,8 +1846,6 @@ function formatTime(ts) {
 function renderCard(idea, index, isBadgeTop = false) {
     const isOwner = currentUser && currentUser.uid === idea.uid;
     const canDelete = isAdmin || isOwner;
-    const isWinner = globalWinnerId === idea.id;
-    const isFounderPick = idea.founderPick === true;
     const escapedTitle = escapeHtml(idea.title).replace(/'/g, "\\'");
     const rawDesc = idea.description || '';
     const escapedDesc = escapeHtml(rawDesc).replace(/'/g, "\\'");
@@ -1924,18 +1863,8 @@ function renderCard(idea, index, isBadgeTop = false) {
         </button>
     ` : '';
 
-    // Winner / Founder styling
-    const winnerStyle = isWinner ? 'border: 3px solid #FFD700; box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);' : '';
-    const founderStyle = !isWinner && isFounderPick ? 'border: 2px solid rgba(57,255,20,0.5); box-shadow: 0 0 25px rgba(57,255,20,0.4);' : '';
-    const winnerBadge = isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-gold/30 to-yellow-500/30 text-gold rounded-full animate-pulse" title="Community winner: highest karma when the Forge closed."><i class="fa-solid fa-trophy mr-1"></i>WINNER</span>' : '';
-    const founderBadge = !isWinner && isFounderPick ? '<span class="px-2 py-1 text-xs font-semibold bg-neon/15 text-neon rounded-full border border-neon/40" title="Hand-picked by the founder as a strategic idea."><i class="fa-solid fa-star mr-1"></i>Founder Pick</span>' : '';
-
-    const founderToggleBtn = isAdmin ? `
-        <button onclick="toggleFounderPick('${idea.id}', ${isFounderPick})" class="w-8 h-8 rounded-lg bg-neon/10 hover:bg-neon/30 text-neon flex items-center justify-center transition-all" title="${isFounderPick ? 'Remove Founder Pick' : 'Mark as Founder Pick'}">
-            <i class="fa-solid fa-star${isFounderPick ? '' : '-half-stroke'} text-sm"></i>
-        </button>
-    ` : '';
-
+    // Founder toggle (disabled in UI)
+    const founderToggleBtn = '';
     const inlineEditAttrs = isOwner ? ` ondblclick="editIdea('${idea.id}', '${escapedTitle}', '${escapedDesc}')"` : '';
 
     const related = relatedIndex && relatedIndex.get(idea.id) ? relatedIndex.get(idea.id) : [];
@@ -1971,15 +1900,11 @@ function renderCard(idea, index, isBadgeTop = false) {
     const descExpanded = isLongDesc ? 'false' : 'true';
 
     return `
-        <div id="idea-${idea.id}" class="idea-card glass-card rounded-2xl p-6${lowSignalClass}" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s; ${winnerStyle} ${founderStyle}">
+        <div id="idea-${idea.id}" class="idea-card glass-card rounded-2xl p-6${lowSignalClass}" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s;">
             <div class="flex flex-col gap-4">
                 <div class="flex items-start justify-between gap-3 flex-wrap">
-                    <div class="flex items-center gap-2 flex-wrap">
-                        ${winnerBadge}
-                        ${founderBadge}
-                        ${isBadgeTop && index === 0 && !isWinner ? '<span class="px-2 py-1 text-xs font-bold bg-gradient-to-r from-neon/20 to-teal/20 text-neon rounded-full" title="Top-ranked idea in this feed."><i class="fa-solid fa-crown mr-1"></i>Top</span>' : ''}
-                        ${!isBadgeTop && !isWinner ? '<span class="px-2 py-1 text-xs font-semibold bg-aurora/20 text-aurora rounded-full" title="Recently forged idea in this event."><i class="fa-solid fa-sparkles mr-1"></i>New</span>' : ''}
-                        <span class="text-xs text-platinum">${formatTime(idea.timestamp)}</span>
+                    <div class="flex items-center gap-2 flex-wrap text-xs text-platinum">
+                        <span>${formatTime(idea.timestamp)}</span>
                     </div>
                     <div class="flex items-center gap-2">
                         ${founderToggleBtn}
@@ -1996,7 +1921,6 @@ function renderCard(idea, index, isBadgeTop = false) {
                 </div>
                 <div class="flex items-center gap-3 text-xs text-platinum flex-wrap">
                     <span><i class="fa-solid fa-user text-neon/60 mr-1"></i>${escapeHtml(idea.author)}</span>
-                    ${isOwner ? '<span class="text-neon"><i class="fa-solid fa-check-circle mr-1"></i>Yours</span>' : ''}
                 </div>
                 ${relatedHtml}
             </div>
@@ -2924,157 +2848,22 @@ function bumpDailyStreak() {
 // PROFILE & GAMIFICATION
 // ═══════════════════════════════════════════════════════════════════
 window.openProfile = async function () {
-    if (!currentUser) return;
+    if (!currentUser) {
+        Swal.fire({ icon: 'warning', title: 'Please Sign In', text: 'Log in to view your profile.' });
+        return;
+    }
     const modal = document.getElementById('profileModal');
+    if (!modal) {
+        console.warn('Profile modal missing');
+        return;
+    }
 
-    // Set basic info
+    // Basic info only (no ranks/karma/badges)
     const avatarEl = document.getElementById('profileAvatar');
-    if (avatarEl) avatarEl.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName}&background=39FF14&color=000`;
-    setTextIfExists('profileName', currentUser.displayName || '');
+    if (avatarEl) avatarEl.src = currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName || 'U'}&background=39FF14&color=000`;
+    setTextIfExists('profileName', currentUser.displayName || 'Forger');
     setTextIfExists('profileEmail', currentUser.email || '');
     setTextIfExists('profileIdeaCount', userSubmissionCount);
-
-    // Calculate Votes (Idea Creation Karma)
-    let totalVotesReceived = 0;
-    let creationKarma = 0;
-    let acceptedIdeasCount = 0; // ideas with at least 1 karma
-    let highSignalIdeasCount = 0; // ideas with 10+ karma
-    const q = query(collection(db, 'ideas'), where('uid', '==', currentUser.uid));
-    try {
-        const snap = await getDocs(q);
-        snap.forEach(docSnap => {
-            const votes = docSnap.data().votes || 0;
-            totalVotesReceived += votes;
-            creationKarma += votes;
-            if (votes >= 1) acceptedIdeasCount++;
-            if (votes >= 10) highSignalIdeasCount++;
-        });
-    } catch (e) { console.error(e); }
-
-    // TESTER BOOST
-    if (currentUser.email === 'youssefhondi@gmail.com') totalVotesReceived = 999;
-
-    setTextIfExists('profileVoteCount', totalVotesReceived);
-
-    // Determine Rank
-    // Ranks: Novice(0), Apprentice(10), Artisan(50), Master(200), Legend(500)
-    let rank = 'Novice';
-    let nextRank = 'Apprentice';
-    let min = 0, max = 10;
-    let level = 1;
-
-    if (totalVotesReceived >= 500) { rank = 'Legend'; nextRank = 'God Mode'; min = 500; max = 1000; level = 5; }
-    else if (totalVotesReceived >= 200) { rank = 'Master'; nextRank = 'Legend'; min = 200; max = 500; level = 4; }
-    else if (totalVotesReceived >= 50) { rank = 'Artisan'; nextRank = 'Master'; min = 50; max = 200; level = 3; }
-    else if (totalVotesReceived >= 10) { rank = 'Apprentice'; nextRank = 'Artisan'; min = 10; max = 50; level = 2; }
-
-    setTextIfExists('profileRankBadge', rank);
-    setTextIfExists('profileRankLevel', level);
-    setTextIfExists('rankCurrent', rank);
-    setTextIfExists('rankNext', nextRank);
-
-    // Progress Calc
-    let percent = 0;
-    if (rank === 'Legend') percent = 100;
-    else {
-        percent = Math.min(100, Math.max(0, ((totalVotesReceived - min) / (max - min)) * 100));
-    }
-    const rankProgressEl = document.getElementById('rankProgress');
-    if (rankProgressEl) rankProgressEl.style.width = percent + '%';
-
-    if (rank === 'Legend') setTextIfExists('rankMsg', 'Maximum Rank Achieved!');
-    else setTextIfExists('rankMsg', `${max - totalVotesReceived} more karma to reach ${nextRank}`);
-
-    // Seasonal Snapshot
-    try {
-        updateSeasonSnapshot(rank, totalVotesReceived);
-        const seasonEl = document.getElementById('profileSeasonSnapshot');
-        if (seasonEl) {
-            seasonEl.innerHTML = buildSeasonSnapshotsHtml();
-        }
-    } catch (e) {
-        console.log('Season snapshot render failed', e);
-    }
-
-    // Render Badges
-    const badgesEl = document.getElementById('profileBadges');
-    let badgesHtml = '';
-
-    // 1. Founder (User has submitted)
-    if (userSubmissionCount > 0) badgesHtml += `<div class="tooltip" title="Founder: Forged an Idea"><i class="fa-solid fa-hammer text-teal drop-shadow-lg"></i></div>`;
-    else badgesHtml += `<i class="fa-solid fa-hammer"></i>`;
-
-    // 2. Rising Star (10+ Votes)
-    if (totalVotesReceived >= 10) badgesHtml += `<div class="tooltip" title="Rising Star: 10+ Karma"><i class="fa-solid fa-star text-gold drop-shadow-lg"></i></div>`;
-    else badgesHtml += `<i class="fa-solid fa-star"></i>`;
-
-    // 3. Influencer (50+ Votes)
-    if (totalVotesReceived >= 50) badgesHtml += `<div class="tooltip" title="Influencer: 50+ Karma"><i class="fa-solid fa-bullhorn text-aurora drop-shadow-lg"></i></div>`;
-    else badgesHtml += `<i class="fa-solid fa-bullhorn"></i>`;
-
-    // 4. Legend (200+ Votes)
-    if (totalVotesReceived >= 200) badgesHtml += `<div class="tooltip" title="Living Legend: 200+ Karma"><i class="fa-solid fa-crown text-neon drop-shadow-lg"></i></div>`;
-    else badgesHtml += `<i class="fa-solid fa-crown"></i>`;
-
-    // GUIDE
-    badgesHtml += `
-    <div class="mt-4 w-full bg-white/5 rounded-xl p-3 text-left">
-        <h4 class="text-neon text-xs font-bold mb-2 uppercase tracking-wider">Progression Guide</h4>
-        <ul class="text-[10px] text-platinum space-y-1">
-             <li><i class="fa-solid fa-star text-gold mr-1"></i> 10 Karma: Unlock 5 Ideas</li>
-             <li><i class="fa-solid fa-bullhorn text-aurora mr-1"></i> 30 Karma: Unlock 10 Ideas</li>
-             <li><i class="fa-solid fa-crown text-neon mr-1"></i> 50 Karma: Unlock 20 Ideas + Founder Chat</li>
-             <li><i class="fa-solid fa-medal text-yellow-400 mr-1"></i> 200 Karma: Legend Border</li>
-        </ul>
-    </div>`;
-
-    // Karma Layers: Creation / Community (comments disabled)
-    const commentKarma = 0;
-    let communityKarma = 0;
-    try {
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (!key || !key.startsWith('idrisium_vote_')) continue;
-            const val = localStorage.getItem(key);
-            if (val === 'up') communityKarma += 1;
-        }
-    } catch (e) {
-        console.log('Community karma calc failed', e);
-    }
-
-    setTextIfExists('profileKarmaCreation', creationKarma);
-    setTextIfExists('profileKarmaComments', commentKarma);
-    setTextIfExists('profileKarmaCommunity', communityKarma);
-
-    // Combo Badges (comments disabled)
-    try {
-        if (acceptedIdeasCount >= 10) {
-            badgesHtml += `<div class="tooltip" title="Idea Machine: 10+ ideas that earned karma"><i class="fa-solid fa-gears text-neon drop-shadow-lg"></i></div>`;
-        }
-        if (highSignalIdeasCount >= 3) {
-            badgesHtml += `<div class="tooltip" title="Signal Cluster: 3+ high-karma ideas (10+ each)"><i class="fa-solid fa-sitemap text-aurora drop-shadow-lg"></i></div>`;
-        }
-    } catch (e) {
-        // ignore
-    }
-
-    // Sprint Badge
-    try {
-        const s = loadSprintState();
-        if (s && s.id === CURRENT_SPRINT_ID && s.participated) {
-            badgesHtml += `<div class="tooltip" title="${CURRENT_SPRINT_NAME}: Participated in this limited-time sprint"><i class="fa-solid fa-flag-checkered text-neon drop-shadow-lg"></i></div>`;
-        }
-    } catch (e) {
-        // ignore
-    }
-
-    // 5. Admin
-    if (isAdmin) badgesHtml += `<div class="tooltip" title="System Architect"><i class="fa-solid fa-user-shield text-red-500 drop-shadow-lg"></i></div>`;
-
-    badgesEl.innerHTML = badgesHtml;
-
-    // Founder Chat FAB logic already handled in checkUserSubmission; clean duplicates
-    document.querySelectorAll('#founderChatFab').forEach(el => el.remove());
 
     modal.classList.remove('hidden');
     modal.classList.add('flex');

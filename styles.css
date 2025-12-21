@@ -259,6 +259,8 @@ body::before {
     color: #EDEDED;
     font-size: 14px;
     line-height: 1.7;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .idea-desc h1,
@@ -306,6 +308,25 @@ body::before {
     .desc-toggle-btn {
         width: 100%;
         text-align: center;
+    }
+}
+
+/* Tablet responsiveness */
+@media (max-width: 1024px) {
+    main {
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 96px;
+    }
+    #mainHeader > div {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+    .idea-card .flex.items-start {
+        gap: 10px;
+    }
+    .idea-card .flex.items-center.gap-2 {
+        row-gap: 6px;
     }
 }
 
