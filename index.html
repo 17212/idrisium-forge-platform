@@ -62,6 +62,14 @@
         <div class="aurora-orb aurora-orb-1"></div>
         <div class="aurora-orb aurora-orb-2"></div>
         <div class="aurora-orb aurora-orb-3"></div>
+        <!-- Floating Particles -->
+        <div class="floating-particles">
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+        </div>
     </div>
 
     <!-- Header + Admin Tools (merged) -->
@@ -73,13 +81,18 @@
                 <div class="flex items-center gap-3">
                     <div
                         class="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon to-teal flex items-center justify-center pulse-glow overflow-hidden">
-                        <img src="ideas.png" alt="IDRISIUM IDEAS" class="w-9 h-9 object-contain rounded-xl shadow-[0_0_25px_rgba(57,255,20,0.8)]">
+                        <img src="ideas.png" alt="IDRISIUM IDEAS"
+                            class="w-9 h-9 object-contain rounded-xl shadow-[0_0_25px_rgba(57,255,20,0.8)]">
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
                             <h1 class="font-heading text-2xl font-bold gradient-text tracking-tight">IDRISIUM IDEAS</h1>
+                            <span class="live-badge">
+                                <span class="live-dot"></span>
+                                LIVE
+                            </span>
                         </div>
-                        <p class="text-xs text-platinum font-body">Offline-first focus to ship the best ideas.</p>
+                        <p class="text-xs text-platinum font-body">Where revolutionary ideas are forged.</p>
                     </div>
                 </div>
                 <div id="authSection" class="flex items-center gap-4">
@@ -99,7 +112,8 @@
                 <i class="fa-solid fa-user-lock text-neon text-4xl"></i>
             </div>
             <h2 class="font-heading text-3xl font-bold text-starlight mb-3">Join IDRISIUM IDEAS</h2>
-            <p class="text-platinum mb-8 max-w-md mx-auto">Sign in with Google to submit revolutionary ideas and join the IDRISIUM forge.</p>
+            <p class="text-platinum mb-8 max-w-md mx-auto">Sign in with Google to submit revolutionary ideas and join
+                the IDRISIUM forge.</p>
 
             <button onclick="signInWithGoogle()"
                 class="google-btn px-8 py-4 rounded-2xl text-lg font-semibold flex items-center gap-3 mx-auto">
@@ -121,7 +135,8 @@
         <section id="submitSection" class="glass-card rounded-3xl p-8 mb-10 hidden">
             <div class="flex flex-wrap items-start justify-between mb-6 gap-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-neon to-aurora flex items-center justify-center shadow-[0_0_30px_rgba(57,255,20,0.35)]">
+                    <div
+                        class="w-11 h-11 rounded-2xl bg-gradient-to-br from-neon to-aurora flex items-center justify-center shadow-[0_0_30px_rgba(57,255,20,0.35)]">
                         <i class="fa-solid fa-wand-magic-sparkles text-black text-lg"></i>
                     </div>
                     <div>
@@ -133,8 +148,10 @@
                 </div>
                 <div class="flex flex-col items-end gap-1 text-xs text-platinum text-right">
                     <div class="flex items-center gap-2">
-                        <span class="text-[11px] px-3 py-1 rounded-full bg-neon/10 text-neon border border-neon/30">حد أقصى 3 أفكار</span>
-                        <span class="text-[11px] px-3 py-1 rounded-full bg-white/5 text-platinum border border-white/10" id="wizardStepLabel">Step 1 of 3 · Basics</span>
+                        <span class="text-[11px] px-3 py-1 rounded-full bg-neon/10 text-neon border border-neon/30">حد
+                            أقصى 3 أفكار</span>
+                        <span class="text-[11px] px-3 py-1 rounded-full bg-white/5 text-platinum border border-white/10"
+                            id="wizardStepLabel">Step 1 of 3 · Basics</span>
                     </div>
                     <span id="submissionStatus"></span>
                 </div>
@@ -151,7 +168,8 @@
             <div class="flex flex-col-reverse md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div id="guidelinesPanel" class="hidden sm:grid grid-cols-1 gap-3 lg:col-span-1">
                     <div class="glass-card rounded-2xl p-6 border border-neon/15 bg-black/50" dir="auto">
-                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i class="fa-solid fa-bolt"></i> تلميحات سريعة</p>
+                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i
+                                class="fa-solid fa-bolt"></i> تلميحات سريعة</p>
                         <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside text-right">
                             <li>عرّف المشكلة وجمهورك بوضوح.</li>
                             <li>اذكر أهم ميزة أو تفصيلة تميّز الفكرة.</li>
@@ -159,7 +177,8 @@
                         </ul>
                     </div>
                     <div class="glass-card rounded-2xl p-6 border border-neon/15 bg-black/50" dir="auto">
-                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i class="fa-solid fa-cube"></i> هيكل الفكرة</p>
+                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i
+                                class="fa-solid fa-cube"></i> هيكل الفكرة</p>
                         <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside text-right">
                             <li>المشكلة ⟷ الحل ⟷ الأثر.</li>
                             <li>ما أول تجربة يمكن بناؤها خلال يومين؟</li>
@@ -167,7 +186,8 @@
                         </ul>
                     </div>
                     <div class="glass-card rounded-2xl p-6 border border-neon/15 bg-black/50" dir="auto">
-                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i class="fa-solid fa-list-check"></i> تحقق سريع</p>
+                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i
+                                class="fa-solid fa-list-check"></i> تحقق سريع</p>
                         <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside text-right">
                             <li>عنوان واضح (≤ 200 حرف).</li>
                             <li>وصف موجز ومباشر.</li>
@@ -175,7 +195,8 @@
                         </ul>
                     </div>
                     <div class="glass-card rounded-2xl p-6 border border-neon/15 bg-black/50" dir="auto">
-                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i class="fa-solid fa-shield-check"></i> معايير القبول</p>
+                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i
+                                class="fa-solid fa-shield-check"></i> معايير القبول</p>
                         <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside text-right">
                             <li>لا بيانات شخصية أو حساسة.</li>
                             <li>لا روابط خطرة أو سبام.</li>
@@ -188,11 +209,14 @@
                     <div class="glass-card rounded-2xl p-6 border border-neon/20 bg-black/60">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
                             <div>
-                                <p class="text-xs text-neon font-semibold mb-1 flex items-center gap-2"><i class="fa-solid fa-gauge-high"></i> جاهزية الإرسال</p>
-                                <p class="text-[12px] text-platinum/70">عند الوصول للحد الأقصى لن يمكنك الإرسال حتى تحذف فكرة أو ينتهي الحد.</p>
+                                <p class="text-xs text-neon font-semibold mb-1 flex items-center gap-2"><i
+                                        class="fa-solid fa-gauge-high"></i> جاهزية الإرسال</p>
+                                <p class="text-[12px] text-platinum/70">عند الوصول للحد الأقصى لن يمكنك الإرسال حتى تحذف
+                                    فكرة أو ينتهي الحد.</p>
                             </div>
                             <div class="flex items-center gap-3 text-[12px] text-platinum">
-                                <div class="px-3 py-1 rounded-full bg-white/5 border border-white/10 flex items-center gap-2">
+                                <div
+                                    class="px-3 py-1 rounded-full bg-white/5 border border-white/10 flex items-center gap-2">
                                     <span class="text-platinum/70">أفكارك الحالية</span>
                                     <span id="submissionStatusMini" class="text-neon font-semibold">0 / 3</span>
                                 </div>
@@ -212,31 +236,36 @@
                                     <input type="text" id="ideaTitle" required maxlength="200"
                                         placeholder="Your revolutionary idea..."
                                         class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body">
-                                    <p class="text-xs text-platinum mt-1 text-right"><span id="titleCount">0</span>/200</p>
+                                    <p class="text-xs text-platinum mt-1 text-right"><span id="titleCount">0</span>/200
+                                    </p>
                                 </div>
                                 <div>
                                     <label class="block text-sm text-platinum mb-2">Your Display Name <span
                                             class="text-neon">*</span></label>
-                                    <input type="text" id="authorName" required maxlength="50" placeholder="Anonymous Forger"
+                                    <input type="text" id="authorName" required maxlength="50"
+                                        placeholder="Anonymous Forger"
                                         class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body">
                                 </div>
                             </div>
                         </div>
                         <div id="wizardStep2" class="space-y-3 hidden">
                             <div>
-                                <label class="block text-sm text-platinum mb-2">Description <span class="text-neon">*</span></label>
+                                <label class="block text-sm text-platinum mb-2">Description <span
+                                        class="text-neon">*</span></label>
                                 <textarea id="ideaDescription" required rows="4" maxlength="1000"
                                     placeholder="Describe your idea in detail. What problem does it solve? Who is it for?"
                                     class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body resize-none"></textarea>
                                 <p class="text-xs text-platinum mt-1 text-right"><span id="descCount">0</span>/1000</p>
                             </div>
                             <p class="text-xs text-platinum/70">
-                                Use this space to describe the problem, your proposed solution, and the impact if it succeeds.
+                                Use this space to describe the problem, your proposed solution, and the impact if it
+                                succeeds.
                             </p>
                             <div id="duplicateSuggestions" class="mt-3 hidden">
                                 <div class="glass-card rounded-2xl p-3 border border-neon/20 bg-black/40">
                                     <p class="text-[11px] text-platinum/70 mb-2">
-                                        We found ideas that may be similar to what you are writing. Consider reading them to avoid duplicates or to refine your angle.
+                                        We found ideas that may be similar to what you are writing. Consider reading
+                                        them to avoid duplicates or to refine your angle.
                                     </p>
                                     <div id="duplicateSuggestionsList" class="space-y-2 text-xs"></div>
                                 </div>
@@ -244,13 +273,15 @@
                         </div>
                         <div id="wizardStep3" class="space-y-3 hidden">
                             <p class="text-sm text-platinum/80">
-                                Review your idea preview below. Make sure the title, description, and impact are clear before you submit.
+                                Review your idea preview below. Make sure the title, description, and impact are clear
+                                before you submit.
                             </p>
                             <div id="ideaPreview" class="glass-card rounded-2xl p-5 border border-neon/20 bg-black/40">
                                 <p class="text-xs text-platinum/60">Your idea preview will appear here.</p>
                             </div>
                         </div>
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-4 border-t border-white/5">
+                        <div
+                            class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-4 border-t border-white/5">
                             <div class="flex items-center gap-3">
                                 <button type="button" id="prevStepBtn" onclick="prevIdeaStep()"
                                     class="px-5 py-3 rounded-xl bg-white/5 text-platinum hover:bg-white/10 transition-all text-sm hidden">
@@ -336,54 +367,102 @@
 
         <!-- Empty State -->
         <div id="emptyState" class="hidden text-center py-16">
-            <div
-                class="w-28 h-28 mx-auto mb-6 rounded-full bg-gradient-to-br from-neon/10 to-aurora/10 flex items-center justify-center">
-                <i class="fa-solid fa-rocket text-neon text-5xl"></i>
+            <div class="empty-state-container glass-card rounded-3xl p-10 max-w-lg mx-auto">
+                <div class="relative w-32 h-32 mx-auto mb-8">
+                    <div
+                        class="absolute inset-0 rounded-full bg-gradient-to-br from-neon/20 to-aurora/20 animate-pulse-slow">
+                    </div>
+                    <div class="absolute inset-2 rounded-full bg-black/60 flex items-center justify-center">
+                        <i class="fa-solid fa-rocket text-neon text-5xl rocket-float"></i>
+                    </div>
+                    <div
+                        class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-neon/20 flex items-center justify-center">
+                        <i class="fa-solid fa-sparkles text-neon text-sm"></i>
+                    </div>
+                </div>
+                <h3 class="font-heading text-3xl font-bold text-starlight mb-3">The Forge Awaits</h3>
+                <p class="text-platinum mb-6">No ideas have been submitted yet. Be the pioneer who ignites the first
+                    spark!</p>
+                <div class="flex items-center justify-center gap-4 text-xs text-platinum/60">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-shield-check text-neon"></i>
+                        Privacy First
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-neon"></i>
+                        Instant Feedback
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-users text-neon"></i>
+                        Community Driven
+                    </span>
+                </div>
             </div>
-            <h3 class="font-heading text-2xl font-bold text-starlight mb-2">No Ideas Yet</h3>
-            <p class="text-platinum">Be the first to forge the future!</p>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-neon/10 mt-20 py-6 footer-lift">
-        <div class="max-w-6xl mx-auto px-4 text-center">
-            <p class="text-platinum text-sm mb-2 footer-tagline">Mafish 2alb.. Fi bas Talaga</p>
-            <div class="footer-social mb-2">
-                <a href="http://idrisium.linkpc.net/" target="_blank"
+    <footer class="border-t border-neon/10 mt-20 py-10 footer-lift relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-neon/5 via-transparent to-transparent pointer-events-none">
+        </div>
+        <div class="max-w-6xl mx-auto px-4 text-center relative z-10">
+            <!-- Motto with glow effect -->
+            <p class="text-platinum text-lg mb-4 footer-tagline font-heading italic"
+                style="text-shadow: 0 0 30px rgba(57, 255, 20, 0.2);">
+                "Mafish 2alb.. Fi bas Talaga"
+            </p>
+
+            <!-- Social Links -->
+            <div class="footer-social mb-4">
+                <a href="http://idrisium.linkpc.net/" target="_blank" aria-label="Website"
                     class="text-platinum hover:text-neon transition-colors text-lg"><i
                         class="fa-solid fa-globe"></i></a>
-                <a href="https://github.com/IDRISIUM" target="_blank"
+                <a href="https://github.com/IDRISIUM" target="_blank" aria-label="GitHub"
                     class="text-platinum hover:text-neon transition-colors text-lg"><i
                         class="fa-brands fa-github"></i></a>
-                <a href="https://tiktok.com/@idris.ghamid" target="_blank"
+                <a href="https://tiktok.com/@idris.ghamid" target="_blank" aria-label="TikTok"
                     class="text-platinum hover:text-neon transition-colors text-lg"><i
                         class="fa-brands fa-tiktok"></i></a>
-                <a href="https://instagram.com/idris.ghamid" target="_blank"
+                <a href="https://instagram.com/idris.ghamid" target="_blank" aria-label="Instagram"
                     class="text-platinum hover:text-neon transition-colors text-lg"><i
                         class="fa-brands fa-instagram"></i></a>
-                <a href="https://t.me/IDRV72" target="_blank"
+                <a href="https://t.me/IDRV72" target="_blank" aria-label="Telegram"
                     class="text-platinum hover:text-neon transition-colors text-lg"><i
                         class="fa-brands fa-telegram"></i></a>
-                <a href="mailto:idris.ghamid@gmail.com"
+                <a href="mailto:idris.ghamid@gmail.com" aria-label="Email"
                     class="text-platinum hover:text-neon transition-colors text-lg"><i
                         class="fa-solid fa-envelope"></i></a>
             </div>
+
+            <!-- Divider -->
+            <div class="w-24 h-px bg-gradient-to-r from-transparent via-neon/40 to-transparent mx-auto mb-4"></div>
+
+            <!-- Credits -->
             <p class="text-xs text-platinum/50 footer-credits">
-                Created by <span class="text-neon">IDRIS GHAMID</span> • Powered by <span class="gradient-text">IDRISIUM
-                    Corp</span>
+                Crafted with <span class="text-neon">⚡</span> by <span class="text-neon font-semibold">IDRIS
+                    GHAMID</span>
+            </p>
+            <p class="text-[10px] text-platinum/30 mt-1 flex items-center justify-center gap-2">
+                <span>Powered by</span>
+                <span class="gradient-text font-bold">IDRISIUM Corp</span>
+                <span>•</span>
+                <span>© 2024 All Rights Reserved</span>
             </p>
         </div>
     </footer>
 
     <!-- Profile Modal -->
     <div id="profileModal" class="modal-overlay hidden" onclick="if(event.target === this) closeProfile()">
-        <div class="glass-card max-w-lg w-full mx-4 relative flex flex-col overflow-hidden rounded-3xl border border-neon/15">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(57,255,20,0.08),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(20,244,201,0.08),transparent_25%)] pointer-events-none"></div>
+        <div
+            class="glass-card max-w-lg w-full mx-4 relative flex flex-col overflow-hidden rounded-3xl border border-neon/15">
+            <div
+                class="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(57,255,20,0.08),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(20,244,201,0.08),transparent_25%)] pointer-events-none">
+            </div>
             <button onclick="closeProfile()" class="absolute top-4 right-4 text-platinum hover:text-white z-10"><i
                     class="fa-solid fa-times text-xl"></i></button>
 
-            <div class="bg-gradient-to-r from-neon/20 via-aurora/20 to-black px-8 pt-10 pb-8 relative z-10 flex flex-col items-center">
+            <div
+                class="bg-gradient-to-r from-neon/20 via-aurora/20 to-black px-8 pt-10 pb-8 relative z-10 flex flex-col items-center">
                 <div class="w-24 h-24 rounded-full p-1 border-2 border-neon shadow-lg shadow-neon/50 bg-black/60">
                     <img id="profileAvatar" src="" class="w-full h-full rounded-full object-cover">
                 </div>
@@ -401,7 +480,8 @@
                         <p class="text-xs text-platinum/70 uppercase tracking-wide mb-1">Account</p>
                         <p class="text-sm text-platinum">Signed in with Google</p>
                     </div>
-                    <button onclick="signOutUser(); closeProfile();" class="mt-3 px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-sm font-semibold flex items-center justify-center gap-2">
+                    <button onclick="signOutUser(); closeProfile();"
+                        class="mt-3 px-4 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-sm font-semibold flex items-center justify-center gap-2">
                         <i class="fa-solid fa-right-from-bracket"></i> Sign Out
                     </button>
                 </div>
