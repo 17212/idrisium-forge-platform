@@ -1794,9 +1794,17 @@ window.toggleDescription = function (ideaId) {
     const btnEl = document.getElementById(`desc-toggle-${ideaId}`);
     if (!descEl || !btnEl) return;
     const expanded = descEl.dataset.expanded === 'true';
-    descEl.dataset.expanded = expanded ? 'false' : 'true';
-    descEl.classList.toggle('idea-desc-collapsed', expanded === true);
-    btnEl.textContent = expanded ? 'عرض المزيد' : 'إخفاء';
+    if (expanded) {
+        // Collapse - add line-clamp back
+        descEl.classList.add('line-clamp-3');
+        descEl.dataset.expanded = 'false';
+        btnEl.textContent = 'عرض المزيد';
+    } else {
+        // Expand - remove line-clamp
+        descEl.classList.remove('line-clamp-3');
+        descEl.dataset.expanded = 'true';
+        btnEl.textContent = 'عرض أقل';
+    }
 };
 
 // ═══════════════════════════════════════════════════════════════════
