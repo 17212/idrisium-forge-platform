@@ -1302,142 +1302,259 @@ body {
     *,
     *::before,
     *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
+        color: var(--starlight);
+        font-size: 14px;
     }
-}
 
-/* ═══════════════════════════════════════════════════════════════════
-   WIZARD NAVIGATION
-   ═══════════════════════════════════════════════════════════════════ */
-.wizard-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-    position: relative;
-    padding: 0 1rem;
-}
+    .chat-input-area input:focus {
+        outline: none;
+        border-color: var(--neon);
+    }
 
-.wizard-step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    position: relative;
-    z-index: 2;
-    opacity: 0.5;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
+    .chat-send {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--neon), var(--teal));
+        border: none;
+        border-radius: 14px;
+        color: var(--black);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
 
-.wizard-step.active {
-    opacity: 1;
-    transform: scale(1.1);
-}
+    .chat-send:hover {
+        transform: scale(1.05);
+    }
 
-.wizard-step.completed {
-    opacity: 1;
-    color: var(--neon);
-}
+    /* Inbox Modal */
+    .inbox-modal {
+        display: flex;
+        flex-direction: column;
+        height: 65vh;
+    }
 
-.step-num {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    .inbox-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        border-bottom: 1px solid rgba(57, 255, 20, 0.1);
+    }
 
-.step-text {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
+    .inbox-header h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--starlight);
+    }
 
-.wizard-line {
-    flex: 1;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.1);
-    margin: 0 1rem;
-    margin-bottom: 1.2rem;
-    /* Align with circle center approximately */
-    position: relative;
-    border-radius: 2px;
-    overflow: hidden;
-}
+    .inbox-header i {
+        color: var(--neon);
+        margin-right: 10px;
+    }
 
-.wizard-line::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--neon);
-    transform: scaleX(0);
-    transform-origin: right;
-    /* RTL */
-    transition: transform 0.5s ease;
-}
+    .inbox-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+    }
 
-.wizard-step.completed+.wizard-line::after {
-    transform: scaleX(1);
-}
+    /* ========================================
+   UTILITY CLASSES
+   ======================================== */
 
-/* Form Steps Animation */
-.form-step {
-    animation: fadeIn 0.4s ease forwards;
-}
+    .hidden {
+        display: none !important;
+    }
 
-.form-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 2rem;
-    gap: 1rem;
-}
+    .neon {
+        color: var(--neon);
+    }
 
-.btn-submit,
-.btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
 
-.btn-submit {
-    background: var(--neon);
-    color: #000;
-    border: none;
-}
+    ::-webkit-scrollbar-track {
+        background: var(--black);
+    }
 
-.btn-submit:hover {
-    box-shadow: 0 0 20px var(--neon-glow);
-    transform: translateY(-2px);
-}
+    ::-webkit-scrollbar-thumb {
+        background: var(--neon);
+        border-radius: 3px;
+    }
 
-.btn-submit:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
+    /* Vote Buttons */
+    .vote-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 14px 18px;
+        background: transparent;
+        border: 2px solid rgba(57, 255, 20, 0.3);
+        border-radius: 14px;
+        color: var(--neon);
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
 
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--platinum);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
+    .vote-btn:hover:not(:disabled) {
+        background: rgba(57, 255, 20, 0.1);
+        border-color: var(--neon);
+    }
 
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
+    .vote-btn.voted {
+        background: rgba(57, 255, 20, 0.2);
+        border-color: var(--neon);
+    }
+
+    .vote-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Idea Cards */
+    .idea-card {
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .idea-desc {
+        font-size: 15px;
+        line-height: 1.7;
+        color: var(--starlight);
+        word-break: break-word;
+    }
+
+    /* User Avatar */
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid var(--neon);
+        object-fit: cover;
+    }
+
+    /* Line Clamp */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Pulse Glow */
+    .pulse-glow {
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+
+        0%,
+        100% {
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.3);
+        }
+
+        50% {
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.5);
+        }
+    }
+
+    /* SweetAlert2 Dark Theme */
+    .swal2-popup {
+        background: var(--dark) !important;
+        border: 1px solid rgba(57, 255, 20, 0.2) !important;
+        border-radius: 20px !important;
+    }
+
+    .swal2-title {
+        color: var(--starlight) !important;
+    }
+
+    .swal2-html-container {
+        color: var(--platinum) !important;
+    }
+
+    .swal2-confirm {
+        background: var(--neon) !important;
+        color: var(--black) !important;
+        font-weight: 700 !important;
+        border-radius: 12px !important;
+    }
+
+    .swal2-cancel {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: var(--starlight) !important;
+        border-radius: 12px !important;
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+    /* Wizard styles removed */
+
+    /* Form Steps Animation */
+    .form-step {
+        animation: fadeIn 0.4s ease forwards;
+    }
+
+    .form-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 2rem;
+        gap: 1rem;
+    }
+
+    .btn-submit,
+    .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-submit {
+        background: var(--neon);
+        color: #000;
+        border: none;
+    }
+
+    .btn-submit:hover {
+        box-shadow: 0 0 20px var(--neon-glow);
+        transform: translateY(-2px);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--platinum);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
