@@ -67,63 +67,41 @@ let seasonSnapshots = null;
 const STREAK_KEY = 'idrisium_daily_streak_v1';
 let streakState = null;
 
-function setTextIfExists(id, value, animate = false) {
+const SESSION_ID = sessionStorage.getItem('idrisium_session_id') || Math.random().toString(36).substring(2, 15);
+sessionStorage.setItem('idrisium_session_id', SESSION_ID);
+
+function setTextIfExists(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function countUp(id, target, duration = 2000) {
     const el = document.getElementById(id);
     if (!el) return;
-    if (animate) {
-        const start = parseInt(el.textContent) || 0;
-        animateValue(id, start, value, 1000);
-    } else {
-        el.textContent = value;
-    }
-}
 
-function animateValue(id, start, end, duration) {
-    const obj = document.getElementById(id);
-    if (!obj) return;
-    if (start === end) return;
-    const range = end - start;
-    let current = start;
-    const increment = end > start ? 1 : -1;
-    const stepTime = Math.abs(Math.floor(duration / range));
-    const timer = setInterval(function () {
-        current += increment;
-        obj.textContent = current;
-        if (current == end) {
-            clearInterval(timer);
+    let start = parseInt(el.textContent) || 0;
+    if (start === target) return;
+
+    const startTime = performance.now();
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing function (outQuad)
+        const ease = progress * (2 - progress);
+
+        const current = Math.floor(start + (target - start) * ease);
+        el.textContent = current.toLocaleString('ar-EG');
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        } else {
+            el.textContent = target.toLocaleString('ar-EG');
         }
-    }, stepTime || 1);
-}
-
-async function trackVisitor() {
-    try {
-        const visitorKey = 'idrisium_visitor_tracked';
-        if (!localStorage.getItem(visitorKey)) {
-            const statsRef = doc(db, 'settings', 'stats');
-            await setDoc(statsRef, { totalVisitors: increment(1) }, { merge: true });
-            localStorage.setItem(visitorKey, 'true');
-        }
-    } catch (e) {
-        console.error('Visitor tracking error:', e);
     }
-}
 
-function trackOnlineStatus() {
-    try {
-        const onlineRef = doc(collection(db, 'online_users'));
-        setDoc(onlineRef, { timestamp: serverTimestamp() });
-        window.addEventListener('beforeunload', () => {
-            deleteDoc(onlineRef);
-        });
-        // Cleanup old online users (simple client-side cleanup for demo, ideally a cloud function)
-        setInterval(async () => {
-            const q = query(collection(db, 'online_users'), where('timestamp', '<', new Date(Date.now() - 5 * 60 * 1000)));
-            const snap = await getDocs(q);
-            snap.forEach(d => deleteDoc(d.ref));
-        }, 60000);
-    } catch (e) {
-        console.error('Online status error:', e);
-    }
+    requestAnimationFrame(update);
 }
 
 try {
@@ -1158,11 +1136,9 @@ function validateText(text) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// SEARCH, FILTER & SORT
+// FILTER & SORT
 // ═══════════════════════════════════════════════════════════════════
 let currentSorting = 'newest';
-let searchQuery = '';
-let searchDebounceTimeout = null;
 let showMyIdeasOnly = false;
 
 const FILTER_STATE_KEY = 'idrisium_filter_state_v1';
@@ -1182,12 +1158,6 @@ function loadFilterState() {
         if (!raw) return;
         const state = JSON.parse(raw);
         if (!state || typeof state !== 'object') return;
-
-        if (typeof state.searchQuery === 'string') {
-            searchQuery = state.searchQuery;
-            const input = document.getElementById('searchInput');
-            if (input) input.value = state.searchQuery;
-        }
 
         if (typeof state.currentSorting === 'string') {
             currentSorting = state.currentSorting;
@@ -1219,7 +1189,6 @@ function loadFilterState() {
 function saveFilterState() {
     try {
         const state = {
-            searchQuery,
             currentSorting,
             showMyIdeasOnly,
             adminFilter,
@@ -1229,28 +1198,6 @@ function saveFilterState() {
         console.log('Filter state save failed', e);
     }
 }
-
-window.filterIdeas = function () {
-    const input = document.getElementById('searchInput');
-    if (!input) return;
-    const value = input.value.toLowerCase().trim();
-
-    if (searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
-    searchDebounceTimeout = setTimeout(() => {
-        searchQuery = value;
-        saveFilterState();
-        renderFilteredIdeas();
-    }, 200);
-};
-
-window.clearSearch = function () {
-    const input = document.getElementById('searchInput');
-    if (input) input.value = '';
-    searchQuery = '';
-    if (searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
-    saveFilterState();
-    renderFilteredIdeas();
-};
 
 window.changeSorting = function () {
     const sel = document.getElementById('sortSelect');
@@ -1289,14 +1236,7 @@ window.toggleMyIdeas = function () {
     renderFilteredIdeas();
 };
 
-window.applyTagFilter = function (tag) {
-    const input = document.getElementById('searchInput');
-    const value = (tag || '').toString();
-    if (input) input.value = value;
-    searchQuery = value.toLowerCase().trim();
-    saveFilterState();
-    renderFilteredIdeas();
-};
+// Tag filter removed (search removed)
 
 function buildDaySeparatorLabel(dateObj) {
     if (!(dateObj instanceof Date)) return 'Unknown Day';
@@ -1488,14 +1428,7 @@ function renderIdeasForTab(currentTab) {
 
     const totalCount = ideas.length;
 
-    // Apply search filter
-    if (searchQuery) {
-        ideas = ideas.filter(idea =>
-            (idea.title || '').toLowerCase().includes(searchQuery) ||
-            (idea.description || '').toLowerCase().includes(searchQuery) ||
-            (idea.author || '').toLowerCase().includes(searchQuery)
-        );
-    }
+    // Search filter removed
 
     if (isAdmin && adminFilter && adminFilter !== 'all') {
         ideas = ideas.filter(idea => {
@@ -1528,11 +1461,7 @@ function renderIdeasForTab(currentTab) {
     // Update results count
     const resultsEl = document.getElementById('resultsCount');
     if (resultsEl) {
-        if (searchQuery) {
-            resultsEl.textContent = `${ideas.length} of ${totalCount} ideas for "${searchQuery}"`;
-        } else {
-            resultsEl.textContent = `${ideas.length} ideas`;
-        }
+        resultsEl.textContent = `${ideas.length} ideas`;
     }
 
     // Render
@@ -1547,30 +1476,17 @@ function renderIdeasForTab(currentTab) {
             visibleNewCount = FEED_PAGE_SIZE;
         }
 
-        const searchInput = document.getElementById('searchInput');
-        const rawSearch = searchInput ? searchInput.value.trim() : searchQuery;
-
         let icon = 'fa-search';
         let title = 'No ideas found';
         let subtitle = '';
 
-        if (searchQuery) {
-            icon = 'fa-filter-circle-xmark';
-            title = 'No ideas match your filters';
-            subtitle = `Try adjusting your search or filters for "${rawSearch}".`;
-        } else if (showMyIdeasOnly && currentUser) {
+        if (showMyIdeasOnly && currentUser) {
             icon = 'fa-user-astronaut';
             title = 'You haven\'t forged any ideas here yet';
             subtitle = 'Submit your first idea to see it in this view.';
         } else if (isAdmin && adminFilter && adminFilter !== 'all') {
             icon = 'fa-shield-halved';
-            if (adminFilter === 'high-signal') {
-                title = 'No high-signal ideas yet';
-                subtitle = 'Karma will highlight the strongest ideas here once the community engages.';
-            } else if (adminFilter === 'low-signal') {
-                title = 'No low-signal ideas in view';
-                subtitle = 'Most ideas here are generating decent signal from the community.';
-            } else if (adminFilter === 'founder') {
+            if (adminFilter === 'founder') {
                 title = 'No Founder Picks yet';
                 subtitle = 'Use the star icon on cards to mark strategic Founder Picks.';
             } else if (adminFilter === 'winners') {
@@ -2754,13 +2670,10 @@ function initListeners() {
     const qTop = query(collection(db, 'ideas'), orderBy('votes', 'desc'), limit(30));
     onSnapshot(qTop, snap => {
         topIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        setTextIfExists('statTopIdeas', topIdeas.length);
-        const railTop = document.getElementById('railTopCount');
-        if (railTop) railTop.textContent = topIdeas.length;
 
         if (emptyState) {
             const hasAnyIdeas = (topIdeas && topIdeas.length > 0) || (newIdeas && newIdeas.length > 0);
-            const noFilters = !searchQuery && !showMyIdeasOnly && (!isAdmin || adminFilter === 'all');
+            const noFilters = !showMyIdeasOnly && (!isAdmin || adminFilter === 'all');
             if (!hasAnyIdeas && noFilters) {
                 emptyState.classList.remove('hidden');
             } else {
@@ -2768,7 +2681,6 @@ function initListeners() {
             }
         }
 
-        // Update leaderboard whenever top ideas change
         renderLeaderboard();
         updateAdminStats();
         renderMostDiscussedCarousel();
@@ -2783,24 +2695,18 @@ function initListeners() {
     const qNew = query(collection(db, 'ideas'), orderBy('timestamp', 'desc'), limit(30));
     onSnapshot(qNew, async snap => {
         newIdeas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        setTextIfExists('statNewIdeas', newIdeas.length);
-        const railNew = document.getElementById('railNewCount');
-        if (railNew) railNew.textContent = newIdeas.length;
 
         // Update Total Ideas Count
         try {
             const snapshot = await getCountFromServer(collection(db, 'ideas'));
             const total = snapshot.data().count;
-            setTextIfExists('statTotalIdeas', total, true);
-            const railTotal = document.getElementById('railTotalCount');
-            if (railTotal) railTotal.textContent = total;
+            countUp('statTotalIdeas', total);
         } catch (e) {
             console.error('Count error:', e);
             const fallbackTotal = topIdeas.length || newIdeas.length;
-            setTextIfExists('statTotalIdeas', fallbackTotal, true);
+            countUp('statTotalIdeas', fallbackTotal);
         }
 
-        // Update Live Activity Feed & Admin Stats
         renderActivityFeed();
         updateAdminStats();
         renderMostDiscussedCarousel();
@@ -2811,25 +2717,53 @@ function initListeners() {
         renderFilteredIdeas();
     });
 
-    // Real-time Stats Listeners
+    // Real Statistics Implementation
+    async function trackPresence() {
+        try {
+            await setDoc(doc(db, 'presence', SESSION_ID), {
+                lastSeen: serverTimestamp(),
+                uid: currentUser ? currentUser.uid : null
+            });
+        } catch (e) { console.log('Presence error', e); }
+    }
+
+    async function trackVisitor() {
+        const today = new Date().toISOString().split('T')[0];
+        const lastVisit = localStorage.getItem('idrisium_last_visit');
+        if (lastVisit !== today) {
+            try {
+                await setDoc(doc(db, 'settings', 'stats'), {
+                    totalVisitors: increment(1)
+                }, { merge: true });
+                localStorage.setItem('idrisium_last_visit', today);
+            } catch (e) { console.log('Visitor track error', e); }
+        }
+    }
+
+    // Listen to Real Stats
     onSnapshot(doc(db, 'settings', 'stats'), snap => {
         if (snap.exists()) {
             const data = snap.data();
-            if (data.totalVisitors !== undefined) {
-                setTextIfExists('statTotalVisitors', data.totalVisitors, true);
-            }
+            if (data.totalVisitors) countUp('statTotalVisitors', data.totalVisitors);
         }
     });
 
-    onSnapshot(collection(db, 'online_users'), snap => {
-        setTextIfExists('statOnlineNow', snap.size, true);
+    // Online Now: Count documents in presence collection updated in last 5 mins
+    // Since we can't do dynamic time in onSnapshot easily without a backend,
+    // we'll just count the whole collection and rely on cleanup or just show the total "active" sessions.
+    // For a more "real" feel, we'll count docs.
+    onSnapshot(collection(db, 'presence'), snap => {
+        countUp('statOnlineNow', snap.size);
     });
-}
 
-// Initialize Tracking
-if (db) {
+    trackPresence();
     trackVisitor();
-    trackOnlineStatus();
+    setInterval(trackPresence, 60000); // Update every minute
+
+    // Cleanup presence on close
+    window.addEventListener('beforeunload', () => {
+        deleteDoc(doc(db, 'presence', SESSION_ID));
+    });
 }
 
 loadFilterState();

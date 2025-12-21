@@ -3,26 +3,30 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="description" content="أفكار IDRISIUM - منصة لطرح أفكار التطبيقات والتصويت عليها من المجتمع">
-    <meta name="author" content="IDRIS GHAMID">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IDRISIUM IDEAS - منصة الأفكار المصرية</title>
+
+    <!-- Meta Tags -->
+    <meta name="description" content="منصة IDRISIUM IDEAS - شارك أفكارك، ابنِ مستقبلك.">
     <meta name="theme-color" content="#000000">
-    <title>أفكار IDRISIUM | منصة أفكار نوعاً ما</title>
-    <link rel="icon" type="image/png" href="ideas.png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="forge-utility.css?v=6">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=6">
+    <link rel="stylesheet" href="forge-utility.css?v=7">
+    <link rel="stylesheet" href="styles.css?v=7">
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 </head>
 
 <body>
@@ -34,19 +38,22 @@
     </div>
 
     <!-- Header -->
-    <header class="site-header" id="mainHeader">
+    <header class="site-header">
         <div class="header-container">
             <div class="header-top">
                 <div class="header-brand">
                     <div class="header-logo">
-                        <img src="ideas.png" alt="أفكار IDRISIUM">
+                        <img src="ideas.png" alt="IDRISIUM Logo">
                     </div>
                     <div class="header-title">
-                        <h1>أفكار IDRISIUM</h1>
-                        <p class="header-subtitle">منصة أفكار نوعاً ما</p>
+                        <h1>IDRISIUM IDEAS</h1>
+                        <p class="header-subtitle">منصة الأفكار والابتكار</p>
                     </div>
                 </div>
-                <div id="authSection" class="header-auth"></div>
+
+                <div id="authSection">
+                    <!-- Auth content injected by JS -->
+                </div>
             </div>
 
             <div class="header-stats">
@@ -69,191 +76,178 @@
         </div>
     </header>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <main class="main-content">
         <!-- Login Prompt -->
-        <section id="loginPrompt" class="glass-card login-card hidden">
+        <section id="loginPrompt" class="login-card glass-card hidden">
             <div class="login-icon">
-                <i class="fa-solid fa-user-lock"></i>
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <h2>انضم لـ أفكار IDRISIUM</h2>
-            <p>سجّل دخولك بـ Google لتقدر تشارك أفكارك مع المجتمع.</p>
+            <h2>سجل دخولك يا بطل</h2>
+            <p>سجل دخولك عشان تقدر تشارك أفكارك وتتفاعل مع المجتمع</p>
             <button onclick="signInWithGoogle()" class="google-btn">
                 <svg width="20" height="20" viewBox="0 0 48 48">
                     <path fill="#FFC107"
                         d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
-                    <path fill="#FF3D00"
-                        d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
-                    <path fill="#4CAF50"
-                        d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
-                    <path fill="#1976D2"
-                        d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
                 </svg>
-                تسجيل الدخول بـ Google
+                تسجيل الدخول بجوجل
             </button>
         </section>
 
-        <!-- Submit Form -->
-        <section id="submitSection" class="glass-card submit-card hidden">
+        <!-- Submit Section -->
+        <section id="submitSection" class="submit-card glass-card hidden">
             <div class="submit-header">
                 <div class="submit-title-row">
-                    <div>
-                        <h3>شارك فكرتك</h3>
-                        <p>حوّل رؤيتك لحقيقة</p>
-                    </div>
+                    <h3>اصنع فكرتك</h3>
+                    <p>حول خيالك لواقع ملموس</p>
                 </div>
                 <div class="submit-quota">
-                    <span class="quota-label">الحصة:</span>
+                    <span class="quota-label">المتاح لك:</span>
                     <span class="quota-value" id="submissionStatusMini">0 / 3</span>
                 </div>
             </div>
 
             <div class="submit-progress">
                 <div class="progress-rail">
-                    <div id="submissionProgressBar" class="progress-fill" style="width: 0%;"></div>
+                    <div id="submissionProgressBar" class="progress-fill" style="width: 0%"></div>
                 </div>
             </div>
 
             <div class="wizard-nav">
-                <div class="wizard-step active" data-step="1">
+                <div id="step1Indicator" class="wizard-step active">
                     <span class="step-num">1</span>
                     <span class="step-text">الأساسيات</span>
                 </div>
                 <div class="wizard-line"></div>
-                <div class="wizard-step" data-step="2">
+                <div id="step2Indicator" class="wizard-step">
                     <span class="step-num">2</span>
                     <span class="step-text">التفاصيل</span>
                 </div>
                 <div class="wizard-line"></div>
-                <div class="wizard-step" data-step="3">
+                <div id="step3Indicator" class="wizard-step">
                     <span class="step-num">3</span>
                     <span class="step-text">المراجعة</span>
                 </div>
             </div>
 
-            <form id="ideaForm" onsubmit="submitIdea(event)" class="submit-form">
+            <form id="ideaForm" class="submit-form" onsubmit="submitIdea(event)">
+                <!-- Step 1: Basics -->
                 <div id="wizardStep1" class="form-step">
                     <div class="form-group">
                         <label for="ideaTitle">
                             <i class="fa-solid fa-heading"></i>
                             عنوان الفكرة <span class="required">*</span>
                         </label>
-                        <input type="text" id="ideaTitle" required maxlength="200"
-                            placeholder="مثال: تطبيق لتتبع العادات بالذكاء الاصطناعي...">
+                        <input type="text" id="ideaTitle" placeholder="مثلاً: تطبيق لتنظيم الوقت بطريقة ذكية"
+                            maxlength="100" required>
                         <div class="input-hint">
-                            <span>اكتب عنوان واضح وجذاب</span>
-                            <span><span id="titleCount">0</span>/200</span>
+                            <span>خلي العنوان جذاب وقصير</span>
+                            <span><span id="titleCount">0</span>/100</span>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="authorName">
-                            <i class="fa-solid fa-user"></i>
-                            اسم العرض <span class="required">*</span>
+                            <i class="fa-solid fa-user-tag"></i>
+                            اسمك المستعار <span class="required">*</span>
                         </label>
-                        <input type="text" id="authorName" required maxlength="50"
-                            placeholder="الاسم اللي هيظهر للناس...">
-                        <div class="input-hint">
-                            <span>اكتب اسمك أو لقبك</span>
-                        </div>
+                        <input type="text" id="authorName" placeholder="اكتب اسمك اللي هيظهر للناس" maxlength="30"
+                            required>
                     </div>
-
-                    <div class="form-group">
-                        <label for="ideaNotes">
-                            <i class="fa-solid fa-sticky-note"></i>
-                            ملاحظات إضافية <span class="optional">(اختياري)</span>
-                        </label>
-                        <input type="text" id="ideaNotes" maxlength="150" placeholder="أي معلومات إضافية أو تصنيف...">
-                        <div class="input-hint">
-                            <span>ممكن تضيف أي context إضافي</span>
-                            <span><span id="notesCount">0</span>/150</span>
-                        </div>
+                    <div class="form-actions">
+                        <button type="button" onclick="nextIdeaStep()" class="btn-submit">
+                            الخطوة التالية
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
                     </div>
                 </div>
 
+                <!-- Step 2: Details -->
                 <div id="wizardStep2" class="form-step hidden">
                     <div class="form-group">
                         <label for="ideaDescription">
-                            <i class="fa-solid fa-align-left"></i>
-                            الوصف <span class="required">*</span>
+                            <i class="fa-solid fa-align-right"></i>
+                            وصف الفكرة بالتفصيل <span class="required">*</span>
                         </label>
-                        <textarea id="ideaDescription" required rows="6" maxlength="1000"
-                            placeholder="اوصف فكرتك بالتفصيل...&#10;• إيه المشكلة اللي بتحلها؟&#10;• مين الفئة المستهدفة؟&#10;• إيه اللي بيميزها؟"></textarea>
+                        <textarea id="ideaDescription"
+                            placeholder="اشرح فكرتك بالتفصيل، إيه المشكلة اللي بتحلها؟ وإزاي هتشتغل؟" rows="5"
+                            maxlength="1000" required></textarea>
                         <div class="input-hint">
-                            <span>اكتب وصف مفصل بس مختصر</span>
+                            <span>استخدم Markdown للتنسيق (اختياري)</span>
                             <span><span id="descCount">0</span>/1000</span>
                         </div>
                     </div>
 
                     <div id="duplicateSuggestions" class="suggestions-box hidden">
                         <div class="suggestions-header">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                            <span>أفكار مشابهة موجودة</span>
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>أفكار مشابهة موجودة فعلاً:</span>
                         </div>
-                        <p>فكّر في تحسين فكرتك عشان تتميز:</p>
-                        <div id="duplicateSuggestionsList"></div>
+                        <div id="duplicateSuggestionsList" class="flex flex-col gap-2">
+                            <!-- Suggestions injected by JS -->
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" onclick="prevIdeaStep()" class="btn-secondary">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            رجوع
+                        </button>
+                        <button type="button" onclick="nextIdeaStep()" class="btn-submit">
+                            الخطوة التالية
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
                     </div>
                 </div>
 
+                <!-- Step 3: Review -->
                 <div id="wizardStep3" class="form-step hidden">
                     <div class="preview-header">
                         <i class="fa-solid fa-eye"></i>
                         <div>
-                            <span>معاينة الفكرة</span>
-                            <p>تأكد إن كل حاجة تمام</p>
+                            <span>مراجعة الفكرة</span>
+                            <p>ده الشكل اللي هيظهر للناس</p>
                         </div>
                     </div>
+
                     <div id="ideaPreview" class="idea-preview">
-                        <p class="preview-placeholder">معاينة فكرتك هتظهر هنا.</p>
+                        <!-- Preview injected by JS -->
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" onclick="prevIdeaStep()" class="btn-secondary">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            تعديل
+                        </button>
+                        <button type="submit" id="submitBtn" class="btn-submit pulse-glow">
+                            <i class="fa-solid fa-bolt"></i>
+                            اصنع الفكرة الآن
+                        </button>
                     </div>
                 </div>
-
-                <div class="form-actions">
-                    <button type="button" id="prevStepBtn" onclick="prevIdeaStep()" class="btn-secondary hidden">
-                        <i class="fa-solid fa-arrow-right"></i> رجوع
-                    </button>
-                    <button type="button" id="nextStepBtn" onclick="nextIdeaStep()" class="btn-primary">
-                        التالي <i class="fa-solid fa-arrow-left"></i>
-                    </button>
-                    <button type="submit" id="submitBtn" class="btn-submit hidden">
-                        <i class="fa-solid fa-rocket"></i> إرسال الفكرة
-                    </button>
-                </div>
             </form>
-
-            <span id="submissionStatus" class="hidden"></span>
-            <span id="wizardStepLabel" class="hidden">خطوة 1 من 3</span>
         </section>
 
-        <!-- Hidden tabs -->
-        <div class="hidden">
-            <button id="tabTop" class="active" type="button"></button>
-            <button id="tabNew" type="button"></button>
-            <span id="resultsCount"></span>
+        <!-- Feed Controls -->
+        <div class="feed-controls flex items-center justify-center mb-6 gap-4 flex-wrap">
+            <div class="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/10">
+                <button id="tabTop" onclick="switchTab('top')"
+                    class="px-4 py-2 rounded-lg text-sm transition-all active">الأفضل</button>
+                <button id="tabNew" onclick="switchTab('new')"
+                    class="px-4 py-2 rounded-lg text-sm transition-all">الأحدث</button>
+            </div>
         </div>
 
         <!-- Ideas Feed -->
         <div id="feedTop" class="ideas-feed">
-            <div class="skeleton-container">
-                <div class="glass-card skeleton-card">
-                    <div class="skeleton-content">
-                        <div class="skeleton skeleton-title"></div>
-                        <div class="skeleton skeleton-text"></div>
-                        <div class="skeleton skeleton-text short"></div>
-                    </div>
-                    <div class="skeleton skeleton-votes"></div>
-                </div>
-                <div class="glass-card skeleton-card">
-                    <div class="skeleton-content">
-                        <div class="skeleton skeleton-title"></div>
-                        <div class="skeleton skeleton-text"></div>
-                        <div class="skeleton skeleton-text short"></div>
-                    </div>
-                    <div class="skeleton skeleton-votes"></div>
+            <!-- Skeletons -->
+            <div class="skeleton-card glass-card">
+                <div class="skeleton-content">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text short"></div>
                 </div>
             </div>
         </div>
-
         <div id="feedNew" class="ideas-feed hidden"></div>
 
         <!-- Empty State -->
@@ -261,39 +255,42 @@
             <div class="empty-icon">
                 <i class="fa-solid fa-rocket"></i>
             </div>
-            <h3>المنصة مستنياك</h3>
-            <p>مفيش أفكار اتقدمت لسه. كن أول واحد يشارك فكرته!</p>
+            <h3>مفيش أفكار لسه!</h3>
+            <p>كن أول واحد يشارك فكرته ويغير العالم</p>
             <div class="empty-features">
-                <span><i class="fa-solid fa-shield-check"></i> خصوصية أولاً</span>
-                <span><i class="fa-solid fa-bolt"></i> رد فوري</span>
-                <span><i class="fa-solid fa-users"></i> من المجتمع</span>
+                <span><i class="fa-solid fa-check"></i> خصوصية تامة</span>
+                <span><i class="fa-solid fa-check"></i> دعم مجتمعي</span>
+                <span><i class="fa-solid fa-check"></i> تطوير مستمر</span>
             </div>
         </div>
     </main>
 
     <!-- Footer -->
     <footer class="site-footer">
-        <p class="footer-motto">"مفيش قلب.. في بس تلاجة"</p>
+        <p class="footer-motto">"مفيش قلب.. في بس تلاجه"</p>
         <div class="footer-social">
-            <a href="http://idrisium.linkpc.net/" target="_blank"><i class="fa-solid fa-globe"></i></a>
-            <a href="https://github.com/IDRISIUM" target="_blank"><i class="fa-brands fa-github"></i></a>
-            <a href="https://tiktok.com/@idris.ghamid" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
-            <a href="https://instagram.com/idris.ghamid" target="_blank"><i class="fa-brands fa-instagram"></i></a>
-            <a href="https://t.me/IDRV72" target="_blank"><i class="fa-brands fa-telegram"></i></a>
+            <a href="https://github.com/IDRISIUM" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
+            <a href="https://tiktok.com/@idris.ghamid" target="_blank" title="TikTok"><i
+                    class="fa-brands fa-tiktok"></i></a>
+            <a href="https://instagram.com/idris.ghamid" target="_blank" title="Instagram"><i
+                    class="fa-brands fa-instagram"></i></a>
+            <a href="https://t.me/IDRV72" target="_blank" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
         </div>
         <div class="footer-credits">
-            <p>صُنع بـ <span class="neon">⚡</span> بواسطة <span class="neon">إدريس غامد</span></p>
-            <p class="small">بدعم من <span class="gradient-text">IDRISIUM Corp</span> • © 2024</p>
+            <p>تم التطوير بواسطة <span class="neon">إدريس غاميد</span></p>
+            <p class="small">جميع الحقوق محفوظة لشركة <span class="gradient-text">IDRISIUM Corp.</span> &copy; 2024</p>
+            <p class="small"><a href="http://idrisium.linkpc.net/" target="_blank"
+                    class="text-platinum/60 hover:text-neon">idrisium.linkpc.net</a></p>
         </div>
     </footer>
 
-    <!-- Profile Modal -->
-    <div id="profileModal" class="modal-overlay hidden" onclick="if(event.target === this) closeProfile()">
+    <!-- Modals -->
+    <div id="profileModal" class="modal-overlay hidden">
         <div class="modal-card profile-modal">
-            <button onclick="closeProfile()" class="modal-close"><i class="fa-solid fa-times"></i></button>
+            <button onclick="closeProfile()" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
             <div class="profile-header">
                 <div class="profile-avatar">
-                    <img id="profileAvatar" src="" alt="الصورة الشخصية">
+                    <img id="profileAvatar" src="" alt="Avatar">
                 </div>
                 <h2 id="profileName">اسم المستخدم</h2>
                 <p id="profileEmail">user@example.com</p>
@@ -301,54 +298,18 @@
             <div class="profile-stats">
                 <div class="profile-stat">
                     <span class="stat-number" id="profileIdeaCount">0</span>
-                    <span class="stat-label">أفكار مرسلة</span>
+                    <span class="stat-label">فكرة منشورة</span>
                 </div>
             </div>
-            <button onclick="signOutUser(); closeProfile();" class="btn-signout">
-                <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+            <button onclick="signOutUser()" class="btn-signout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                تسجيل الخروج
             </button>
         </div>
     </div>
 
-    <!-- Chat Modal -->
-    <div id="chatModal" class="modal-overlay hidden" onclick="if(event.target === this) closeChat()">
-        <div class="modal-card chat-modal">
-            <div class="chat-header">
-                <div class="chat-user">
-                    <div class="chat-avatar">
-                        <img id="chatAvatar" src="" alt="">
-                        <span class="online-dot"></span>
-                    </div>
-                    <div>
-                        <h3 id="chatName">المؤسس</h3>
-                        <p id="chatStatus">خط مباشر</p>
-                    </div>
-                </div>
-                <button onclick="closeChat()" class="modal-close"><i class="fa-solid fa-times"></i></button>
-            </div>
-            <div id="chatMessages" class="chat-messages">
-                <div class="chat-notice">تم إنشاء قناة مشفرة</div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="اكتب رسالتك..." autocomplete="off"
-                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); sendChatMessage(); }">
-                <button onclick="sendChatMessage()" class="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Inbox Modal -->
-    <div id="inboxModal" class="modal-overlay hidden" onclick="if(event.target === this) closeInbox()">
-        <div class="modal-card inbox-modal">
-            <div class="inbox-header">
-                <h3><i class="fa-solid fa-inbox"></i> صندوق الرسائل</h3>
-                <button onclick="closeInbox()" class="modal-close"><i class="fa-solid fa-times"></i></button>
-            </div>
-            <div id="inboxList" class="inbox-list"></div>
-        </div>
-    </div>
-
-    <script type="module" src="app.js"></script>
+    <!-- Scripts -->
+    <script type="module" src="app.js?v=7"></script>
 </body>
 
 </html>
