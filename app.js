@@ -999,7 +999,13 @@ onAuthStateChanged(auth, user => {
         resetStreakUIOnSignOut();
 
         // Sign in anonymously to enable real stats/presence for guests
-        signInAnonymously(auth).catch(console.error);
+        signInAnonymously(auth).catch(error => {
+            if (error.code === 'auth/admin-restricted-operation') {
+                console.warn('⚠️ Anonymous Auth disabled in Firebase Console. Guest stats will not be accurate.');
+            } else {
+                console.error('Anonymous Auth Error:', error);
+            }
+        });
     }
 
     // Always keep listeners active (public feed)
