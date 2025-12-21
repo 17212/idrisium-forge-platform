@@ -1862,11 +1862,16 @@ function renderCard(idea, index, isBadgeTop = false) {
 
     let lowSignalClass = '';
 
-    // Description truncation
+    // Description - using CSS line-clamp for mobile compatibility
     const rawDesc = idea.description || '';
-    const MAX_DESC_LENGTH = 200;
-    const isLongDesc = rawDesc.length > MAX_DESC_LENGTH;
-    const truncatedDesc = isLongDesc ? rawDesc.substring(0, MAX_DESC_LENGTH) + '...' : rawDesc;
+    const isLongDesc = rawDesc.length > 200;
+
+    const descHtml = `
+        <div id="desc-${idea.id}" class="idea-desc text-sm text-platinum/80 leading-relaxed ${isLongDesc ? 'line-clamp-3' : ''}" data-expanded="false">
+            ${escapeHtml(rawDesc)}
+        </div>
+        ${isLongDesc ? `<button type="button" id="desc-toggle-${idea.id}" class="text-neon text-xs mt-2 hover:underline" onclick="toggleDescription('${idea.id}')">عرض المزيد</button>` : ''}
+    `;
 
     return `
         <div id="idea-${idea.id}" class="idea-card glass-card rounded-2xl p-6${lowSignalClass}" style="animation: fadeIn 0.4s ease forwards; animation-delay: ${index * 0.05}s;">
@@ -1883,11 +1888,7 @@ function renderCard(idea, index, isBadgeTop = false) {
                 </div>
                 <div>
                     <h4 class="font-heading text-lg sm:text-xl font-bold text-starlight mb-2 leading-tight">${escapeHtml(idea.title)}</h4>
-                    <div class="idea-desc text-sm text-platinum/80 leading-relaxed">
-                        <span id="desc-short-${idea.id}">${escapeHtml(truncatedDesc)}</span>
-                        <span id="desc-full-${idea.id}" class="hidden">${escapeHtml(rawDesc)}</span>
-                    </div>
-                    ${isLongDesc ? `<button type="button" id="desc-toggle-${idea.id}" class="text-neon text-xs mt-2 hover:underline" onclick="toggleDescription('${idea.id}')">عرض المزيد</button>` : ''}
+                    ${descHtml}
                 </div>
                 <div class="flex items-center gap-3 text-xs text-platinum flex-wrap">
                     <span><i class="fa-solid fa-user text-neon/60 mr-1"></i>${escapeHtml(idea.author)}</span>
@@ -1899,28 +1900,6 @@ function renderCard(idea, index, isBadgeTop = false) {
 }
 
 function renderCommentsList() { /* comments disabled */ }
-
-window.toggleDescription = function (ideaId) {
-    const shortEl = document.getElementById('desc-short-' + ideaId);
-    const fullEl = document.getElementById('desc-full-' + ideaId);
-    const toggleBtn = document.getElementById('desc-toggle-' + ideaId);
-
-    if (!shortEl || !fullEl || !toggleBtn) return;
-
-    const isExpanded = fullEl.classList.contains('hidden') === false;
-
-    if (isExpanded) {
-        // Collapse
-        shortEl.classList.remove('hidden');
-        fullEl.classList.add('hidden');
-        toggleBtn.textContent = 'عرض المزيد';
-    } else {
-        // Expand
-        shortEl.classList.add('hidden');
-        fullEl.classList.remove('hidden');
-        toggleBtn.textContent = 'عرض أقل';
-    }
-};
 
 window.openComments = function () {
     Swal.fire({ icon: 'info', title: 'Comments disabled', text: 'Commenting is turned off.' });
@@ -1935,13 +1914,27 @@ window.submitComment = function () {
 // ═══════════════════════════════════════════════════════════════════
 // USER & ADMIN IDEA HELPERS
 // ═══════════════════════════════════════════════════════════════════
+window.editIdeaById = async function (ideaId) {
+    // Fetch current data from Firestore to avoid escaping issues
+    try {
+        const ideaDoc = await getDoc(doc(db, 'ideas', ideaId));
+        if (!ideaDoc.exists()) {
+            return Swal.fire({ icon: 'error', title: 'Idea Not Found' });
+        }
+        const data = ideaDoc.data();
+        window.editIdea(ideaId, data.title || '', data.description || '');
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Error', text: e.message });
+    }
+};
+
 window.editIdea = async function (ideaId, currentTitle, currentDesc) {
     const { value: formValues } = await Swal.fire({
         title: 'Edit Your Idea',
         html: `
-            <input id="swal-title" class="swal2-input" placeholder="Title" value="${currentTitle}" maxlength="200">
+        < input id = "swal-title" class="swal2-input" placeholder = "Title" value = "${currentTitle}" maxlength = "200" >
             <textarea id="swal-desc" class="swal2-textarea" placeholder="Description" maxlength="1000">${currentDesc}</textarea>
-        `,
+    `,
         showCancelButton: true,
         confirmButtonText: 'Save Changes',
         cancelButtonText: 'Cancel',
@@ -2021,7 +2014,8 @@ window.exportIdeasCSV = function () {
     const rows = allIdeas.map(idea => {
         const date = idea.timestamp?.toDate?.() ? idea.timestamp.toDate().toISOString() : 'N/A';
         return [
-            `"${(idea.title || '').replace(/"/g, '""')}"`,
+            `"${(idea.title || '').replace(/" / g, '""')
+            } "`,
             `"${(idea.description || '').replace(/"/g, '""')}"`,
             `"${(idea.author || '').replace(/"/g, '""')}"`,
             idea.votes || 0,
