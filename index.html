@@ -1,27 +1,24 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="description"
-        content="IDRISIUM IDEAS - A cinematic hub where the IDRISIUM community drops app ideas and decides what gets built.">
+    <meta name="description" content="أفكار IDRISIUM - منصة لطرح أفكار التطبيقات والتصويت عليها من المجتمع">
     <meta name="author" content="IDRIS GHAMID">
     <meta name="theme-color" content="#000000">
-    <title>IDRISIUM IDEAS | Community App Ideas Hub</title>
+    <title>أفكار IDRISIUM | منصة أفكار المجتمع</title>
     <link rel="icon" type="image/png" href="ideas.png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="forge-utility.css?v=4">
+    <link rel="stylesheet" href="forge-utility.css?v=5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="styles.css?v=5">
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -42,17 +39,11 @@
             <div class="header-top">
                 <div class="header-brand">
                     <div class="header-logo">
-                        <img src="ideas.png" alt="IDRISIUM IDEAS">
+                        <img src="ideas.png" alt="أفكار IDRISIUM">
                     </div>
                     <div class="header-title">
-                        <div class="title-row">
-                            <h1>IDRISIUM IDEAS</h1>
-                            <span class="live-badge">
-                                <span class="live-dot"></span>
-                                LIVE
-                            </span>
-                        </div>
-                        <p class="header-subtitle">The Global Ideas Forge</p>
+                        <h1>أفكار IDRISIUM</h1>
+                        <p class="header-subtitle">منصة أفكار المجتمع</p>
                     </div>
                 </div>
                 <div id="authSection" class="header-auth"></div>
@@ -62,17 +53,17 @@
                 <div class="stat-badge">
                     <i class="fa-solid fa-lightbulb"></i>
                     <span class="stat-value" id="statTotalIdeas">0</span>
-                    <span class="stat-label">Ideas</span>
+                    <span class="stat-label">أفكار</span>
                 </div>
                 <div class="stat-badge">
                     <i class="fa-solid fa-eye"></i>
                     <span class="stat-value" id="statVisitors">0</span>
-                    <span class="stat-label">Views</span>
+                    <span class="stat-label">مشاهدات</span>
                 </div>
                 <div class="stat-badge">
                     <i class="fa-solid fa-fire"></i>
                     <span class="stat-value" id="statTotalVotes">0</span>
-                    <span class="stat-label">Votes</span>
+                    <span class="stat-label">تصويتات</span>
                 </div>
             </div>
         </div>
@@ -85,8 +76,8 @@
             <div class="login-icon">
                 <i class="fa-solid fa-user-lock"></i>
             </div>
-            <h2>Join IDRISIUM IDEAS</h2>
-            <p>Sign in with Google to submit revolutionary ideas and join the IDRISIUM forge.</p>
+            <h2>انضم لـ أفكار IDRISIUM</h2>
+            <p>سجّل دخولك بـ Google لتقدر تشارك أفكارك مع المجتمع.</p>
             <button onclick="signInWithGoogle()" class="google-btn">
                 <svg width="20" height="20" viewBox="0 0 48 48">
                     <path fill="#FFC107"
@@ -98,7 +89,7 @@
                     <path fill="#1976D2"
                         d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
                 </svg>
-                Sign in with Google
+                تسجيل الدخول بـ Google
             </button>
         </section>
 
@@ -106,16 +97,13 @@
         <section id="submitSection" class="glass-card submit-card hidden">
             <div class="submit-header">
                 <div class="submit-title-row">
-                    <div class="submit-icon">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </div>
                     <div>
-                        <h3>Forge Your Idea</h3>
-                        <p>Transform your vision into reality</p>
+                        <h3>شارك فكرتك</h3>
+                        <p>حوّل رؤيتك لحقيقة</p>
                     </div>
                 </div>
                 <div class="submit-quota">
-                    <span class="quota-label">Quota:</span>
+                    <span class="quota-label">الحصة:</span>
                     <span class="quota-value" id="submissionStatusMini">0 / 3</span>
                 </div>
             </div>
@@ -129,17 +117,17 @@
             <div class="wizard-nav">
                 <div class="wizard-step active" data-step="1">
                     <span class="step-num">1</span>
-                    <span class="step-text">Basics</span>
+                    <span class="step-text">الأساسيات</span>
                 </div>
                 <div class="wizard-line"></div>
                 <div class="wizard-step" data-step="2">
                     <span class="step-num">2</span>
-                    <span class="step-text">Details</span>
+                    <span class="step-text">التفاصيل</span>
                 </div>
                 <div class="wizard-line"></div>
                 <div class="wizard-step" data-step="3">
                     <span class="step-num">3</span>
-                    <span class="step-text">Review</span>
+                    <span class="step-text">المراجعة</span>
                 </div>
             </div>
 
@@ -148,12 +136,12 @@
                     <div class="form-group">
                         <label for="ideaTitle">
                             <i class="fa-solid fa-heading"></i>
-                            Idea Title <span class="required">*</span>
+                            عنوان الفكرة <span class="required">*</span>
                         </label>
                         <input type="text" id="ideaTitle" required maxlength="200"
-                            placeholder="E.g., AI-Powered Habit Tracker...">
+                            placeholder="مثال: تطبيق لتتبع العادات بالذكاء الاصطناعي...">
                         <div class="input-hint">
-                            <span>Be specific and catchy</span>
+                            <span>اكتب عنوان واضح وجذاب</span>
                             <span><span id="titleCount">0</span>/200</span>
                         </div>
                     </div>
@@ -161,23 +149,23 @@
                     <div class="form-group">
                         <label for="authorName">
                             <i class="fa-solid fa-user"></i>
-                            Display Name <span class="required">*</span>
+                            اسم العرض <span class="required">*</span>
                         </label>
-                        <input type="text" id="authorName" required maxlength="50" placeholder="Your creative alias...">
+                        <input type="text" id="authorName" required maxlength="50"
+                            placeholder="الاسم اللي هيظهر للناس...">
                         <div class="input-hint">
-                            <span>How you'll appear to others</span>
+                            <span>اكتب اسمك أو لقبك</span>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="ideaNotes">
                             <i class="fa-solid fa-sticky-note"></i>
-                            Additional Notes <span class="optional">(optional)</span>
+                            ملاحظات إضافية <span class="optional">(اختياري)</span>
                         </label>
-                        <input type="text" id="ideaNotes" maxlength="150"
-                            placeholder="Any extra info, category, or tags...">
+                        <input type="text" id="ideaNotes" maxlength="150" placeholder="أي معلومات إضافية أو تصنيف...">
                         <div class="input-hint">
-                            <span>Add any extra context you want</span>
+                            <span>ممكن تضيف أي context إضافي</span>
                             <span><span id="notesCount">0</span>/150</span>
                         </div>
                     </div>
@@ -187,12 +175,12 @@
                     <div class="form-group">
                         <label for="ideaDescription">
                             <i class="fa-solid fa-align-left"></i>
-                            Description <span class="required">*</span>
+                            الوصف <span class="required">*</span>
                         </label>
                         <textarea id="ideaDescription" required rows="6" maxlength="1000"
-                            placeholder="Describe your idea in detail..."></textarea>
+                            placeholder="اوصف فكرتك بالتفصيل...&#10;• إيه المشكلة اللي بتحلها؟&#10;• مين الفئة المستهدفة؟&#10;• إيه اللي بيميزها؟"></textarea>
                         <div class="input-hint">
-                            <span>Be detailed but concise</span>
+                            <span>اكتب وصف مفصل بس مختصر</span>
                             <span><span id="descCount">0</span>/1000</span>
                         </div>
                     </div>
@@ -200,9 +188,9 @@
                     <div id="duplicateSuggestions" class="suggestions-box hidden">
                         <div class="suggestions-header">
                             <i class="fa-solid fa-triangle-exclamation"></i>
-                            <span>Similar Ideas Found</span>
+                            <span>أفكار مشابهة موجودة</span>
                         </div>
-                        <p>Consider refining your idea to stand out:</p>
+                        <p>فكّر في تحسين فكرتك عشان تتميز:</p>
                         <div id="duplicateSuggestionsList"></div>
                     </div>
                 </div>
@@ -211,30 +199,30 @@
                     <div class="preview-header">
                         <i class="fa-solid fa-eye"></i>
                         <div>
-                            <span>Preview Your Idea</span>
-                            <p>Make sure everything looks perfect</p>
+                            <span>معاينة الفكرة</span>
+                            <p>تأكد إن كل حاجة تمام</p>
                         </div>
                     </div>
                     <div id="ideaPreview" class="idea-preview">
-                        <p class="preview-placeholder">Your idea preview will appear here.</p>
+                        <p class="preview-placeholder">معاينة فكرتك هتظهر هنا.</p>
                     </div>
                 </div>
 
                 <div class="form-actions">
                     <button type="button" id="prevStepBtn" onclick="prevIdeaStep()" class="btn-secondary hidden">
-                        <i class="fa-solid fa-arrow-left"></i> Back
+                        <i class="fa-solid fa-arrow-right"></i> رجوع
                     </button>
                     <button type="button" id="nextStepBtn" onclick="nextIdeaStep()" class="btn-primary">
-                        Continue <i class="fa-solid fa-arrow-right"></i>
+                        التالي <i class="fa-solid fa-arrow-left"></i>
                     </button>
                     <button type="submit" id="submitBtn" class="btn-submit hidden">
-                        <i class="fa-solid fa-rocket"></i> Launch Idea
+                        <i class="fa-solid fa-rocket"></i> إرسال الفكرة
                     </button>
                 </div>
             </form>
 
             <span id="submissionStatus" class="hidden"></span>
-            <span id="wizardStepLabel" class="hidden">Step 1 of 3</span>
+            <span id="wizardStepLabel" class="hidden">خطوة 1 من 3</span>
         </section>
 
         <!-- Hidden tabs -->
@@ -273,19 +261,19 @@
             <div class="empty-icon">
                 <i class="fa-solid fa-rocket"></i>
             </div>
-            <h3>The Forge Awaits</h3>
-            <p>No ideas have been submitted yet. Be the pioneer who ignites the first spark!</p>
+            <h3>المنصة مستنياك</h3>
+            <p>مفيش أفكار اتقدمت لسه. كن أول واحد يشارك فكرته!</p>
             <div class="empty-features">
-                <span><i class="fa-solid fa-shield-check"></i> Privacy First</span>
-                <span><i class="fa-solid fa-bolt"></i> Instant Feedback</span>
-                <span><i class="fa-solid fa-users"></i> Community Driven</span>
+                <span><i class="fa-solid fa-shield-check"></i> خصوصية أولاً</span>
+                <span><i class="fa-solid fa-bolt"></i> رد فوري</span>
+                <span><i class="fa-solid fa-users"></i> من المجتمع</span>
             </div>
         </div>
     </main>
 
     <!-- Footer -->
     <footer class="site-footer">
-        <p class="footer-motto">"Mafish 2alb.. Fi bas Talaga"</p>
+        <p class="footer-motto">"مفيش قلب.. في بس تلاجة"</p>
         <div class="footer-social">
             <a href="http://idrisium.linkpc.net/" target="_blank"><i class="fa-solid fa-globe"></i></a>
             <a href="https://github.com/IDRISIUM" target="_blank"><i class="fa-brands fa-github"></i></a>
@@ -294,8 +282,8 @@
             <a href="https://t.me/IDRV72" target="_blank"><i class="fa-brands fa-telegram"></i></a>
         </div>
         <div class="footer-credits">
-            <p>Crafted with <span class="neon">⚡</span> by <span class="neon">IDRIS GHAMID</span></p>
-            <p class="small">Powered by <span class="gradient-text">IDRISIUM Corp</span> • © 2024</p>
+            <p>صُنع بـ <span class="neon">⚡</span> بواسطة <span class="neon">إدريس غامد</span></p>
+            <p class="small">بدعم من <span class="gradient-text">IDRISIUM Corp</span> • © 2024</p>
         </div>
     </footer>
 
@@ -305,19 +293,19 @@
             <button onclick="closeProfile()" class="modal-close"><i class="fa-solid fa-times"></i></button>
             <div class="profile-header">
                 <div class="profile-avatar">
-                    <img id="profileAvatar" src="" alt="Profile">
+                    <img id="profileAvatar" src="" alt="الصورة الشخصية">
                 </div>
-                <h2 id="profileName">User Name</h2>
+                <h2 id="profileName">اسم المستخدم</h2>
                 <p id="profileEmail">user@example.com</p>
             </div>
             <div class="profile-stats">
                 <div class="profile-stat">
                     <span class="stat-number" id="profileIdeaCount">0</span>
-                    <span class="stat-label">Ideas Submitted</span>
+                    <span class="stat-label">أفكار مرسلة</span>
                 </div>
             </div>
             <button onclick="signOutUser(); closeProfile();" class="btn-signout">
-                <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
             </button>
         </div>
     </div>
@@ -332,17 +320,17 @@
                         <span class="online-dot"></span>
                     </div>
                     <div>
-                        <h3 id="chatName">Founder</h3>
-                        <p id="chatStatus">Direct Line</p>
+                        <h3 id="chatName">المؤسس</h3>
+                        <p id="chatStatus">خط مباشر</p>
                     </div>
                 </div>
                 <button onclick="closeChat()" class="modal-close"><i class="fa-solid fa-times"></i></button>
             </div>
             <div id="chatMessages" class="chat-messages">
-                <div class="chat-notice">Encrypted Channel Established</div>
+                <div class="chat-notice">تم إنشاء قناة مشفرة</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="Type your message..." autocomplete="off"
+                <input type="text" id="chatInput" placeholder="اكتب رسالتك..." autocomplete="off"
                     onkeydown="if(event.key === 'Enter') { event.preventDefault(); sendChatMessage(); }">
                 <button onclick="sendChatMessage()" class="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
@@ -353,7 +341,7 @@
     <div id="inboxModal" class="modal-overlay hidden" onclick="if(event.target === this) closeInbox()">
         <div class="modal-card inbox-modal">
             <div class="inbox-header">
-                <h3><i class="fa-solid fa-inbox"></i> Inbox</h3>
+                <h3><i class="fa-solid fa-inbox"></i> صندوق الرسائل</h3>
                 <button onclick="closeInbox()" class="modal-close"><i class="fa-solid fa-times"></i></button>
             </div>
             <div id="inboxList" class="inbox-list"></div>
