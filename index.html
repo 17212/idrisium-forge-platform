@@ -113,86 +113,59 @@
                 </div>
             </div>
 
-            <div class="wizard-nav">
-                <div id="step1Indicator" class="wizard-step active">
-                    <span class="step-num">1</span>
-                    <span class="step-text">الأساسيات</span>
-                </div>
-                <div class="wizard-line"></div>
-                <div id="step2Indicator" class="wizard-step">
-                    <span class="step-num">2</span>
-                    <span class="step-text">التفاصيل</span>
-                </div>
-            </div>
-
             <form id="ideaForm" class="submit-form" onsubmit="submitIdea(event)">
-                <!-- Step 1: Basics -->
-                <div id="wizardStep1" class="form-step">
-                    <div class="form-group">
-                        <label for="ideaTitle">
-                            <i class="fa-solid fa-heading"></i>
-                            عنوان الفكرة <span class="required">*</span>
-                        </label>
-                        <input type="text" id="ideaTitle" placeholder="مثلاً: تطبيق لتنظيم الوقت بطريقة ذكية"
-                            maxlength="100" required>
-                        <div class="input-hint">
-                            <span>خلي العنوان جذاب وقصير</span>
-                            <span><span id="titleCount">0</span>/100</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="authorName">
-                            <i class="fa-solid fa-user-tag"></i>
-                            اسمك المستعار <span class="required">*</span>
-                        </label>
-                        <input type="text" id="authorName" placeholder="اكتب اسمك اللي هيظهر للناس" maxlength="30"
-                            required>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" onclick="nextIdeaStep()" class="btn-submit">
-                            الخطوة التالية
-                            <i class="fa-solid fa-arrow-left"></i>
-                        </button>
+                <div class="form-group">
+                    <label for="ideaTitle">
+                        <i class="fa-solid fa-heading"></i>
+                        عنوان الفكرة <span class="required">*</span>
+                    </label>
+                    <input type="text" id="ideaTitle" placeholder="مثلاً: تطبيق لتنظيم الوقت بطريقة ذكية"
+                        maxlength="100" required>
+                    <div class="input-hint">
+                        <span>خلي العنوان جذاب وقصير</span>
+                        <span><span id="titleCount">0</span>/100</span>
                     </div>
                 </div>
 
-                <!-- Step 2: Details -->
-                <div id="wizardStep2" class="form-step hidden">
-                    <div class="form-group">
-                        <label for="ideaDescription">
-                            <i class="fa-solid fa-align-right"></i>
-                            وصف الفكرة بالتفصيل <span class="required">*</span>
-                        </label>
-                        <textarea id="ideaDescription"
-                            placeholder="اشرح فكرتك بالتفصيل، إيه المشكلة اللي بتحلها؟ وإزاي هتشتغل؟" rows="5"
-                            maxlength="1000" required></textarea>
-                        <div class="input-hint">
-                            <span>استخدم Markdown للتنسيق (اختياري)</span>
-                            <span><span id="descCount">0</span>/1000</span>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="authorName">
+                        <i class="fa-solid fa-user-tag"></i>
+                        اسمك المستعار <span class="required">*</span>
+                    </label>
+                    <input type="text" id="authorName" placeholder="اكتب اسمك اللي هيظهر للناس" maxlength="30" required>
+                </div>
 
-                    <div id="duplicateSuggestions" class="suggestions-box hidden">
-                        <div class="suggestions-header">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            <span>أفكار مشابهة موجودة فعلاً:</span>
-                        </div>
-                        <div id="duplicateSuggestionsList" class="flex flex-col gap-2">
-                            <!-- Suggestions injected by JS -->
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" onclick="prevIdeaStep()" class="btn-secondary">
-                            <i class="fa-solid fa-arrow-right"></i>
-                            رجوع
-                        </button>
-                        <button type="submit" id="submitBtn" class="btn-submit pulse-glow">
-                            <i class="fa-solid fa-bolt"></i>
-                            اصنع الفكرة الآن
-                        </button>
+                <div class="form-group">
+                    <label for="ideaDescription">
+                        <i class="fa-solid fa-align-right"></i>
+                        وصف الفكرة بالتفصيل <span class="required">*</span>
+                    </label>
+                    <textarea id="ideaDescription"
+                        placeholder="اشرح فكرتك بالتفصيل، إيه المشكلة اللي بتحلها؟ وإزاي هتشتغل؟" rows="5"
+                        maxlength="1000" required></textarea>
+                    <div class="input-hint">
+                        <span>استخدم Markdown للتنسيق (اختياري)</span>
+                        <span><span id="descCount">0</span>/1000</span>
                     </div>
                 </div>
+
+                <div id="duplicateSuggestions" class="suggestions-box hidden">
+                    <div class="suggestions-header">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>أفكار مشابهة موجودة فعلاً:</span>
+                    </div>
+                    <div id="duplicateSuggestionsList" class="flex flex-col gap-2">
+                        <!-- Suggestions injected by JS -->
+                    </div>
+                </div>
+
+                <div class="form-actions justify-end">
+                    <button type="submit" id="submitBtn" class="btn-submit pulse-glow w-full sm:w-auto justify-center">
+                        <i class="fa-solid fa-bolt"></i>
+                        اصنع الفكرة الآن
+                    </button>
+                </div>
+            </form>
             </form>
         </section>
 

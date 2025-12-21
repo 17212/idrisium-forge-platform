@@ -162,67 +162,7 @@ if (guidelinesToggle && guidelinesPanel) {
     });
 }
 
-// Idea submission wizard (multi-step)
-let currentIdeaStep = 1;
-const MAX_IDEA_STEP = 3;
-
-window.goToIdeaStep = function (step) {
-    step = parseInt(step);
-    if (isNaN(step) || step < 1 || step > MAX_IDEA_STEP) return;
-    currentIdeaStep = step;
-
-    // Update Indicators
-    for (let i = 1; i <= MAX_IDEA_STEP; i++) {
-        const ind = document.getElementById(`step${i}Indicator`);
-        const content = document.getElementById(`wizardStep${i}`);
-
-        if (ind) {
-            // Remove all classes first
-            ind.classList.remove('active', 'completed');
-
-            // Add appropriate class
-            if (i === step) {
-                ind.classList.add('active');
-            } else if (i < step) {
-                ind.classList.add('completed');
-            }
-        }
-
-        if (content) {
-            if (i === step) {
-                content.classList.remove('hidden');
-                // Re-trigger animation
-                content.style.animation = 'none';
-                content.offsetHeight; /* trigger reflow */
-                content.style.animation = 'fadeIn 0.4s ease forwards';
-            } else {
-                content.classList.add('hidden');
-            }
-        }
-    }
-};
-
-window.nextIdeaStep = function () {
-    if (currentIdeaStep === 1) {
-        const title = document.getElementById('ideaTitle').value.trim();
-        const author = document.getElementById('authorName').value.trim();
-        if (!title || !author) return Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'Please fill in the title and your name.' });
-    } else if (currentIdeaStep === 2) {
-        const desc = document.getElementById('ideaDescription').value.trim();
-        if (!desc) return Swal.fire({ icon: 'warning', title: 'Missing Description', text: 'Please describe your idea.' });
-        updateIdeaPreview(); // Ensure preview is fresh
-    }
-
-    if (currentIdeaStep < MAX_IDEA_STEP) {
-        goToIdeaStep(currentIdeaStep + 1);
-    }
-};
-
-window.prevIdeaStep = function () {
-    if (currentIdeaStep > 1) {
-        goToIdeaStep(currentIdeaStep - 1);
-    }
-};
+// Wizard logic removed
 
 function renderMarkdown(text) {
     const safe = escapeHtml(text || '');
@@ -232,40 +172,6 @@ function renderMarkdown(text) {
     html = html.replace(/\*(.+?)\*/g, '<em>$1<\/em>');
     html = html.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 rounded bg-white\/5 text-[11px]">$1<\/code>');
     html = html.replace(/\n\n+/g, '<\/p><p>');
-    html = html.replace(/\n/g, '<br>');
-
-    return `<p>${html}<\/p>`;
-}
-
-function updateIdeaPreview() {
-    const preview = document.getElementById('ideaPreview');
-    if (!preview) return;
-
-    const titleEl = document.getElementById('ideaTitle');
-    const descEl = document.getElementById('ideaDescription');
-    const authorEl = document.getElementById('authorName');
-
-    const title = (titleEl?.value || '').trim() || 'Your idea title';
-    const desc = (descEl?.value || '').trim() || 'Describe your idea in detail.';
-    const author = (authorEl?.value || '').trim() || 'Anonymous Forger';
-
-    preview.innerHTML = `
-        <div class="flex flex-col gap-2">
-            <div class="flex items-center justify-between gap-3">
-                <h4 class="font-heading text-lg font-bold text-starlight line-clamp-2">${escapeHtml(title)}</h4>
-                <span class="text-[11px] px-2 py-1 rounded-full border border-neon/40 text-neon/90 uppercase tracking-wide">Preview</span>
-            </div>
-            <div class="text-sm text-platinum line-clamp-4 markdown-preview">
-                ${renderMarkdown(desc)}
-            </div>
-            <div class="flex items-center justify-between text-xs text-platinum/70 mt-1">
-                <span><i class="fa-solid fa-user text-neon/70 mr-1"></i>${escapeHtml(author)}</span>
-                <span><i class="fa-solid fa-fire-flame-curved text-neon mr-1"></i>Potential karma magnet</span>
-            </div>
-        </div>
-    `;
-
-    updateDuplicateSuggestions(title, desc);
 }
 
 function updateDuplicateSuggestions(title, desc) {
@@ -1838,11 +1744,6 @@ window.submitIdea = async function (event) {
         if (titleCountEl) titleCountEl.textContent = '0';
         if (descCountEl) descCountEl.textContent = '0';
 
-        // Reset wizard to first step
-        currentIdeaStep = 1;
-        if (typeof goToIdeaStep === 'function') {
-            goToIdeaStep(1);
-        }
 
         // Update UI based on remaining
         updateSubmissionUI();
