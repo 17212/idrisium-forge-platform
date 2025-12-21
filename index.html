@@ -123,11 +123,6 @@
                     <span class="step-num">2</span>
                     <span class="step-text">التفاصيل</span>
                 </div>
-                <div class="wizard-line"></div>
-                <div id="step3Indicator" class="wizard-step">
-                    <span class="step-num">3</span>
-                    <span class="step-text">المراجعة</span>
-                </div>
             </div>
 
             <form id="ideaForm" class="submit-form" onsubmit="submitIdea(event)">
@@ -191,32 +186,6 @@
                         <button type="button" onclick="prevIdeaStep()" class="btn-secondary">
                             <i class="fa-solid fa-arrow-right"></i>
                             رجوع
-                        </button>
-                        <button type="button" onclick="nextIdeaStep()" class="btn-submit">
-                            الخطوة التالية
-                            <i class="fa-solid fa-arrow-left"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Step 3: Review -->
-                <div id="wizardStep3" class="form-step hidden">
-                    <div class="preview-header">
-                        <i class="fa-solid fa-eye"></i>
-                        <div>
-                            <span>مراجعة الفكرة</span>
-                            <p>ده الشكل اللي هيظهر للناس</p>
-                        </div>
-                    </div>
-
-                    <div id="ideaPreview" class="idea-preview">
-                        <!-- Preview injected by JS -->
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" onclick="prevIdeaStep()" class="btn-secondary">
-                            <i class="fa-solid fa-arrow-right"></i>
-                            تعديل
                         </button>
                         <button type="submit" id="submitBtn" class="btn-submit pulse-glow">
                             <i class="fa-solid fa-bolt"></i>
