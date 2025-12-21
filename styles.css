@@ -611,6 +611,21 @@ body::before {
     margin-top: 8px;
 }
 
+@media (max-width: 640px) {
+    .footer-lift {
+        transform: translateY(-20px);
+    }
+    .footer-social {
+        gap: 8px;
+    }
+    .footer-tagline {
+        margin-top: 4px;
+    }
+    .footer-credits {
+        margin-top: 6px;
+    }
+}
+
 .idea-keyboard-focus {
     outline: 2px solid #39FF14;
     box-shadow: 0 0 28px rgba(57, 255, 20, 0.6);
