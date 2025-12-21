@@ -119,44 +119,80 @@
 
         <!-- Submit Form -->
         <section id="submitSection" class="glass-card rounded-3xl p-8 mb-10 hidden">
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex flex-wrap items-start justify-between mb-6 gap-4">
                 <div class="flex items-center gap-3">
-                    <h3 class="font-heading text-xl font-bold text-starlight flex items-center gap-3">
-                        <i class="fa-solid fa-wand-magic-sparkles text-neon"></i> Forge Your Idea
-                    </h3>
-                    <span class="text-[11px] px-3 py-1 rounded-full bg-neon/10 text-neon border border-neon/30">حد أقصى 3 أفكار</span>
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-neon to-aurora flex items-center justify-center shadow-[0_0_30px_rgba(57,255,20,0.35)]">
+                        <i class="fa-solid fa-wand-magic-sparkles text-black text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-heading text-xl font-bold text-starlight flex items-center gap-2">
+                            Forge Your Idea
+                        </h3>
+                        <p class="text-xs text-platinum/70">صِغ فكرتك بوضوح، ودعنا ننفذ أول نسخة بأسرع ما يمكن.</p>
+                    </div>
                 </div>
                 <div class="flex flex-col items-end gap-1 text-xs text-platinum text-right">
-                    <span id="wizardStepLabel">Step 1 of 3 · Basics</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] px-3 py-1 rounded-full bg-neon/10 text-neon border border-neon/30">حد أقصى 3 أفكار</span>
+                        <span class="text-[11px] px-3 py-1 rounded-full bg-white/5 text-platinum border border-white/10" id="wizardStepLabel">Step 1 of 3 · Basics</span>
+                    </div>
                     <span id="submissionStatus"></span>
                 </div>
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/40">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/50">
                     <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-bolt"></i> تلميحات سريعة</p>
-                    <ul class="text-[12px] text-platinum/80 space-y-1 list-disc list-inside">
+                    <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside">
                         <li>عرّف المشكلة وجمهورك بوضوح.</li>
                         <li>اذكر أهم ميزة أو تفصيلة تميّز الفكرة.</li>
                         <li>فكّر في أول نسخة يمكن تنفيذها سريعاً.</li>
                     </ul>
                 </div>
-                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/40">
+                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/50">
+                    <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-cube"></i> هيكل الفكرة</p>
+                    <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside">
+                        <li>المشكلة ⟷ الحل ⟷ الأثر.</li>
+                        <li>ما أول تجربة يمكن بناؤها خلال يومين؟</li>
+                        <li>ما أهم مؤشر نجاح ستتابعه؟</li>
+                    </ul>
+                </div>
+                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/50">
                     <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> تحقق سريع</p>
-                    <ul class="text-[12px] text-platinum/80 space-y-1 list-disc list-inside">
+                    <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside">
                         <li>عنوان واضح (≤ 200 حرف).</li>
                         <li>وصف موجز ومباشر.</li>
                         <li>احترام السياسات (بدون بيانات حساسة).</li>
                     </ul>
                 </div>
-                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/40">
-                    <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-gauge-high"></i> جاهزية الإرسال</p>
-                    <div class="flex items-center justify-between text-[12px] text-platinum/80 mb-2">
-                        <span>عدد أفكارك الحالية</span>
-                        <span id="submissionStatusMini" class="text-neon font-semibold">0 / 3</span>
-                    </div>
-                    <p class="text-[11px] text-platinum/60">عند الوصول للحد الأقصى لن يمكنك الإرسال حتى تحذف فكرة أو ينتهي الحد.</p>
+                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/50">
+                    <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-shield-check"></i> معايير القبول</p>
+                    <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside">
+                        <li>لا بيانات شخصية أو حساسة.</li>
+                        <li>لا روابط خطرة أو سبام.</li>
+                        <li>استخدام لغة محترمة وتركيز على القيمة.</li>
+                    </ul>
                 </div>
             </div>
+
+            <div class="glass-card rounded-2xl p-4 border border-neon/20 bg-black/60 mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+                    <div>
+                        <p class="text-xs text-neon font-semibold mb-1 flex items-center gap-2"><i class="fa-solid fa-gauge-high"></i> جاهزية الإرسال</p>
+                        <p class="text-[12px] text-platinum/70">عند الوصول للحد الأقصى لن يمكنك الإرسال حتى تحذف فكرة أو ينتهي الحد.</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-[12px] text-platinum">
+                        <div class="px-3 py-1 rounded-full bg-white/5 border border-white/10 flex items-center gap-2">
+                            <span class="text-platinum/70">أفكارك الحالية</span>
+                            <span id="submissionStatusMini" class="text-neon font-semibold">0 / 3</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-rail">
+                    <div id="submissionProgressBar" class="progress-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+
             <form id="ideaForm" onsubmit="submitIdea(event)" class="space-y-5">
                 <div id="wizardStep1" class="space-y-5">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">

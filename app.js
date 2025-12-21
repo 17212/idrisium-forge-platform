@@ -992,20 +992,27 @@ function updateAuthUI(user) {
 
         authSection.innerHTML = `
             <div class="flex items-center gap-3">
-                <img src="${user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'U') + '&background=39FF14&color=000'}" 
-                     alt="Avatar" class="user-avatar cursor-pointer hover:scale-110 transition-transform" onclick="window.openProfile()" 
-                     onerror="this.src='https://ui-avatars.com/api/?name=U&background=39FF14&color=000'">
-                <button onclick="window.openProfile()" class="sm:hidden px-3 py-2 rounded-xl bg-white/5 text-xs text-platinum hover:bg-white/10 transition-colors">Profile</button>
+                <button aria-label="Open profile" onclick="window.openProfile()" class="p-0.5 rounded-full border border-neon/40 hover:border-neon transition-all hover:scale-105">
+                    <img src="${user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'U') + '&background=39FF14&color=000'}" 
+                         alt="Avatar" class="user-avatar cursor-pointer" 
+                         onerror="this.src='https://ui-avatars.com/api/?name=U&background=39FF14&color=000'">
+                </button>
                 <div class="hidden sm:block">
                     <p class="text-sm font-semibold text-starlight flex items-center gap-2">
                         ${escapeHtml(user.displayName || 'Forger')} 
                         ${adminBadge}
                     </p>
                     <div class="flex items-center gap-2 text-xs text-platinum">
-                        <button onclick="window.openProfile()" class="hover:text-neon transition-colors">Profile</button>
-                        <button onclick="signOutUser()" class="hover:text-white transition-colors">Sign Out</button>
+                        <button onclick="signOutUser()" class="hover:text-white transition-colors flex items-center gap-1">
+                            <i class="fa-solid fa-right-from-bracket text-[11px]"></i>
+                            <span>Sign Out</span>
+                        </button>
                     </div>
                 </div>
+                <button onclick="signOutUser()" class="sm:hidden px-3 py-2 rounded-xl bg-white/5 text-xs text-platinum hover:bg-white/10 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket text-[11px]"></i>
+                    <span>Sign Out</span>
+                </button>
             </div>
         `;
     } else {
@@ -1045,9 +1052,12 @@ async function checkUserSubmission(uid) {
 function updateSubmissionUI() {
     const statusEl = document.getElementById('submissionStatus');
     const statusMiniEl = document.getElementById('submissionStatusMini');
+    const progressBarEl = document.getElementById('submissionProgressBar');
     if (!statusEl || !submitBtn) return;
 
     const remaining = Math.max(0, MAX_IDEAS_PER_USER - userSubmissionCount);
+    const clampedCount = Math.min(userSubmissionCount, MAX_IDEAS_PER_USER);
+    const progress = Math.min(100, Math.round((clampedCount / MAX_IDEAS_PER_USER) * 100));
 
     if (!canSubmit || remaining <= 0) {
         statusEl.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-circle-info mr-1"></i>Reached limit: ${MAX_IDEAS_PER_USER} ideas</span>`;
@@ -1059,6 +1069,11 @@ function updateSubmissionUI() {
         if (statusMiniEl) statusMiniEl.textContent = `${userSubmissionCount} / ${MAX_IDEAS_PER_USER}`;
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Submit to the Forge';
+    }
+
+    if (progressBarEl) {
+        progressBarEl.style.width = `${progress}%`;
+        progressBarEl.ariaValueNow = progress;
     }
 }
 
