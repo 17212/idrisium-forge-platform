@@ -102,6 +102,8 @@ const ideaTitleInput = document.getElementById('ideaTitle');
 const ideaDescInput = document.getElementById('ideaDescription');
 const titleCountEl = document.getElementById('titleCount');
 const descCountEl = document.getElementById('descCount');
+const guidelinesToggle = document.getElementById('guidelinesToggle');
+const guidelinesPanel = document.getElementById('guidelinesPanel');
 
 if (ideaTitleInput && titleCountEl) {
     ideaTitleInput.addEventListener('input', e => {
@@ -114,6 +116,17 @@ if (ideaDescInput && descCountEl) {
     ideaDescInput.addEventListener('input', e => {
         descCountEl.textContent = e.target.value.length;
         updateIdeaPreview();
+    });
+}
+
+if (guidelinesToggle && guidelinesPanel) {
+    guidelinesToggle.addEventListener('click', () => {
+        const isHidden = guidelinesPanel.classList.contains('hidden');
+        guidelinesPanel.classList.toggle('hidden');
+        const label = guidelinesToggle.querySelector('span');
+        if (label) {
+            label.textContent = isHidden ? 'Hide Guidelines' : 'Show Guidelines';
+        }
     });
 }
 

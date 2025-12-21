@@ -140,126 +140,138 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/50">
-                    <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-bolt"></i> تلميحات سريعة</p>
-                    <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside">
-                        <li>عرّف المشكلة وجمهورك بوضوح.</li>
-                        <li>اذكر أهم ميزة أو تفصيلة تميّز الفكرة.</li>
-                        <li>فكّر في أول نسخة يمكن تنفيذها سريعاً.</li>
-                    </ul>
-                </div>
-                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/50">
-                    <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-cube"></i> هيكل الفكرة</p>
-                    <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside">
-                        <li>المشكلة ⟷ الحل ⟷ الأثر.</li>
-                        <li>ما أول تجربة يمكن بناؤها خلال يومين؟</li>
-                        <li>ما أهم مؤشر نجاح ستتابعه؟</li>
-                    </ul>
-                </div>
-                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/50">
-                    <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> تحقق سريع</p>
-                    <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside">
-                        <li>عنوان واضح (≤ 200 حرف).</li>
-                        <li>وصف موجز ومباشر.</li>
-                        <li>احترام السياسات (بدون بيانات حساسة).</li>
-                    </ul>
-                </div>
-                <div class="glass-card rounded-2xl p-4 border border-neon/15 bg-black/50">
-                    <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2"><i class="fa-solid fa-shield-check"></i> معايير القبول</p>
-                    <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside">
-                        <li>لا بيانات شخصية أو حساسة.</li>
-                        <li>لا روابط خطرة أو سبام.</li>
-                        <li>استخدام لغة محترمة وتركيز على القيمة.</li>
-                    </ul>
-                </div>
+            <div class="flex sm:hidden justify-end mb-3">
+                <button id="guidelinesToggle" type="button"
+                    class="px-4 py-2 rounded-xl bg-neon/10 text-neon border border-neon/40 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-[12px]"></i>
+                    <span>Show Guidelines</span>
+                </button>
             </div>
 
-            <div class="glass-card rounded-2xl p-4 border border-neon/20 bg-black/60 mb-6">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
-                    <div>
-                        <p class="text-xs text-neon font-semibold mb-1 flex items-center gap-2"><i class="fa-solid fa-gauge-high"></i> جاهزية الإرسال</p>
-                        <p class="text-[12px] text-platinum/70">عند الوصول للحد الأقصى لن يمكنك الإرسال حتى تحذف فكرة أو ينتهي الحد.</p>
+            <div class="flex flex-col-reverse md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div id="guidelinesPanel" class="hidden sm:grid grid-cols-1 gap-3 lg:col-span-1">
+                    <div class="glass-card rounded-2xl p-6 border border-neon/15 bg-black/50" dir="auto">
+                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i class="fa-solid fa-bolt"></i> تلميحات سريعة</p>
+                        <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside text-right">
+                            <li>عرّف المشكلة وجمهورك بوضوح.</li>
+                            <li>اذكر أهم ميزة أو تفصيلة تميّز الفكرة.</li>
+                            <li>فكّر في أول نسخة يمكن تنفيذها سريعاً.</li>
+                        </ul>
                     </div>
-                    <div class="flex items-center gap-3 text-[12px] text-platinum">
-                        <div class="px-3 py-1 rounded-full bg-white/5 border border-white/10 flex items-center gap-2">
-                            <span class="text-platinum/70">أفكارك الحالية</span>
-                            <span id="submissionStatusMini" class="text-neon font-semibold">0 / 3</span>
-                        </div>
+                    <div class="glass-card rounded-2xl p-6 border border-neon/15 bg-black/50" dir="auto">
+                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i class="fa-solid fa-cube"></i> هيكل الفكرة</p>
+                        <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside text-right">
+                            <li>المشكلة ⟷ الحل ⟷ الأثر.</li>
+                            <li>ما أول تجربة يمكن بناؤها خلال يومين؟</li>
+                            <li>ما أهم مؤشر نجاح ستتابعه؟</li>
+                        </ul>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 border border-neon/15 bg-black/50" dir="auto">
+                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i class="fa-solid fa-list-check"></i> تحقق سريع</p>
+                        <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside text-right">
+                            <li>عنوان واضح (≤ 200 حرف).</li>
+                            <li>وصف موجز ومباشر.</li>
+                            <li>احترام السياسات (بدون بيانات حساسة).</li>
+                        </ul>
+                    </div>
+                    <div class="glass-card rounded-2xl p-6 border border-neon/15 bg-black/50" dir="auto">
+                        <p class="text-xs text-neon font-semibold mb-2 flex items-center gap-2 text-right"><i class="fa-solid fa-shield-check"></i> معايير القبول</p>
+                        <ul class="text-[12px] text-platinum/80 space-y-1.5 list-disc list-inside text-right">
+                            <li>لا بيانات شخصية أو حساسة.</li>
+                            <li>لا روابط خطرة أو سبام.</li>
+                            <li>استخدام لغة محترمة وتركيز على القيمة.</li>
+                        </ul>
                     </div>
                 </div>
-                <div class="progress-rail">
-                    <div id="submissionProgressBar" class="progress-fill" style="width: 0%;"></div>
-                </div>
-            </div>
 
-            <form id="ideaForm" onsubmit="submitIdea(event)" class="space-y-5">
-                <div id="wizardStep1" class="space-y-5">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-sm text-platinum mb-2">Idea Title <span
-                                    class="text-neon">*</span></label>
-                            <input type="text" id="ideaTitle" required maxlength="200"
-                                placeholder="Your revolutionary idea..."
-                                class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body">
-                            <p class="text-xs text-platinum mt-1 text-right"><span id="titleCount">0</span>/200</p>
+                <div class="space-y-4 md:col-span-2 lg:col-span-2">
+                    <div class="glass-card rounded-2xl p-6 border border-neon/20 bg-black/60">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+                            <div>
+                                <p class="text-xs text-neon font-semibold mb-1 flex items-center gap-2"><i class="fa-solid fa-gauge-high"></i> جاهزية الإرسال</p>
+                                <p class="text-[12px] text-platinum/70">عند الوصول للحد الأقصى لن يمكنك الإرسال حتى تحذف فكرة أو ينتهي الحد.</p>
+                            </div>
+                            <div class="flex items-center gap-3 text-[12px] text-platinum">
+                                <div class="px-3 py-1 rounded-full bg-white/5 border border-white/10 flex items-center gap-2">
+                                    <span class="text-platinum/70">أفكارك الحالية</span>
+                                    <span id="submissionStatusMini" class="text-neon font-semibold">0 / 3</span>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm text-platinum mb-2">Your Display Name <span
-                                    class="text-neon">*</span></label>
-                            <input type="text" id="authorName" required maxlength="50" placeholder="Anonymous Forger"
-                                class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body">
+                        <div class="progress-rail">
+                            <div id="submissionProgressBar" class="progress-fill" style="width: 0%;"></div>
                         </div>
                     </div>
-                </div>
-                <div id="wizardStep2" class="space-y-3 hidden">
-                    <div>
-                        <label class="block text-sm text-platinum mb-2">Description <span class="text-neon">*</span></label>
-                        <textarea id="ideaDescription" required rows="4" maxlength="1000"
-                            placeholder="Describe your idea in detail. What problem does it solve? Who is it for?"
-                            class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body resize-none"></textarea>
-                        <p class="text-xs text-platinum mt-1 text-right"><span id="descCount">0</span>/1000</p>
-                    </div>
-                    <p class="text-xs text-platinum/70">
-                        Use this space to describe the problem, your proposed solution, and the impact if it succeeds.
-                    </p>
-                    <div id="duplicateSuggestions" class="mt-3 hidden">
-                        <div class="glass-card rounded-2xl p-3 border border-neon/20 bg-black/40">
-                            <p class="text-[11px] text-platinum/70 mb-2">
-                                We found ideas that may be similar to what you are writing. Consider reading them to avoid duplicates or to refine your angle.
+
+                    <form id="ideaForm" onsubmit="submitIdea(event)" class="space-y-5">
+                        <div id="wizardStep1" class="space-y-5">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-sm text-platinum mb-2">Idea Title <span
+                                            class="text-neon">*</span></label>
+                                    <input type="text" id="ideaTitle" required maxlength="200"
+                                        placeholder="Your revolutionary idea..."
+                                        class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body">
+                                    <p class="text-xs text-platinum mt-1 text-right"><span id="titleCount">0</span>/200</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-platinum mb-2">Your Display Name <span
+                                            class="text-neon">*</span></label>
+                                    <input type="text" id="authorName" required maxlength="50" placeholder="Anonymous Forger"
+                                        class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="wizardStep2" class="space-y-3 hidden">
+                            <div>
+                                <label class="block text-sm text-platinum mb-2">Description <span class="text-neon">*</span></label>
+                                <textarea id="ideaDescription" required rows="4" maxlength="1000"
+                                    placeholder="Describe your idea in detail. What problem does it solve? Who is it for?"
+                                    class="neon-input w-full px-5 py-4 rounded-xl text-starlight placeholder-platinum/50 font-body resize-none"></textarea>
+                                <p class="text-xs text-platinum mt-1 text-right"><span id="descCount">0</span>/1000</p>
+                            </div>
+                            <p class="text-xs text-platinum/70">
+                                Use this space to describe the problem, your proposed solution, and the impact if it succeeds.
                             </p>
-                            <div id="duplicateSuggestionsList" class="space-y-2 text-xs"></div>
+                            <div id="duplicateSuggestions" class="mt-3 hidden">
+                                <div class="glass-card rounded-2xl p-3 border border-neon/20 bg-black/40">
+                                    <p class="text-[11px] text-platinum/70 mb-2">
+                                        We found ideas that may be similar to what you are writing. Consider reading them to avoid duplicates or to refine your angle.
+                                    </p>
+                                    <div id="duplicateSuggestionsList" class="space-y-2 text-xs"></div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div id="wizardStep3" class="space-y-3 hidden">
+                            <p class="text-sm text-platinum/80">
+                                Review your idea preview below. Make sure the title, description, and impact are clear before you submit.
+                            </p>
+                            <div id="ideaPreview" class="glass-card rounded-2xl p-5 border border-neon/20 bg-black/40">
+                                <p class="text-xs text-platinum/60">Your idea preview will appear here.</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-4 border-t border-white/5">
+                            <div class="flex items-center gap-3">
+                                <button type="button" id="prevStepBtn" onclick="prevIdeaStep()"
+                                    class="px-5 py-3 rounded-xl bg-white/5 text-platinum hover:bg-white/10 transition-all text-sm hidden">
+                                    <i class="fa-solid fa-arrow-left mr-2"></i>
+                                    Previous
+                                </button>
+                                <button type="button" id="nextStepBtn" onclick="nextIdeaStep()"
+                                    class="px-5 py-3 rounded-xl bg-neon/10 text-neon hover:bg-neon/20 transition-all text-sm flex items-center gap-2">
+                                    <span>Next</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                            <button type="submit" id="submitBtn"
+                                class="neon-btn px-8 py-3 rounded-xl font-heading text-base flex items-center justify-center gap-3 w-full md:w-auto hidden">
+                                <i class="fa-solid fa-bolt"></i>
+                                <span>Submit to the Forge</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div id="wizardStep3" class="space-y-3 hidden">
-                    <p class="text-sm text-platinum/80">
-                        Review your idea preview below. Make sure the title, description, and impact are clear before you submit.
-                    </p>
-                    <div id="ideaPreview" class="glass-card rounded-2xl p-5 border border-neon/20 bg-black/40">
-                        <p class="text-xs text-platinum/60">Your idea preview will appear here.</p>
-                    </div>
-                </div>
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-4 border-t border-white/5">
-                    <div class="flex items-center gap-3">
-                        <button type="button" id="prevStepBtn" onclick="prevIdeaStep()"
-                            class="px-5 py-3 rounded-xl bg-white/5 text-platinum hover:bg-white/10 transition-all text-sm hidden">
-                            <i class="fa-solid fa-arrow-left mr-2"></i>
-                            Previous
-                        </button>
-                        <button type="button" id="nextStepBtn" onclick="nextIdeaStep()"
-                            class="px-5 py-3 rounded-xl bg-neon/10 text-neon hover:bg-neon/20 transition-all text-sm flex items-center gap-2">
-                            <span>Next</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                    <button type="submit" id="submitBtn"
-                        class="neon-btn px-8 py-3 rounded-xl font-heading text-base flex items-center justify-center gap-3 w-full md:w-auto hidden">
-                        <i class="fa-solid fa-bolt"></i>
-                        <span>Submit to the Forge</span>
-                    </button>
-                </div>
-            </form>
+            </div>
         </section>
 
         <!-- Ideas Feed: Top -->
