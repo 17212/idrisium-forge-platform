@@ -991,17 +991,16 @@ onAuthStateChanged(auth, user => {
     if (user) {
         checkUserSubmission(user.uid);
         updateStreakUI();
-        // Restart listeners if they were cleaned up
-        if (!unsubTop) initListeners();
     } else {
         // RESET STATE ON LOGOUT
         userSubmissionCount = 0;
         canSubmit = true;
         updateSubmissionUI();
         resetStreakUIOnSignOut();
-        // Listeners are cleaned up in signOutUser, but if session expired:
-        cleanupListeners();
     }
+
+    // Always keep listeners active (public feed)
+    if (!unsubTop) initListeners();
 });
 
 function updateAuthUI(user) {

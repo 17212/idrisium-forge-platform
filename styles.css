@@ -1556,3 +1556,4 @@ body {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
 }
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
